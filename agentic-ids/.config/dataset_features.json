@@ -1,0 +1,300 @@
+{
+    "dataset": "UNSW-NB15",
+    "description": "Feature metadata for network intrusion detection",
+    "features": [
+        {
+            "index": 1,
+            "name": "srcip",
+            "type": "nominal",
+            "description": "Source IP address"
+        },
+        {
+            "index": 2,
+            "name": "sport",
+            "type": "integer",
+            "description": "Source port number"
+        },
+        {
+            "index": 3,
+            "name": "dstip",
+            "type": "nominal",
+            "description": "Destination IP address"
+        },
+        {
+            "index": 4,
+            "name": "dsport",
+            "type": "integer",
+            "description": "Destination port number"
+        },
+        {
+            "index": 5,
+            "name": "proto",
+            "type": "nominal",
+            "description": "Transaction protocol"
+        },
+        {
+            "index": 6,
+            "name": "state",
+            "type": "nominal",
+            "description": "Connection state (ACC, CLO, CON, ECO, ECR, FIN, INT, MAS, PAR, REQ, RST, TST, TXD, URH, URN, -)"
+        },
+        {
+            "index": 7,
+            "name": "dur",
+            "type": "float",
+            "description": "Record total duration"
+        },
+        {
+            "index": 8,
+            "name": "sbytes",
+            "type": "integer",
+            "description": "Source to destination transaction bytes"
+        },
+        {
+            "index": 9,
+            "name": "dbytes",
+            "type": "integer",
+            "description": "Destination to source transaction bytes"
+        },
+        {
+            "index": 10,
+            "name": "sttl",
+            "type": "integer",
+            "description": "Source to destination time-to-live value"
+        },
+        {
+            "index": 11,
+            "name": "dttl",
+            "type": "integer",
+            "description": "Destination to source time-to-live value"
+        },
+        {
+            "index": 12,
+            "name": "sloss",
+            "type": "integer",
+            "description": "Source packets retransmitted or dropped"
+        },
+        {
+            "index": 13,
+            "name": "dloss",
+            "type": "integer",
+            "description": "Destination packets retransmitted or dropped"
+        },
+        {
+            "index": 14,
+            "name": "service",
+            "type": "nominal",
+            "description": "Application service (http, ftp, smtp, ssh, dns, ftp-data, irc, -)"
+        },
+        {
+            "index": 15,
+            "name": "Sload",
+            "type": "float",
+            "description": "Source bits per second"
+        },
+        {
+            "index": 16,
+            "name": "Dload",
+            "type": "float",
+            "description": "Destination bits per second"
+        },
+        {
+            "index": 17,
+            "name": "Spkts",
+            "type": "integer",
+            "description": "Source to destination packet count"
+        },
+        {
+            "index": 18,
+            "name": "Dpkts",
+            "type": "integer",
+            "description": "Destination to source packet count"
+        },
+        {
+            "index": 19,
+            "name": "swin",
+            "type": "integer",
+            "description": "Source TCP window advertisement value"
+        },
+        {
+            "index": 20,
+            "name": "dwin",
+            "type": "integer",
+            "description": "Destination TCP window advertisement value"
+        },
+        {
+            "index": 21,
+            "name": "stcpb",
+            "type": "integer",
+            "description": "Source TCP base sequence number"
+        },
+        {
+            "index": 22,
+            "name": "dtcpb",
+            "type": "integer",
+            "description": "Destination TCP base sequence number"
+        },
+        {
+            "index": 23,
+            "name": "smeansz",
+            "type": "integer",
+            "description": "Mean flow packet size transmitted by the source"
+        },
+        {
+            "index": 24,
+            "name": "dmeansz",
+            "type": "integer",
+            "description": "Mean flow packet size transmitted by the destination"
+        },
+        {
+            "index": 25,
+            "name": "trans_depth",
+            "type": "integer",
+            "description": "HTTP pipelined transaction depth"
+        },
+        {
+            "index": 26,
+            "name": "res_bdy_len",
+            "type": "integer",
+            "description": "Uncompressed HTTP response body size"
+        },
+        {
+            "index": 27,
+            "name": "Sjit",
+            "type": "float",
+            "description": "Source jitter (milliseconds)"
+        },
+        {
+            "index": 28,
+            "name": "Djit",
+            "type": "float",
+            "description": "Destination jitter (milliseconds)"
+        },
+        {
+            "index": 29,
+            "name": "Stime",
+            "type": "timestamp",
+            "description": "Record start time"
+        },
+        {
+            "index": 30,
+            "name": "Ltime",
+            "type": "timestamp",
+            "description": "Record end time"
+        },
+        {
+            "index": 31,
+            "name": "Sintpkt",
+            "type": "float",
+            "description": "Source inter-packet arrival time (milliseconds)"
+        },
+        {
+            "index": 32,
+            "name": "Dintpkt",
+            "type": "float",
+            "description": "Destination inter-packet arrival time (milliseconds)"
+        },
+        {
+            "index": 33,
+            "name": "tcprtt",
+            "type": "float",
+            "description": "TCP round-trip time (synack + ackdat)"
+        },
+        {
+            "index": 34,
+            "name": "synack",
+            "type": "float",
+            "description": "Time between SYN and SYN_ACK packets"
+        },
+        {
+            "index": 35,
+            "name": "ackdat",
+            "type": "float",
+            "description": "Time between SYN_ACK and ACK packets"
+        },
+        {
+            "index": 36,
+            "name": "is_sm_ips_ports",
+            "type": "binary",
+            "description": "1 if source/destination IPs and ports are equal, else 0"
+        },
+        {
+            "index": 37,
+            "name": "ct_state_ttl",
+            "type": "integer",
+            "description": "Count of connections per state and TTL range"
+        },
+        {
+            "index": 38,
+            "name": "ct_flw_http_mthd",
+            "type": "integer",
+            "description": "Number of HTTP flows using methods such as GET or POST"
+        },
+        {
+            "index": 39,
+            "name": "is_ftp_login",
+            "type": "binary",
+            "description": "1 if FTP login with user/password occurred, else 0"
+        },
+        {
+            "index": 40,
+            "name": "ct_ftp_cmd",
+            "type": "integer",
+            "description": "Number of FTP commands in the session"
+        },
+        {
+            "index": 41,
+            "name": "ct_srv_src",
+            "type": "integer",
+            "description": "Connections with same service and source address in last 100 connections"
+        },
+        {
+            "index": 42,
+            "name": "ct_srv_dst",
+            "type": "integer",
+            "description": "Connections with same service and destination address in last 100 connections"
+        },
+        {
+            "index": 43,
+            "name": "ct_dst_ltm",
+            "type": "integer",
+            "description": "Connections with same destination address in last 100 connections"
+        },
+        {
+            "index": 44,
+            "name": "ct_src_ltm",
+            "type": "integer",
+            "description": "Connections with same source address in last 100 connections"
+        },
+        {
+            "index": 45,
+            "name": "ct_src_dport_ltm",
+            "type": "integer",
+            "description": "Connections with same source address and destination port in last 100 connections"
+        },
+        {
+            "index": 46,
+            "name": "ct_dst_sport_ltm",
+            "type": "integer",
+            "description": "Connections with same destination address and source port in last 100 connections"
+        },
+        {
+            "index": 47,
+            "name": "ct_dst_src_ltm",
+            "type": "integer",
+            "description": "Connections with same source and destination address in last 100 connections"
+        },
+        {
+            "index": 48,
+            "name": "attack_cat",
+            "type": "nominal",
+            "description": "Attack category (Fuzzers, Analysis, Backdoors, DoS, Exploits, Generic, Reconnaissance, Shellcode, Worms)"
+        },
+        {
+            "index": 49,
+            "name": "Label",
+            "type": "binary",
+            "description": "0 for normal traffic, 1 for attack"
+        }
+    ]
+}

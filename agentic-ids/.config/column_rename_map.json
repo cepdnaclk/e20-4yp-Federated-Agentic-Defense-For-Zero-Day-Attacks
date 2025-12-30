@@ -1,0 +1,14 @@
+{
+  "Spkts": "spkts",
+  "Dpkts": "dpkts",
+  "Sload": "sload",
+  "Dload": "dload",
+  "Sjit": "sjit",
+  "Djit": "djit",
+  "Sintpkt": "sinpkt",
+  "Dintpkt": "dinpkt",
+  "smeansz": "smean",
+  "dmeansz": "dmean",
+  "res_bdy_len": "response_body_len",
+  "Label": "label"
+}
