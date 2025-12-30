@@ -3,8 +3,8 @@ layout: home
 permalink: index.html
 
 # Please update this with your repository name and title
-repository-name: eYY-4yp-project-template
-title:
+repository-name: e20-4yp-Federated-Agentic-Defense-For-Zero-Day-Attacks
+title: Federated Agentic Defense For Zero Day Attacks
 ---
 
 [comment]: # "This is the standard layout for the project, but you can clean this and use your own template"
@@ -13,14 +13,14 @@ title:
 
 #### Team
 
-- eNumber, Name, [email](mailto:name@email.com)
-- eNumber, Name, [email](mailto:name@email.com)
-- eNumber, Name, [email](mailto:name@email.com)
+- e20168, Jayasinghe B.V.R.R, [email](e20168@eng.pdn.ac.lk)
+- e20272, Niroshan B.G.L, [email](e20168@eng.pdn.ac.lk)
+- e20369, Seneviratne G.S, [email](e20369@eng.pdn.ac.lk)
 
 #### Supervisors
 
-- Name, [email](mailto:name@eng.pdn.ac.lk)
-- Name, [email](mailto:name@eng.pdn.ac.lk)
+- Dr. Suneth Namal Karunarathna, [email](namal@eng.pdn.ac.lk)
+- Name, [email](upuljm@eng.pdn.ac.lk)
 
 #### Table of content
 
