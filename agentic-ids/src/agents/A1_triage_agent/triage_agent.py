@@ -38,7 +38,7 @@ if not os.environ.get("GROQ_API_KEY"):
 
 # Structured Output for reliability (Triage Decision)
 class TriageDecision(BaseModel):
-    category: Literal["Benign", "Suspicious", "Zero-day"] = Field(
+    category: Literal["BENIGN", "SUSPICIOUS", "ZERO-DAY"] = Field(
         description="The classification of the security event."
     )
     routing: Literal["AgenticRAG", "CorrectiveRAG", "AdaptiveRAG"] = Field(
