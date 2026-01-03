@@ -2,18 +2,21 @@ from flask import Flask, request, jsonify
 import time
 import json
 from service_container import inference_service
+import agents.Orchestrator.orchestrator as orchestrator
+import os
+# FORCE TensorFlow to use the legacy Keras (tf-keras package)
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
 
 app = Flask(__name__)
+myOrchestrator = orchestrator.Orchestrator()
 
 @app.route("/health", methods=["GET"])
 def health():
     return {"status": "ok"}, 200
 
-
 @app.route("/detect", methods=["POST"])
 def detect():
-    recv_time = time.time()
-
     data = request.get_json(silent=True)
     # print(data)
 
@@ -24,30 +27,19 @@ def detect():
     flow_id = data.get("flow_id")
     features = data.get("features", {})
 
-    # print("\n================= FLOW RECEIVED =================")
-    # print(f"Time     : {recv_time}")
-    # print(f"Flow ID  : {flow_id}")
-    # print(f"Features : {json.dumps(features, indent=2)}")
-    # print("================================================\n")
 
-    try:
-
-        
+    try:  
         result = inference_service.predict(features)
-        print(result)
+        # myOrchestrator.process_autoencoder_input(result)
+        # print(result)
         #
         # Send this result to orchestrator for full pipeline processing
 
 
-        print(f"[INFO] Flow ID: {flow_id} | Prediction: {result['prediction']} | Score: {result['score']:.6f}")
-        # return jsonify({
-        #     "flow_id": flow_id,
-        #     "prediction": result["prediction"],
-        #     "score": result["score"],
-        #     "recv_time": recv_time
-        # }), 200
+        print(f"[INFO] Flow ID: {flow_id} | Prediction: {result['prediction']} | Score: {result['anomaly_score']:.6f}")
+    
     except Exception as e:
-        print(f"[ERROR] Inference failed for Flow ID: {flow_id} | Error: {str(e)}")
+        print(f"[ERROR] Inference failed for Flow ID:s {flow_id} | Error: {str(e)}")
         return jsonify({"error": str(e)}), 400
 
     # Fire-and-forget response

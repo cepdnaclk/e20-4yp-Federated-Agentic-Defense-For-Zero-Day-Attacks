@@ -1,8 +1,10 @@
+
 from services.feature_service import FeatureService
 from services.inference_service import InferenceService
 import joblib
 import json
 import tensorflow as tf 
+import keras
 
 # Load artifacts
 with open(".config/model_columns.json") as f:
@@ -12,12 +14,12 @@ with open(".config/column_rename_map.json") as f:
     rename_map = json.load(f)
 
 #  Loading artifacts
-autoencoder = tf.keras.models.load_model(f"models/artifacts/M002/autoencoder.keras")
+autoencoder = keras.models.load_model(f"models/artifacts/M002/autoencoder.keras")
 scaler = joblib.load(f"models/artifacts/M002/scaler.pkl")
 encoder = joblib.load(f"models/artifacts/M002/encoder.pkl")
 
-with open(f"models/artifacts/M002/metadata.json") as f:
-    metadata = json.load(f)
+with open(f"models/artifacts/M002/metadata.json") as file:
+    metadata = json.load(file)
 
 numerical_cols = metadata["selected_numerical_columns"]
 categorical_cols = metadata["categorical_columns"]

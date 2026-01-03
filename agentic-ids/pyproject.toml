@@ -1,11 +1,12 @@
 [project]
-name = "agents"
+name = "agentic-ids"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "faiss-cpu>=1.13.2",
+    "flask>=3.1.2",
     "groq>=0.37.1",
     "ipykernel>=7.1.0",
     "langchain>=1.2.0",
@@ -14,7 +15,9 @@ dependencies = [
     "langchain-groq>=1.1.1",
     "langchain-huggingface>=1.2.0",
     "langgraph>=1.0.5",
-    "numpy>=2.4.0",
+    "tf-keras",
+    "tensorflow>=2.20.0",  
+    "pandas>=2.3.3",
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.1",
     "sentence-transformers>=5.2.0",
