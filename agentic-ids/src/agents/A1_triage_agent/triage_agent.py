@@ -55,7 +55,7 @@ EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 # Use Local Embeddings (privacy preserving; embeddings computed locally)
 embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 triage_vector_store: Optional[FAISS] = None
-KB_FILE = Path(__file__).resolve().parent / "soc_knowledge.csv"
+KB_FILE = Path(__file__).resolve().parent / "./KB/soc_knowledge.csv"
 
 def get_mock_data():
     """Fallback data if no CSV is found."""

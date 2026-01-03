@@ -30,7 +30,7 @@ def detect():
 
     try:  
         result = inference_service.predict(features)
-        # myOrchestrator.process_autoencoder_input(result)
+        myOrchestrator.process_autoencoder_input(result)
         # print(result)
         #
         # Send this result to orchestrator for full pipeline processing

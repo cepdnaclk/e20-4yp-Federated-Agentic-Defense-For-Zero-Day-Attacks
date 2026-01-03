@@ -1,54 +1,86 @@
 import json
+# Assuming triage_agent_final has a class or method 'process_anomaly'
 import agents.A1_triage_agent.triage_agent as triage_agent_final
 
 class Orchestrator:
     """
-    Central controller to manage alert data flows between 
-    detection models and triage agents.
+    Central controller to manage alert data flows. 
+    Specifically tuned for Zero-Day behavioral detection.
     """
     
     def __init__(self):
-        self.triage_agent = triage_agent_final
+        # Ensure you are calling the correct class instance here
+        self.agent = triage_agent_final
 
     def process_autoencoder_input(self, json_data: dict):
         """
-        Transforms raw Autoencoder JSON into a formatted string 
-        and dispatches it to the Triage Agent.
+        Transforms raw Autoencoder JSON into behavioral insights
+        for the Triage Agent.
         """
-        # Extracting data with defaults
-        score = json_data.get("anomaly_score", "Unknown")
-        timestamp = json_data.get("timestamp", "Now")
-        context = json_data.get("context", {})
-        protocol = context.get("protocol", "Unknown")
-        direction = context.get("direction", "Unknown")
+        # 1. Extract Metadata
+        score = json_data.get("anomaly_score", 0.0)
+        timestamp = json_data.get("timestamp", "Unknown Time")
+        features = json_data.get("features", {})
+
+        # 2. Extract Basic Network Identifiers
+        network_info = {
+            "src": f"{features.get('srcip')}:{features.get('sport')}",
+            "dst": f"{features.get('dstip')}:{features.get('dsport')}",
+            "proto": features.get("proto", "TCP").upper(),
+            "service": features.get("service", "General"),
+            "state": features.get("state", "Unknown")
+        }
+
+        # 3. Behavioral Feature Engineering (Crucial for Zero-Day)
+        # Intensity: How frequent is this connection pattern?
+        intensity = features.get("ct_srv_src", 0) 
         
-        # Format the alert for LLM/Agent consumption
+        # Efficiency: Packet size consistency (Zero-day exploits often have abnormal ratios)
+        spkts = max(features.get("Spkts", 1), 1)
+        s_efficiency = features.get("sbytes", 0) / spkts
+
+        # Network TTL Profile: Detects spoofing or unusual routing
+        ttl_path = f"Source TTL: {features.get('sttl')} | Dest TTL: {features.get('dttl')}"
+
+        # Latency Profile: High tcprtt can indicate MITM or scanning lag
+        latency = features.get("tcprtt", 0)
+
+        # 4. Construct the Behavioral Narrative for the LLM
+        # We provide context, not just data.
         formatted_alert = (
-            f"Alert: Anomaly detected at {timestamp}. "
-            f"Drift Score: {score}. "
-            f"Traffic Context: Protocol {protocol}, Direction {direction}."
+            f"--- ZERO-DAY THREAT ALERT ---\n"
+            f"Timestamp: {timestamp}\n"
+            f"Anomaly Confidence: {score:.2f}\n"
+            f"Flow: {network_info['src']} -> {network_info['dst']} ({network_info['proto']})\n"
+            f"Service: {network_info['service']} | State: {network_info['state']}\n"
+            f"\nBEHAVIORAL INDICATORS:\n"
+            f"- Traffic Intensity: {intensity} concurrent connections (High suggests automated attack)\n"
+            f"- Payload Profile: {s_efficiency:.2f} bytes/packet (Check for exfiltration/buffer overflow)\n"
+            f"- Network Path: {ttl_path}\n"
+            f"- TCP Latency: {latency}s\n"
+            f"----------------------------"
         )
         
-        print(f"\n[Orchestrator] Pre-processed Alert: '{formatted_alert}'")
+        print(f"\n[Orchestrator] Dispatched Behavioral Alert:\n{formatted_alert}")
         
         # Dispatch to Agent
         return self.agent.process_anomaly(formatted_alert)
 
 if __name__ == "__main__":
-    # Initialize the Orchestrator
     orchestrator = Orchestrator()
 
-    # Mock raw output from the Autoencoder model
+    # The dataset features you provided earlier
     raw_output = {
-        "flow_id": "uuid-1234",
+        "anomaly_score": 0.94,
         "timestamp": "2024-05-20T10:00:00Z",
-        "anomaly_score": 0.91,
-        "feature_vector": [0.12, 1.33], 
-        "context": {
-            "protocol": "QUIC",
-            "direction": "outbound"
+        "features": {
+            'srcip': '175.45.176.0', 'sport': 39500, 
+            'dstip': '149.171.126.15', 'dsport': '80', 
+            'proto': 'tcp', 'state': 'FIN', 'dur': 0.177449, 
+            'sbytes': 1214, 'dbytes': 268, 'sttl': 254, 'dttl': 252, 
+            'service': 'http', 'Spkts': 10, 'Dpkts': 6,
+            'tcprtt': 0.05198, 'ct_srv_src': 5
         }
     }
 
-    # Execute the pipeline
     orchestrator.process_autoencoder_input(raw_output)
