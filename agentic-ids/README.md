@@ -33,12 +33,22 @@ Follow these steps to set up the project on your local machine:
     - Your shell prompt should now indicate the active venv (e.g., `(.venv)`).
 
 4. **Install Dependencies**:
-    - Run: `uv pip install -e .`
+    - Run: `uv pip install -r requirements.txt`
     - This installs the project in editable mode along with all dependencies specified in `pyproject.toml`.
 
 
 ### Deactivation
 - To deactivate the venv, simply run: `deactivate`
+
+## Running the Agents in direct
+
+To run the `directAgent.run.py` script, follow these steps:
+
+1. Navigate to the project directory: `cd agentic-ids`
+2. Create a virtual environment: `uv venv`
+3. Activate the virtual environment (on Windows): `.venv\Scripts\activate`
+4. Install dependencies: `uv pip install -r requirements.txt`
+5. Run the script: `python directAgent.run.py`
 
 ## Important Points
 - **Environment Isolation**: Always work within the activated venv to avoid conflicts with system Python packages.
@@ -46,3 +56,5 @@ Follow these steps to set up the project on your local machine:
 - **Python Version**: Ensure compatibility with the version specified in `pyproject.toml` (e.g., `requires-python = ">=3.12"`).
 - **Security**: Regularly update dependencies with `uv lock --upgrade`.
 - **Troubleshooting**: If issues arise, delete `.venv` and recreate it. Check `uv --version` to ensure it's up-to-date.
+
+
