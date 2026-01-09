@@ -144,43 +144,43 @@ def triage_analysis(raw_log: str, retrieved_context: str) -> TriageDecision:
 
     return decision
 
-# DOWNSTREAM PIPELINES (Integration of your Concepts)
+# # DOWNSTREAM PIPELINES (Integration of your Concepts)
 
-def call_agentic_rag(raw_log: str) -> str:
-    """Handles BENIGN traffic."""
-    return "[AgenticRAG] Event classified as Benign. Logged to compliance archive."
-
-
-def call_corrective_rag(raw_log: str, retrieved_context: str) -> str:
-    """Handles SUSPICIOUS traffic (self-check/grade step)."""
-    grader_prompt = (
-        f"Given context: {retrieved_context}, is this log: {raw_log} definitely malicious? "
-        "Reply YES or NO."
-    )
-    grade = llm.invoke([HumanMessage(content=grader_prompt)])
-    return f"[CorrectiveRAG] Suspicious Activity. Verification result: {grade.content}"
+# def call_agentic_rag(raw_log: str) -> str:
+#     """Handles BENIGN traffic."""
+#     return "[AgenticRAG] Event classified as Benign. Logged to compliance archive."
 
 
-def call_adaptive_rag(raw_log: str) -> str:
-    """Handles ZERO-DAY CANDIDATES (feature extraction step)."""
-    analysis = llm.invoke([
-        SystemMessage(content="Extract unique features (IP, Port, Payload) from this Zero-Day candidate."),
-        HumanMessage(content=raw_log),
-    ])
-    return (
-        f"[AdaptiveRAG] Zero-Day Detected. Features Extracted: {analysis.content}. "
-        "Updating FL Model."
-    )
+# def call_corrective_rag(raw_log: str, retrieved_context: str) -> str:
+#     """Handles SUSPICIOUS traffic (self-check/grade step)."""
+#     grader_prompt = (
+#         f"Given context: {retrieved_context}, is this log: {raw_log} definitely malicious? "
+#         "Reply YES or NO."
+#     )
+#     grade = llm.invoke([HumanMessage(content=grader_prompt)])
+#     return f"[CorrectiveRAG] Suspicious Activity. Verification result: {grade.content}"
 
 
-def _run_pipeline(target_pipeline: str, raw_log: str, retrieved_context: str) -> str:
-    if target_pipeline == "AgenticRAG":
-        return call_agentic_rag(raw_log)
-    if target_pipeline == "CorrectiveRAG":
-        return call_corrective_rag(raw_log, retrieved_context)
-    if target_pipeline == "AdaptiveRAG":
-        return call_adaptive_rag(raw_log)
-    return "[Error] Unknown routing target."
+# def call_adaptive_rag(raw_log: str) -> str:
+#     """Handles ZERO-DAY CANDIDATES (feature extraction step)."""
+#     analysis = llm.invoke([
+#         SystemMessage(content="Extract unique features (IP, Port, Payload) from this Zero-Day candidate."),
+#         HumanMessage(content=raw_log),
+#     ])
+#     return (
+#         f"[AdaptiveRAG] Zero-Day Detected. Features Extracted: {analysis.content}. "
+#         "Updating FL Model."
+#     )
+
+
+# def _run_pipeline(target_pipeline: str, raw_log: str, retrieved_context: str) -> str:
+#     if target_pipeline == "AgenticRAG":
+#         return call_agentic_rag(raw_log)
+#     if target_pipeline == "CorrectiveRAG":
+#         return call_corrective_rag(raw_log, retrieved_context)
+#     if target_pipeline == "AdaptiveRAG":
+#         return call_adaptive_rag(raw_log)
+#     return "[Error] Unknown routing target."
 
 def process_anomaly(alert_text: str, raw_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
@@ -204,9 +204,9 @@ def process_anomaly(alert_text: str, raw_data: Optional[Dict[str, Any]] = None) 
     print(f"REASONING: {decision.reasoning}")
     print("---------------------------")
 
-    # Step 3: route
-    pipeline_message = _run_pipeline(decision.routing, alert_text, retrieved_context)
-    print(pipeline_message)
+    # # Step 3: route
+    # pipeline_message = _run_pipeline(decision.routing, alert_text, retrieved_context)
+    # print(pipeline_message)
 
     # Step 4: build structured output
     semantic_summary = f"Classified as {decision.category}. {decision.reasoning}"
