@@ -1,6 +1,6 @@
 import json
 # Assuming triage_agent_final has a class or method 'process_anomaly'
-import agents.A1_triage_agent.triage_agent as triage_agent_final
+import agents.A1_triage_agent.triage_agent as triage_agent
 import agents.A2_suspicious_agent.suspicious_agent as suspicious_agent
 
 class Orchestrator:
@@ -11,8 +11,8 @@ class Orchestrator:
     
     def __init__(self):
         # Ensure you are calling the correct class instance here
-        self.agent = triage_agent_final
-        self.agent2 = suspicious_agent
+        self.A1_agent = triage_agent
+        self.A2_agent = suspicious_agent
 
     def process_autoencoder_input(self, json_data: dict):
         """
@@ -64,10 +64,10 @@ class Orchestrator:
         )
         
         print(f"\n[Orchestrator] Dispatched Behavioral Alert:\n{formatted_alert}")
-        triage_result = self.agent.process_anomaly(formatted_alert)
+        triage_result = self.A1_agent.process_anomaly(formatted_alert)
 
         if triage_result["target_pipeline"] == "CorrectiveRAG":
-            self.agent2.handle_suspicious_alert(triage_result)
+            self.A2_agent.handle_suspicious_alert(triage_result)
         
         # Dispatch to Agent
         # return self.agent.process_anomaly(formatted_alert)
