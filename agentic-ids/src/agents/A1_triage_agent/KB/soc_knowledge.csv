@@ -1,0 +1,21 @@
+Type,Content
+Asset,Server-Alpha (192.168.1.10) is a Critical Finance Database hosting sensitive customer records.
+Asset,Server-Beta (192.168.1.11) is a Critical Web Server exposed to the public internet (DMZ).
+Asset,Workstation-Dev-01 (192.168.2.50) is a High Priority Developer Machine with access to source code.
+Asset,Workstation-HR-04 (192.168.2.51) is a Medium Priority HR endpoint handling internal documents.
+Asset,IoT-Thermostat-01 (10.0.0.5) is a Low Priority Smart Device on the Guest Network.
+Asset,Backup-Server (192.168.1.99) is a Critical Asset storing offline backups (Air-gapped usually).
+Policy,All traffic on Port 445 (SMB) from external IPs is strictly forbidden (WannaCry vector).
+Policy,Port 3389 (RDP) must only be accessible via the VPN Gateway, never directly from the internet.
+Policy,Port 4444 is a known default listener port for Metasploit (High Probability of Compromise).
+Policy,Port 6667 (IRC) is suspicious on enterprise servers often indicating Botnet C2 communication.
+Policy,Outbound traffic to .onion domains or TOR exit nodes is a Policy Violation.
+Policy,SSH Root login is disabled on all Linux servers; use key-based authentication only.
+Threat_Intel,IP 203.0.113.55 is a known Command and Control (C2) server associated with APT29.
+Threat_Intel,File Hash a1b2c3d4... is associated with the 'Emotet' banking trojan.
+Threat_Intel,User Agent 'sqlmap' indicates an automated SQL Injection attack attempt.
+Zero_Day_Indicator,Traffic volume > 1GB in under 5 minutes from a Critical Asset to an unknown external IP is a Data Exfiltration anomaly.
+Zero_Day_Indicator,A process launching PowerShell with encoded commands is a behavioral indicator of a Zero-Day exploit.
+Zero_Day_Indicator,Sudden modification of system logs or disabling of Antivirus by a non-admin user is a High Severity Alert.
+Zero_Day_Indicator,Multiple failed login attempts followed by a successful login from a different geolocation indicates Credential Stuffing.
+Zero_Day_Indicator,New unknown service listening on high ephemeral ports (49152-65535) on a Database Server is suspicious.

@@ -1,5 +1,5 @@
 __pycache__/
-*.csv
 .env
 venv/
 data/raw/
+*.egg-info
