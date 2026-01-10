@@ -3,10 +3,20 @@ import requests
 import time
 import json
 import numpy as np
+from dotenv import load_dotenv
+import os
 
-CSV_PATH = "../data/UNSW_NB15/UNSW-NB15_1.csv"
-FEATURES_METADATA = "../data/UNSW_NB15/dataset_features.json"
-API_URL = "http://localhost:5000/detect"
+# Load variables from .env into environment
+load_dotenv(dotenv_path="config.env")
+
+# Configuration fetched from environment variables
+CSV_PATH = os.getenv("CSV_PATH")
+FEATURES_METADATA = os.getenv("FEATURES_METADATA")
+API_URL = os.getenv("API_URL")
+API_TIMEOUT = float(os.getenv("API_TIMEOUT", 0.05))
+STREAM_DELAY = float(os.getenv("STREAM_DELAY", 1))
+DROP_COLUMNS = os.getenv("DROP_COLUMNS", "attack_cat,Label").split(",")
+
 
 
 def load_feature_names():
@@ -23,6 +33,8 @@ def load_feature_names():
         raise ValueError("Invalid features_metadata.json format")
 
     metadata_sorted = sorted(metadata, key=lambda x: x["index"])
+
+    print("[SUCCESS] Metadata processed successfully.")
     return [f["name"] for f in metadata_sorted]
 
 
@@ -42,7 +54,7 @@ def stream_data():
     DROP_COLUMNS = {"attack_cat", "Label"}
     df = df.drop(columns=[c for c in DROP_COLUMNS if c in df.columns])
 
-    print(f"Streaming started")
+    print(f"[INFO] Starting data stream to {API_URL}...")
 
     session = requests.Session()
 
@@ -59,12 +71,14 @@ def stream_data():
         }
 
         try:
-            session.post(API_URL, json=payload, timeout=0.05)
+            session.post(API_URL, json=payload, timeout= API_TIMEOUT)
         except requests.exceptions.RequestException:
+            print(f"[WARNING] Request to {API_URL} failed for flow_id {i}")
             pass  # fire-and-forget
 
-        time.sleep(0.3)
+        time.sleep(STREAM_DELAY)
 
 
 if __name__ == "__main__":
+    print("[INFO] Initializing packet streamer...")
     stream_data()
