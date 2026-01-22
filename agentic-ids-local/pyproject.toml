@@ -16,9 +16,11 @@ dependencies = [
     "langchain-huggingface>=1.2.0",
     "langgraph>=1.0.5",
     "tf-keras",
-    "tensorflow>=2.20.0",  
+    "tensorflow>=2.20.0",
     "pandas>=2.3.3",
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.1",
     "sentence-transformers>=5.2.0",
+    "flask-socketio>=5.6.0",
+    "eventlet>=0.40.4",
 ]
