@@ -25,6 +25,9 @@ class InferenceService:
 
         prediction = int(anomaly_score > self.threshold)
 
+        if prediction == 1:
+            print(f"[INFERENCE SERVICE] Anomaly detected with score: {anomaly_score:.6f}")
+
         return {
             "flow_id": str(uuid.uuid4()),
             "timestamp": datetime.utcnow().isoformat(),

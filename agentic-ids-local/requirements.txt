@@ -87,12 +87,13 @@ sympy==1.14.0
 tenacity==9.1.2
 tensorboard==2.20.0
 tensorboard-data-server==0.7.2
-tensorflow==2.20.0
+tensorflow-cpu==2.20.0
 termcolor==3.3.0
 tf-keras==2.20.1
 threadpoolctl==3.6.0
 tokenizers==0.22.2
-torch==2.10.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.10.0+cpu
 tqdm==4.67.1
 transformers==4.57.6
 typing-extensions==4.15.0

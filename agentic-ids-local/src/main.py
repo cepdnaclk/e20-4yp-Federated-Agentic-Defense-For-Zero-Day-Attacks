@@ -4,6 +4,14 @@ import json
 from service_container import inference_service
 import agents.Orchestrator.orchestrator as orchestrator
 import os
+import dotenv
+
+
+# Load environment variables from .env file
+dotenv.load_dotenv()
+
+PORT = int(os.getenv("PORT", 5000))
+
 # FORCE TensorFlow to use the legacy Keras (tf-keras package)
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
@@ -35,8 +43,7 @@ def detect():
         #
         # Send this result to orchestrator for full pipeline processing
 
-
-        print(f"[INFO] Flow ID: {flow_id} | Prediction: {result['prediction']} | Score: {result['anomaly_score']:.6f}")
+        # print(f"[INFO] Flow ID: {flow_id} | Prediction: {result['prediction']} | Score: {result['anomaly_score']:.6f}")
     
     except Exception as e:
         print(f"[ERROR] Inference failed for Flow ID:s {flow_id} | Error: {str(e)}")
@@ -47,4 +54,6 @@ def detect():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    #  Print startup message
+    print(f"[INFO] Starting Agentic IDS Local Server on port {PORT}...")
+    app.run(host="0.0.0.0", port=PORT, debug=True)

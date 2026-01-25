@@ -176,11 +176,11 @@ def initialize_suspicious_kb():
                     if len(docs) >= MAX_DOCS_TOTAL:
                         break
 
-            print(f"Loaded {len(docs)} sampled records from {KB_FILE.name}")
+            print(f"[INIT] Loaded {len(docs)} sampled records from {KB_FILE.name}")
         except Exception:
             docs = get_mock_kb_data()
     else:
-        print("KB CSV not found. Using mock KB data.")
+        print("[ERROR] KB CSV not found. Using mock KB data.")
         docs = get_mock_kb_data()
 
     suspicious_vector_store = FAISS.from_documents(docs, embedding_model)
@@ -410,8 +410,8 @@ def analyze_suspicious_activity(state: SuspiciousAgentState) -> SuspiciousAgentS
     trend = temporal_stats.get("trend", "stable")
     recent_count = temporal_stats.get("recent_anomalies", 0)
     
-    print(f"   [Suspicious Agent] Analyzing: {semantic_summary}")
-    print(f"   [Suspicious Agent] Context: Trend is {trend}, Count: {recent_count}")
+    # print(f"   [Suspicious Agent] Analyzing: {semantic_summary}")
+    print(f"[Suspicious Agent] Context: Trend is {trend}, Count: {recent_count}")
 
     kb_context = retrieve_kb_context(semantic_summary, k=4)
     state.kb_context = kb_context
@@ -518,14 +518,18 @@ def handle_suspicious_alert(triage_output_json: dict) -> Dict[str, Any]:
     Entry point for the Suspicious Agent.
     Receives the JSON output from the Triage Agent.
     """
-    print("\n---SUSPICIOUS TRAFFIC AGENT ACTIVATED---")
+    # print("\n[Suspicious Agent] Received alert for verification.")
     
     final_state = run_suspicious_agent_workflow(triage_output_json)
     
-    for message in final_state.messages:
-        print(f"{message}")
+    # for message in final_state.messages:
+    #     print(f"{message}")
+
+
+    print(f"[Suspicious Agent ] Status: {final_state.verification_status}\n")
+
     
-    print("--------------------------------------------------\n")
+    
     
     return {
         "messages": final_state.messages,

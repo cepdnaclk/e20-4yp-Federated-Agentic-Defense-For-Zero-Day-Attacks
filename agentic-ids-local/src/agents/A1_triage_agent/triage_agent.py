@@ -188,21 +188,24 @@ def process_anomaly(alert_text: str, raw_data: Optional[Dict[str, Any]] = None) 
     - Streams agent reasoning (for visibility)
     - Returns structured JSON (for downstream systems)
     """
-    print(f"\n[System] Autoencoder sent: {alert_text}")
-    print("Processing Pipeline...\n")
+    # print(f"\n[System] Autoencoder sent: {alert_text}")
+    # print("Processing Pipeline...\n")
 
     # Step 1: retrieve
-    print("Retrieving Context...")
+    # print("Retrieving Context...")
     retrieved_context = retrieve_context(alert_text, k=3)
 
     # Step 2: triage
-    print("Triaging Event...")
+    # print("Triaging Event...")
     decision = triage_analysis(alert_text, retrieved_context)
 
-    print(f"TRIAGE RESULT: {decision.category.upper()}")
-    print(f"ROUTING TO: {decision.routing}")
-    print(f"REASONING: {decision.reasoning}")
-    print("---------------------------")
+
+    #  Print log 
+    print(f"[TRIAGE] Decision: {decision.category.upper()} | Routed: {decision.routing} | Reason: {decision.reasoning}")
+    # print(f"TRIAGE RESULT: {decision.category.upper()}")
+    # print(f"ROUTING TO: {decision.routing}")
+    # print(f"REASONING: {decision.reasoning}")
+    # print("---------------------------")
 
     # # Step 3: route
     # pipeline_message = _run_pipeline(decision.routing, alert_text, retrieved_context)
@@ -227,8 +230,8 @@ def process_anomaly(alert_text: str, raw_data: Optional[Dict[str, Any]] = None) 
         "target_pipeline": decision.routing,
     }
 
-    print("Final Structured Output Ready\n")
-    print(json.dumps(output_json, indent=4))
+    # print("Final Structured Output Ready\n")
+    # print(json.dumps(output_json, indent=4))
 
     return output_json
 

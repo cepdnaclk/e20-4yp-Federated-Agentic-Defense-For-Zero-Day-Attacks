@@ -1,24 +1,39 @@
 import json
+import time
 # Assuming triage_agent_final has a class or method 'process_anomaly'
 import agents.A1_triage_agent.triage_agent as triage_agent
 import agents.A2_suspicious_agent.suspicious_agent as suspicious_agent
+import uuid 
+from agents.A3_federation_agent.async_sender import AsyncSignatureSender
+import threading
+from datetime import datetime
+
 
 class Orchestrator:
     """
     Central controller to manage alert data flows. 
     Specifically tuned for Zero-Day behavioral detection.
     """
+
+    
     
     def __init__(self):
         # Ensure you are calling the correct class instance here
-        self.A1_agent = triage_agent
+
+        # classification, 
+        self.A1_agent = triage_agent   
+
+        # known attack mitigation 
         self.A2_agent = suspicious_agent
+
+        # 
 
     def process_autoencoder_input(self, json_data: dict):
         """
         Transforms raw Autoencoder JSON into behavioral insights
         for the Triage Agent.
         """
+
         # 1. Extract Metadata
         score = json_data.get("anomaly_score", 0.0)
         timestamp = json_data.get("timestamp", "Unknown Time")
@@ -63,18 +78,36 @@ class Orchestrator:
             f"----------------------------"
         )
         
-        print(f"\n[Orchestrator] Dispatched Behavioral Alert:\n{formatted_alert}")
+        # print(f"\n[Orchestrator] Dispatched Behavioral Alert:\n{formatted_alert}")
         triage_result = self.A1_agent.process_anomaly(formatted_alert)
 
         if triage_result["target_pipeline"] == "CorrectiveRAG":
             self.A2_agent.handle_suspicious_alert(triage_result)
+
+        if triage_result["target_pipeline"] == "AdaptiveRAG":
+            print("[Orchestrator] AdaptiveRAG pipeline selected - currently not implemented.")
         
 
-        
+        ## Testing
+        ## Debiug purpose: Send sample signature asynchronously
+        sender = AsyncSignatureSender("http://localhost:9090")
+        sample_signature = {
+            "signature_id": str(uuid.uuid4()),
+            "feature_deviation": {
+                "conn_rate": 4.2,
+                "dst_entropy": 3.1,
+                "avg_pkt_size": -1.7
+            },
+            "confidence": 0.93,
+            "frequency": 5,
+            "time_window": "10s",
+            "agent_id": "agent_async_01",
+            "timestamp": datetime.utcnow().isoformat()
+        }
 
+        sender.enqueue(sample_signature)
+        time.sleep(10)
 
-
-        
         # Dispatch to Agent
         # return self.agent.process_anomaly(formatted_alert)
 
