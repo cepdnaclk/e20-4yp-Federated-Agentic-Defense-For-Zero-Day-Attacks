@@ -1,0 +1,2818 @@
+{
+  "agent_id": "Agent_B",
+  "known_attacks": [
+    "Fuzzers",
+    "Analysis",
+    "Backdoor",
+    "DoS",
+    "Shellcode",
+    "Exploits",
+    "Reconnaissance"
+  ],
+  "signature_hashes": [
+    "1f3e27c2736eb8ae",
+    "67502b760f05bfc1",
+    "d1e3eab504a9faf5",
+    "830ac6c8d3ace10d",
+    "4790464a1c83710f",
+    "6ccb46c4ac1a0bed",
+    "c847f5edd83f9f84",
+    "287abc888e953412",
+    "0ed77a282e8807dd",
+    "61585f6b1f49fd32",
+    "0df942ea8174d1dc",
+    "1501ee934881f4fa",
+    "ebd398159f9a5963",
+    "3352a2dd29af0496",
+    "77fc5e0c1af2292c",
+    "60f9cd036b136c15",
+    "14e14fb39dab0500",
+    "bad730b37d056a00",
+    "9f62948e9e7ea0ef",
+    "8d8fad6377afa4a7",
+    "3c55bae39adef944",
+    "774eeb4b5b71d15c",
+    "5a0922da82444f2d",
+    "8aadf9027a43e610",
+    "c00b143a72cac426",
+    "1570b329aa187e99",
+    "e5247fd00e5a6f95",
+    "741625ee840e792c",
+    "5f95e7d22c6faddc",
+    "3520ab074e6f1e70",
+    "4899493b638b48a1",
+    "ac3e543905054114",
+    "b36ab23ddad40bb4",
+    "1c9ce55cdf9edc08",
+    "a7f38af0b55968bb",
+    "2c449b540ddee626",
+    "df2c81cbc63eb436",
+    "8e7bfa4aa48c572e",
+    "53ef1ad4c23ef46c",
+    "e5434eac4a103330",
+    "e3b6cfae1d7db6e5",
+    "2924a6b2b31d881b",
+    "eca1add0559b134b",
+    "5717b0eb284e72b6",
+    "e2574069291c438b",
+    "2c1cf0b0caaf8537",
+    "bdd493c8ac7c6ea5",
+    "236f4ce994520827",
+    "dc282ec6736a9aa8",
+    "2ff7ef504a778449",
+    "ac1b1e7ea79e4a38",
+    "9cc9a18fe3a309b6",
+    "9dac935613530b8e",
+    "d39041a65d030bc1",
+    "a5dca5875a385d70",
+    "4296d01b6cd8a919",
+    "0348928923ae5b2a",
+    "b17b207f5df2592c",
+    "c986aebe20b3c154",
+    "02b6f5e6445d003a",
+    "a166edb9c0cc4649",
+    "509d0622804398f5",
+    "a3ccfa47f0a1bd0d",
+    "518decc37362132f",
+    "792841e37d8ca2d6",
+    "4f836da0a3c16b4e",
+    "5c983a641b4e72d1",
+    "2928a6c3f0e0b274",
+    "43a4169b7920c4fc",
+    "2cdeccc6fa94bbc7",
+    "b5ed972797053c55",
+    "1ddef871cb9473fa",
+    "645dab6d7565344f",
+    "99a1570032dd340e",
+    "6fda608387c1e00f",
+    "952b0afee59cd7ab",
+    "2f8f60edb4157b82",
+    "4787ca460dc54d1a",
+    "6e0dcd41cf921485",
+    "68ad4abb39b9fc13",
+    "e3bf94fb76f42a86",
+    "0633b3f0d4e82856",
+    "c0d86787051b1a3c",
+    "1ea0669793c2226c",
+    "ac54f13697ae17dd",
+    "cf4233c67c78472c",
+    "f013fb4560096028",
+    "547f615a3c601dd7",
+    "65f8a91bb753cb24",
+    "7e559a3760654569",
+    "534dbbd9657651c4",
+    "87f010b43c90d68a",
+    "8248937ef231be0b",
+    "b040e5f2d708472e",
+    "5ac2c00dc77501b9",
+    "71d36054f72f9164",
+    "e1fadc85ed9f58e7",
+    "a87be3766ea82016",
+    "e7e735a6061dd994",
+    "79f2ea2536af1df9",
+    "a0cd6849d73f144e",
+    "d49e4318e1944d35",
+    "bb2e71dded812188",
+    "f431dacec51e66ef",
+    "e9999a956dad3f07",
+    "d9d15e42071adb62",
+    "4df24c0852443951",
+    "031ddbd2c9845ea1",
+    "a747a8217a15fd2f",
+    "b764e10e64f32250",
+    "5994d56066ec2b2b",
+    "9ec6141e5510481f",
+    "0f1231f229b9c94c",
+    "edfc289d3ea4b022",
+    "d2dcd8adff5022bd",
+    "3e8b2000ddd508b6",
+    "36fdd7d68b53d88c",
+    "51df883534735fb0",
+    "551993016914b3cc",
+    "b26bc557b733d3e7",
+    "b2abb278eca24da3",
+    "16b00dd719afeac8",
+    "c16a8c91bb13b3d9",
+    "795bd7ed91caef21",
+    "f00a121e5893e18b",
+    "e7f5ebc1f83b0b21",
+    "4ee9ca969f64b433",
+    "97c6c43961a5607a",
+    "99ef03d56b2262b2",
+    "2799725f5b1a370a",
+    "a255472adad089df",
+    "9ee7f0f038b1004d",
+    "cf5bb0370cf11e77"
+  ],
+  "learned_signatures": [
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "4f836da0a3c16b4e",
+      "feature_sample": [
+        0.252441,
+        10.0,
+        6.0,
+        1844.0,
+        268.0,
+        59.419827,
+        254.0,
+        252.0,
+        52606.35547,
+        7098.688477
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 4f836da0a3c16b4e | Detected by: Agent_B at 2026-01-25T19:54:22.394862",
+      "is_zero_day": true,
+      "learned_at": "2026-01-25T19:54:24.483417"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "e3b6cfae1d7db6e5",
+      "feature_sample": [
+        7.312841,
+        40.0,
+        0.0,
+        10880.0,
+        0.0,
+        5.333085,
+        254.0,
+        0.0,
+        11604.79199,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: e3b6cfae1d7db6e5 | Detected by: Agent_B at 2026-01-25T19:54:24.505875",
+      "is_zero_day": true,
+      "learned_at": "2026-01-25T19:54:26.571741"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "287abc888e953412",
+      "feature_sample": [
+        0.186136,
+        10.0,
+        12.0,
+        816.0,
+        6574.0,
+        112.820729,
+        62.0,
+        252.0,
+        31589.80469,
+        259036.3906
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 287abc888e953412 | Detected by: Agent_B at 2026-01-25T19:54:26.603905",
+      "is_zero_day": true,
+      "learned_at": "2026-01-25T19:54:28.653653"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "d39041a65d030bc1",
+      "feature_sample": [
+        0.246582,
+        16.0,
+        8.0,
+        6924.0,
+        812.0,
+        93.275259,
+        254.0,
+        252.0,
+        210623.6406,
+        23067.37695
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: d39041a65d030bc1 | Detected by: Agent_B at 2026-01-25T19:54:28.678946",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:30.715202"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "2928a6c3f0e0b274",
+      "feature_sample": [
+        0.188998,
+        10.0,
+        6.0,
+        854.0,
+        268.0,
+        79.36592,
+        254.0,
+        252.0,
+        32550.60938,
+        9481.582031
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 2928a6c3f0e0b274 | Detected by: Agent_B at 2026-01-25T19:54:30.735386",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:32.772138"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "8e7bfa4aa48c572e",
+      "feature_sample": [
+        0.198691,
+        10.0,
+        6.0,
+        918.0,
+        268.0,
+        75.494111,
+        254.0,
+        252.0,
+        33297.9375,
+        9019.029297
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 8e7bfa4aa48c572e | Detected by: Agent_B at 2026-01-25T19:54:32.792574",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:34.847490"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "1ddef871cb9473fa",
+      "feature_sample": [
+        4.490101,
+        116.0,
+        0.0,
+        17078.0,
+        0.0,
+        25.611897,
+        254.0,
+        0.0,
+        30165.91406,
+        0.0
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 1ddef871cb9473fa | Detected by: Agent_B at 2026-01-25T19:54:34.866596",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:36.914867"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "0633b3f0d4e82856",
+      "feature_sample": [
+        43.982441,
+        28.0,
+        28.0,
+        1568.0,
+        1528.0,
+        1.250499,
+        254.0,
+        252.0,
+        275.018829,
+        268.106995
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 0633b3f0d4e82856 | Detected by: Agent_B at 2026-01-25T19:54:36.935964",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:38.971602"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "5ac2c00dc77501b9",
+      "feature_sample": [
+        0.568472,
+        18.0,
+        16.0,
+        2512.0,
+        1386.0,
+        58.05035,
+        254.0,
+        252.0,
+        33394.78125,
+        18294.65625
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 5ac2c00dc77501b9 | Detected by: Agent_B at 2026-01-25T19:54:38.991398",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:41.043984"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "eca1add0559b134b",
+      "feature_sample": [
+        0.535636,
+        12.0,
+        10.0,
+        1256.0,
+        1288.0,
+        39.205729,
+        254.0,
+        252.0,
+        17205.71484,
+        17325.19727
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: eca1add0559b134b | Detected by: Agent_B at 2026-01-25T19:54:41.065193",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:43.146709"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "f013fb4560096028",
+      "feature_sample": [
+        0.793553,
+        16.0,
+        10.0,
+        906.0,
+        556.0,
+        31.503882,
+        254.0,
+        252.0,
+        8569.055664,
+        5050.702148
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: f013fb4560096028 | Detected by: Agent_B at 2026-01-25T19:54:43.176291",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:45.215215"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "a255472adad089df",
+      "feature_sample": [
+        0.905874,
+        16.0,
+        12.0,
+        904.0,
+        642.0,
+        29.805469,
+        254.0,
+        252.0,
+        7488.899902,
+        5201.606445
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: a255472adad089df | Detected by: Agent_B at 2026-01-25T19:54:45.231073",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:47.270707"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "1501ee934881f4fa",
+      "feature_sample": [
+        0.628707,
+        10.0,
+        10.0,
+        964.0,
+        3708.0,
+        30.220755,
+        62.0,
+        252.0,
+        11044.89063,
+        42474.47656
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 1501ee934881f4fa | Detected by: Agent_B at 2026-01-25T19:54:47.291369",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:49.342476"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "4ee9ca969f64b433",
+      "feature_sample": [
+        0.954264,
+        14.0,
+        12.0,
+        782.0,
+        678.0,
+        26.198201,
+        254.0,
+        252.0,
+        6094.749512,
+        5214.490234
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 4ee9ca969f64b433 | Detected by: Agent_B at 2026-01-25T19:54:49.361284",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:51.415604"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "9f62948e9e7ea0ef",
+      "feature_sample": [
+        1.335126,
+        16.0,
+        14.0,
+        904.0,
+        728.0,
+        21.720796,
+        254.0,
+        252.0,
+        5081.167969,
+        4050.553955
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 9f62948e9e7ea0ef | Detected by: Agent_B at 2026-01-25T19:54:51.446795",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:53.498460"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "1ea0669793c2226c",
+      "feature_sample": [
+        0.417471,
+        10.0,
+        8.0,
+        786.0,
+        826.0,
+        40.721392,
+        62.0,
+        252.0,
+        13567.41016,
+        13854.85449
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 1ea0669793c2226c | Detected by: Agent_B at 2026-01-25T19:54:53.525362",
+      "is_zero_day": true,
+      "learned_at": "2026-01-25T19:54:55.588688"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "87f010b43c90d68a",
+      "feature_sample": [
+        0.328615,
+        10.0,
+        10.0,
+        888.0,
+        3780.0,
+        57.818418,
+        62.0,
+        252.0,
+        19475.67773,
+        82820.32031
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 87f010b43c90d68a | Detected by: Agent_B at 2026-01-25T19:54:55.607928",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:57.666916"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "a0cd6849d73f144e",
+      "feature_sample": [
+        0.720163,
+        14.0,
+        12.0,
+        790.0,
+        678.0,
+        34.714364,
+        254.0,
+        252.0,
+        8153.709961,
+        6909.546875
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: a0cd6849d73f144e | Detected by: Agent_B at 2026-01-25T19:54:57.697688",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:54:59.728612"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "547f615a3c601dd7",
+      "feature_sample": [
+        0.963038,
+        18.0,
+        14.0,
+        2798.0,
+        2050.0,
+        32.189798,
+        254.0,
+        252.0,
+        21955.51953,
+        15816.61328
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 547f615a3c601dd7 | Detected by: Agent_B at 2026-01-25T19:54:59.749393",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:01.805042"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "61585f6b1f49fd32",
+      "feature_sample": [
+        0.376248,
+        10.0,
+        6.0,
+        1062.0,
+        268.0,
+        39.867321,
+        254.0,
+        252.0,
+        20327.01758,
+        4762.815918
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 61585f6b1f49fd32 | Detected by: Agent_B at 2026-01-25T19:55:01.819158",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:03.868996"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "4787ca460dc54d1a",
+      "feature_sample": [
+        1.30776,
+        34.0,
+        22.0,
+        23864.0,
+        1846.0,
+        42.056646,
+        62.0,
+        252.0,
+        141695.7188,
+        10784.85352
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 4787ca460dc54d1a | Detected by: Agent_B at 2026-01-25T19:55:03.889672",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:05.949820"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "df2c81cbc63eb436",
+      "feature_sample": [
+        43.776703,
+        5416.0,
+        806.0,
+        7164417.0,
+        34668.0,
+        142.10755,
+        254.0,
+        252.0,
+        1309024.125,
+        6327.566406
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: df2c81cbc63eb436 | Detected by: Agent_B at 2026-01-25T19:55:05.975015",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:08.038985"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "ac1b1e7ea79e4a38",
+      "feature_sample": [
+        0.338931,
+        10.0,
+        8.0,
+        796.0,
+        1024.0,
+        50.157703,
+        62.0,
+        252.0,
+        16923.79883,
+        21148.84766
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: ac1b1e7ea79e4a38 | Detected by: Agent_B at 2026-01-25T19:55:08.058051",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:10.132971"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "79f2ea2536af1df9",
+      "feature_sample": [
+        1.194859,
+        20.0,
+        24.0,
+        934.0,
+        8624.0,
+        35.987509,
+        62.0,
+        252.0,
+        5945.471191,
+        55337.07031
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 79f2ea2536af1df9 | Detected by: Agent_B at 2026-01-25T19:55:10.163198",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:12.239683"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "65f8a91bb753cb24",
+      "feature_sample": [
+        0.796488,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        21.343699,
+        254.0,
+        252.0,
+        5102.399414,
+        3113.668945
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 65f8a91bb753cb24 | Detected by: Agent_B at 2026-01-25T19:55:12.256722",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:14.301949"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "b26bc557b733d3e7",
+      "feature_sample": [
+        0.320574,
+        10.0,
+        6.0,
+        568.0,
+        268.0,
+        46.791071,
+        254.0,
+        252.0,
+        12777.08203,
+        5589.973145
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: b26bc557b733d3e7 | Detected by: Agent_B at 2026-01-25T19:55:14.335904",
+      "is_zero_day": true,
+      "learned_at": "2026-01-25T19:55:16.407852"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "3520ab074e6f1e70",
+      "feature_sample": [
+        0.367036,
+        10.0,
+        8.0,
+        1092.0,
+        1044.0,
+        46.316981,
+        254.0,
+        252.0,
+        21425.68945,
+        19921.75
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 3520ab074e6f1e70 | Detected by: Agent_B at 2026-01-25T19:55:16.430871",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:18.491381"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "774eeb4b5b71d15c",
+      "feature_sample": [
+        7e-06,
+        2.0,
+        0.0,
+        136.0,
+        0.0,
+        142857.1409,
+        254.0,
+        0.0,
+        77714288.0,
+        0.0
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 774eeb4b5b71d15c | Detected by: Agent_B at 2026-01-25T19:55:18.516688",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:20.585195"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "bdd493c8ac7c6ea5",
+      "feature_sample": [
+        0.49391,
+        10.0,
+        14.0,
+        770.0,
+        11200.0,
+        46.567187,
+        62.0,
+        252.0,
+        11224.7168,
+        168451.7344
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: bdd493c8ac7c6ea5 | Detected by: Agent_B at 2026-01-25T19:55:20.613630",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:22.648246"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "0df942ea8174d1dc",
+      "feature_sample": [
+        0.340732,
+        10.0,
+        8.0,
+        842.0,
+        1670.0,
+        49.892583,
+        254.0,
+        252.0,
+        17796.97852,
+        34326.09766
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 0df942ea8174d1dc | Detected by: Agent_B at 2026-01-25T19:55:22.669934",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:24.734225"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "0f1231f229b9c94c",
+      "feature_sample": [
+        3e-06,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        333333.3215,
+        254.0,
+        0.0,
+        224000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 0f1231f229b9c94c | Detected by: Agent_B at 2026-01-25T19:55:24.752521",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:26.810017"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "bb2e71dded812188",
+      "feature_sample": [
+        0.829626,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        20.49116,
+        254.0,
+        252.0,
+        4898.592773,
+        2989.298828
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: bb2e71dded812188 | Detected by: Agent_B at 2026-01-25T19:55:26.831948",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:28.912044"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "8aadf9027a43e610",
+      "feature_sample": [
+        7e-06,
+        2.0,
+        0.0,
+        406.0,
+        0.0,
+        142857.1409,
+        254.0,
+        0.0,
+        232000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: 8aadf9027a43e610 | Detected by: Agent_B at 2026-01-25T19:55:28.940328",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:30.981102"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "4df24c0852443951",
+      "feature_sample": [
+        0.915074,
+        16.0,
+        10.0,
+        1536.0,
+        556.0,
+        27.320195,
+        254.0,
+        252.0,
+        12589.14551,
+        4379.973633
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 4df24c0852443951 | Detected by: Agent_B at 2026-01-25T19:55:30.998705",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:33.050382"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "2924a6b2b31d881b",
+      "feature_sample": [
+        0.328484,
+        10.0,
+        16.0,
+        1126.0,
+        14492.0,
+        76.107208,
+        62.0,
+        252.0,
+        24695.26758,
+        330901.9688
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 2924a6b2b31d881b | Detected by: Agent_B at 2026-01-25T19:55:33.071331",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:35.158220"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "a747a8217a15fd2f",
+      "feature_sample": [
+        0.381521,
+        10.0,
+        10.0,
+        794.0,
+        3962.0,
+        49.800668,
+        62.0,
+        252.0,
+        14992.62207,
+        74774.39063
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: a747a8217a15fd2f | Detected by: Agent_B at 2026-01-25T19:55:35.190079",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:37.289825"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "792841e37d8ca2d6",
+      "feature_sample": [
+        0.580452,
+        12.0,
+        8.0,
+        2326.0,
+        552.0,
+        32.73311,
+        254.0,
+        252.0,
+        29397.7793,
+        6656.880859
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 792841e37d8ca2d6 | Detected by: Agent_B at 2026-01-25T19:55:37.312057",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:39.395789"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "645dab6d7565344f",
+      "feature_sample": [
+        1.845588,
+        24.0,
+        20.0,
+        4963.0,
+        1834.0,
+        23.298808,
+        62.0,
+        252.0,
+        20619.98633,
+        7555.315918
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 645dab6d7565344f | Detected by: Agent_B at 2026-01-25T19:55:39.423702",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:41.491349"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "f431dacec51e66ef",
+      "feature_sample": [
+        1.634732,
+        20.0,
+        38.0,
+        1084.0,
+        31422.0,
+        34.868101,
+        62.0,
+        252.0,
+        5040.581543,
+        149729.7344
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: f431dacec51e66ef | Detected by: Agent_B at 2026-01-25T19:55:41.520920",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:43.559817"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "b36ab23ddad40bb4",
+      "feature_sample": [
+        3e-06,
+        2.0,
+        0.0,
+        78.0,
+        0.0,
+        333333.3215,
+        254.0,
+        0.0,
+        104000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: b36ab23ddad40bb4 | Detected by: Agent_B at 2026-01-25T19:55:43.582714",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:45.653946"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "8248937ef231be0b",
+      "feature_sample": [
+        0.52179,
+        10.0,
+        6.0,
+        684.0,
+        268.0,
+        28.747196,
+        254.0,
+        252.0,
+        9444.412109,
+        3434.331543
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: 8248937ef231be0b | Detected by: Agent_B at 2026-01-25T19:55:45.710152",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:47.772390"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "e3bf94fb76f42a86",
+      "feature_sample": [
+        1.300463,
+        18.0,
+        28.0,
+        992.0,
+        16286.0,
+        34.603062,
+        62.0,
+        252.0,
+        5764.101074,
+        96611.75
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: e3bf94fb76f42a86 | Detected by: Agent_B at 2026-01-25T19:55:47.795023",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:49.886013"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "534dbbd9657651c4",
+      "feature_sample": [
+        0.884886,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        19.211514,
+        254.0,
+        252.0,
+        4592.681641,
+        2802.62085
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 534dbbd9657651c4 | Detected by: Agent_B at 2026-01-25T19:55:49.918090",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:52.000741"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "e7f5ebc1f83b0b21",
+      "feature_sample": [
+        0.474962,
+        12.0,
+        22.0,
+        906.0,
+        22330.0,
+        69.479243,
+        62.0,
+        252.0,
+        13996.90918,
+        359018.1875
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: e7f5ebc1f83b0b21 | Detected by: Agent_B at 2026-01-25T19:55:52.023820",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:54.076645"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "9dac935613530b8e",
+      "feature_sample": [
+        0.818168,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        20.778129,
+        254.0,
+        252.0,
+        4967.195312,
+        3031.162354
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 9dac935613530b8e | Detected by: Agent_B at 2026-01-25T19:55:54.096407",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:56.171224"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "36fdd7d68b53d88c",
+      "feature_sample": [
+        35.181515,
+        4144.0,
+        622.0,
+        5487011.0,
+        26990.0,
+        135.440445,
+        254.0,
+        252.0,
+        1247402.125,
+        6127.536133
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 36fdd7d68b53d88c | Detected by: Agent_B at 2026-01-25T19:55:56.194470",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:55:58.272112"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "51df883534735fb0",
+      "feature_sample": [
+        0.37681,
+        10.0,
+        6.0,
+        562.0,
+        268.0,
+        39.807859,
+        254.0,
+        252.0,
+        10742.81445,
+        4755.712402
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: 51df883534735fb0 | Detected by: Agent_B at 2026-01-25T19:55:58.294866",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:00.359371"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "60f9cd036b136c15",
+      "feature_sample": [
+        2.3e-05,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        43478.25991,
+        254.0,
+        0.0,
+        29217390.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 60f9cd036b136c15 | Detected by: Agent_B at 2026-01-25T19:56:00.381296",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:02.451787"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "a3ccfa47f0a1bd0d",
+      "feature_sample": [
+        0.346076,
+        10.0,
+        6.0,
+        914.0,
+        268.0,
+        43.343079,
+        254.0,
+        252.0,
+        19024.72266,
+        5178.053223
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: a3ccfa47f0a1bd0d | Detected by: Agent_B at 2026-01-25T19:56:02.486645",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:04.549691"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "551993016914b3cc",
+      "feature_sample": [
+        3.315317,
+        182.0,
+        44.0,
+        214505.0,
+        2812.0,
+        67.866815,
+        62.0,
+        252.0,
+        514767.0625,
+        6633.453125
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 551993016914b3cc | Detected by: Agent_B at 2026-01-25T19:56:04.575027",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:06.663903"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "2c1cf0b0caaf8537",
+      "feature_sample": [
+        4e-06,
+        2.0,
+        0.0,
+        2792.0,
+        0.0,
+        250000.0006,
+        254.0,
+        0.0,
+        2792000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 2c1cf0b0caaf8537 | Detected by: Agent_B at 2026-01-25T19:56:06.693945",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:08.776686"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "509d0622804398f5",
+      "feature_sample": [
+        1e-06,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        1000000.003,
+        254.0,
+        0.0,
+        672000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 509d0622804398f5 | Detected by: Agent_B at 2026-01-25T19:56:08.805553",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:10.924829"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "b2abb278eca24da3",
+      "feature_sample": [
+        8e-06,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        125000.0003,
+        254.0,
+        0.0,
+        84000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: b2abb278eca24da3 | Detected by: Agent_B at 2026-01-25T19:56:10.948580",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:12.990992"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "5a0922da82444f2d",
+      "feature_sample": [
+        0.671246,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        25.326036,
+        254.0,
+        252.0,
+        6054.412109,
+        3694.621582
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 5a0922da82444f2d | Detected by: Agent_B at 2026-01-25T19:56:13.013722",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:15.118476"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "e2574069291c438b",
+      "feature_sample": [
+        0.67514,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        25.179962,
+        254.0,
+        252.0,
+        6019.492188,
+        3673.312012
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: e2574069291c438b | Detected by: Agent_B at 2026-01-25T19:56:15.154044",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:17.228117"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "cf5bb0370cf11e77",
+      "feature_sample": [
+        0.277344,
+        10.0,
+        10.0,
+        800.0,
+        5972.0,
+        68.506983,
+        62.0,
+        252.0,
+        20768.43359,
+        155042.125
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: cf5bb0370cf11e77 | Detected by: Agent_B at 2026-01-25T19:56:17.262855",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:19.328307"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "1f3e27c2736eb8ae",
+      "feature_sample": [
+        0.012899,
+        2.0,
+        2.0,
+        96.0,
+        96.0,
+        232.576165,
+        254.0,
+        252.0,
+        29769.75,
+        29769.75
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 1f3e27c2736eb8ae | Detected by: Agent_B at 2026-01-25T19:56:19.354015",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:21.442502"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "a87be3766ea82016",
+      "feature_sample": [
+        0.623815,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        27.251669,
+        254.0,
+        252.0,
+        6514.751953,
+        3975.537598
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: a87be3766ea82016 | Detected by: Agent_B at 2026-01-25T19:56:21.476288",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:23.510591"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "2c449b540ddee626",
+      "feature_sample": [
+        0.190103,
+        10.0,
+        10.0,
+        916.0,
+        4638.0,
+        99.945822,
+        62.0,
+        252.0,
+        34718.02344,
+        175694.2344
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 2c449b540ddee626 | Detected by: Agent_B at 2026-01-25T19:56:23.533913",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:25.599338"
+    },
+    {
+      "attack_category": "Analysis",
+      "signature_hash": "e1fadc85ed9f58e7",
+      "feature_sample": [
+        5e-06,
+        2.0,
+        0.0,
+        180.0,
+        0.0,
+        200000.0051,
+        254.0,
+        0.0,
+        144000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Analysis] Monitor reconnaissance patterns; Implement honeypots; Enable deep packet inspection | Signature hash: e1fadc85ed9f58e7 | Detected by: Agent_B at 2026-01-25T19:56:25.631150",
+      "is_zero_day": true,
+      "learned_at": "2026-01-25T19:56:27.734944"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "e1fadc85ed9f58e7",
+      "feature_sample": [
+        5e-06,
+        2.0,
+        0.0,
+        180.0,
+        0.0,
+        200000.0051,
+        254.0,
+        0.0,
+        144000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: e1fadc85ed9f58e7 | Detected by: Agent_B at 2026-01-25T19:56:27.759759",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:29.859200"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "53ef1ad4c23ef46c",
+      "feature_sample": [
+        3e-06,
+        2.0,
+        0.0,
+        180.0,
+        0.0,
+        333333.3215,
+        254.0,
+        0.0,
+        239999984.0,
+        0.0
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 53ef1ad4c23ef46c | Detected by: Agent_B at 2026-01-25T19:56:29.917781",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:32.016352"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "ac3e543905054114",
+      "feature_sample": [
+        1.160125,
+        22.0,
+        22.0,
+        1190.0,
+        1642.0,
+        37.064971,
+        62.0,
+        252.0,
+        7833.638672,
+        10812.62793
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: ac3e543905054114 | Detected by: Agent_B at 2026-01-25T19:56:32.186419",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:34.265759"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "3c55bae39adef944",
+      "feature_sample": [
+        1.007653,
+        4.0,
+        0.0,
+        360.0,
+        0.0,
+        2.977215,
+        254.0,
+        0.0,
+        2143.594971,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 3c55bae39adef944 | Detected by: Agent_B at 2026-01-25T19:56:34.311279",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:36.360922"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "edfc289d3ea4b022",
+      "feature_sample": [
+        0.192322,
+        12.0,
+        6.0,
+        5098.0,
+        268.0,
+        88.393423,
+        254.0,
+        252.0,
+        194423.9375,
+        9317.707031
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: edfc289d3ea4b022 | Detected by: Agent_B at 2026-01-25T19:56:36.437724",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:38.565084"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "02b6f5e6445d003a",
+      "feature_sample": [
+        0.187225,
+        10.0,
+        6.0,
+        1988.0,
+        268.0,
+        80.117506,
+        254.0,
+        252.0,
+        76485.51563,
+        9571.371094
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 02b6f5e6445d003a | Detected by: Agent_B at 2026-01-25T19:56:38.585879",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:40.739848"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "c0d86787051b1a3c",
+      "feature_sample": [
+        0.675253,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        25.17575,
+        254.0,
+        252.0,
+        6018.485352,
+        3672.697754
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: c0d86787051b1a3c | Detected by: Agent_B at 2026-01-25T19:56:40.760223",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:42.878136"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "5994d56066ec2b2b",
+      "feature_sample": [
+        8e-06,
+        2.0,
+        0.0,
+        180.0,
+        0.0,
+        125000.0003,
+        254.0,
+        0.0,
+        90000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 5994d56066ec2b2b | Detected by: Agent_B at 2026-01-25T19:56:42.902435",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:44.968164"
+    },
+    {
+      "attack_category": "Backdoor",
+      "signature_hash": "4296d01b6cd8a919",
+      "feature_sample": [
+        3e-06,
+        2.0,
+        0.0,
+        200.0,
+        0.0,
+        333333.3215,
+        254.0,
+        0.0,
+        266666656.0,
+        0.0
+      ],
+      "mitigation_policy": "[Backdoor] Isolate affected systems; Revoke compromised credentials; Audit network connections | Signature hash: 4296d01b6cd8a919 | Detected by: Agent_B at 2026-01-25T19:56:44.998093",
+      "is_zero_day": true,
+      "learned_at": "2026-01-25T19:56:47.214586"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "4296d01b6cd8a919",
+      "feature_sample": [
+        3e-06,
+        2.0,
+        0.0,
+        200.0,
+        0.0,
+        333333.3215,
+        254.0,
+        0.0,
+        266666656.0,
+        0.0
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 4296d01b6cd8a919 | Detected by: Agent_B at 2026-01-25T19:56:47.250083",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:49.311290"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "67502b760f05bfc1",
+      "feature_sample": [
+        6e-06,
+        2.0,
+        0.0,
+        180.0,
+        0.0,
+        166666.6608,
+        254.0,
+        0.0,
+        119999992.0,
+        0.0
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 67502b760f05bfc1 | Detected by: Agent_B at 2026-01-25T19:56:49.351883",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:51.439590"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "dc282ec6736a9aa8",
+      "feature_sample": [
+        2e-06,
+        2.0,
+        0.0,
+        180.0,
+        0.0,
+        500000.0013,
+        254.0,
+        0.0,
+        360000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: dc282ec6736a9aa8 | Detected by: Agent_B at 2026-01-25T19:56:51.547733",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:53.589839"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "68ad4abb39b9fc13",
+      "feature_sample": [
+        1.3e-05,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        76923.07779,
+        254.0,
+        0.0,
+        51692308.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 68ad4abb39b9fc13 | Detected by: Agent_B at 2026-01-25T19:56:53.637007",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:55.673994"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "97c6c43961a5607a",
+      "feature_sample": [
+        0.707186,
+        18.0,
+        22.0,
+        1032.0,
+        9898.0,
+        55.148152,
+        62.0,
+        252.0,
+        11029.62988,
+        106891.2578
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 97c6c43961a5607a | Detected by: Agent_B at 2026-01-25T19:56:55.706340",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:57.755745"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "6e0dcd41cf921485",
+      "feature_sample": [
+        1.5e-05,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        66666.66835,
+        254.0,
+        0.0,
+        44800000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 6e0dcd41cf921485 | Detected by: Agent_B at 2026-01-25T19:56:57.798905",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:56:59.853011"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "2cdeccc6fa94bbc7",
+      "feature_sample": [
+        0.781325,
+        22.0,
+        44.0,
+        1186.0,
+        40540.0,
+        83.192015,
+        62.0,
+        252.0,
+        11600.80664,
+        405659.625
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 2cdeccc6fa94bbc7 | Detected by: Agent_B at 2026-01-25T19:56:59.886951",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:01.976083"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "795bd7ed91caef21",
+      "feature_sample": [
+        0.225991,
+        10.0,
+        8.0,
+        1170.0,
+        966.0,
+        75.224236,
+        254.0,
+        252.0,
+        37275.82031,
+        29948.0957
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 795bd7ed91caef21 | Detected by: Agent_B at 2026-01-25T19:57:02.007152",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:04.097513"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "3352a2dd29af0496",
+      "feature_sample": [
+        0.227117,
+        10.0,
+        10.0,
+        834.0,
+        5384.0,
+        83.657321,
+        62.0,
+        252.0,
+        26453.32617,
+        170696.1563
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 3352a2dd29af0496 | Detected by: Agent_B at 2026-01-25T19:57:04.148726",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:06.250841"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "830ac6c8d3ace10d",
+      "feature_sample": [
+        1e-05,
+        2.0,
+        0.0,
+        748.0,
+        0.0,
+        100000.0025,
+        254.0,
+        0.0,
+        299200000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 830ac6c8d3ace10d | Detected by: Agent_B at 2026-01-25T19:57:06.310693",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:08.417380"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "e5434eac4a103330",
+      "feature_sample": [
+        1.411386,
+        22.0,
+        22.0,
+        1202.0,
+        1664.0,
+        30.466506,
+        62.0,
+        252.0,
+        6507.078613,
+        9006.749023
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: e5434eac4a103330 | Detected by: Agent_B at 2026-01-25T19:57:08.465618",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:10.553248"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "2f8f60edb4157b82",
+      "feature_sample": [
+        0.244608,
+        10.0,
+        6.0,
+        980.0,
+        268.0,
+        61.322606,
+        254.0,
+        252.0,
+        28846.1543,
+        7326.007324
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 2f8f60edb4157b82 | Detected by: Agent_B at 2026-01-25T19:57:10.575007",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:12.653405"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "ac54f13697ae17dd",
+      "feature_sample": [
+        1.253977,
+        252.0,
+        54.0,
+        308919.0,
+        3296.0,
+        243.226163,
+        62.0,
+        252.0,
+        1962996.25,
+        20638.33789
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: ac54f13697ae17dd | Detected by: Agent_B at 2026-01-25T19:57:12.686982",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:14.830381"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "8d8fad6377afa4a7",
+      "feature_sample": [
+        2e-05,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        50000.00126,
+        254.0,
+        0.0,
+        33600000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 8d8fad6377afa4a7 | Detected by: Agent_B at 2026-01-25T19:57:14.860421",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:16.962831"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "b5ed972797053c55",
+      "feature_sample": [
+        0.371083,
+        10.0,
+        6.0,
+        950.0,
+        268.0,
+        40.422225,
+        254.0,
+        252.0,
+        18432.53516,
+        4829.108398
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: b5ed972797053c55 | Detected by: Agent_B at 2026-01-25T19:57:16.998671",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:19.111347"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "1c9ce55cdf9edc08",
+      "feature_sample": [
+        7e-06,
+        2.0,
+        0.0,
+        168.0,
+        0.0,
+        142857.1409,
+        254.0,
+        0.0,
+        96000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 1c9ce55cdf9edc08 | Detected by: Agent_B at 2026-01-25T19:57:19.144747",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:21.201672"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "e9999a956dad3f07",
+      "feature_sample": [
+        1.246909,
+        4.0,
+        0.0,
+        400.0,
+        0.0,
+        2.405949,
+        254.0,
+        0.0,
+        1924.759521,
+        0.0
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: e9999a956dad3f07 | Detected by: Agent_B at 2026-01-25T19:57:21.223470",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:23.331957"
+    },
+    {
+      "attack_category": "Backdoor",
+      "signature_hash": "14e14fb39dab0500",
+      "feature_sample": [
+        0.489758,
+        20.0,
+        0.0,
+        1040.0,
+        0.0,
+        38.794669,
+        254.0,
+        0.0,
+        16138.58203,
+        0.0
+      ],
+      "mitigation_policy": "[Backdoor] Isolate affected systems; Revoke compromised credentials; Audit network connections | Signature hash: 14e14fb39dab0500 | Detected by: Agent_B at 2026-01-25T19:57:23.357061",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:25.410684"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "d49e4318e1944d35",
+      "feature_sample": [
+        57.237827,
+        1642.0,
+        11018.0,
+        70700.0,
+        14657531.0,
+        221.164929,
+        62.0,
+        252.0,
+        9875.567383,
+        2048463.625
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: d49e4318e1944d35 | Detected by: Agent_B at 2026-01-25T19:57:25.466855",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:27.539405"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "1570b329aa187e99",
+      "feature_sample": [
+        0.231606,
+        12.0,
+        22.0,
+        926.0,
+        23166.0,
+        142.483351,
+        62.0,
+        252.0,
+        29325.66406,
+        763814.375
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 1570b329aa187e99 | Detected by: Agent_B at 2026-01-25T19:57:27.597906",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:29.664299"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "6ccb46c4ac1a0bed",
+      "feature_sample": [
+        1.565097,
+        60.0,
+        348.0,
+        2976.0,
+        449181.0,
+        260.047784,
+        62.0,
+        252.0,
+        14961.37305,
+        2289396.75
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 6ccb46c4ac1a0bed | Detected by: Agent_B at 2026-01-25T19:57:29.715607",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:31.777699"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "0ed77a282e8807dd",
+      "feature_sample": [
+        1.644148,
+        232.0,
+        50.0,
+        283242.0,
+        2998.0,
+        170.909189,
+        62.0,
+        252.0,
+        1372246.25,
+        14300.41602
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 0ed77a282e8807dd | Detected by: Agent_B at 2026-01-25T19:57:31.831376",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:33.897362"
+    },
+    {
+      "attack_category": "Backdoor",
+      "signature_hash": "f00a121e5893e18b",
+      "feature_sample": [
+        9e-06,
+        2.0,
+        0.0,
+        200.0,
+        0.0,
+        111111.1072,
+        254.0,
+        0.0,
+        88888888.0,
+        0.0
+      ],
+      "mitigation_policy": "[Backdoor] Isolate affected systems; Revoke compromised credentials; Audit network connections | Signature hash: f00a121e5893e18b | Detected by: Agent_B at 2026-01-25T19:57:33.925873",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:35.993768"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "e3b6cfae1d7db6e5",
+      "feature_sample": [
+        7.312841,
+        40.0,
+        0.0,
+        10880.0,
+        0.0,
+        5.333085,
+        254.0,
+        0.0,
+        11604.79199,
+        0.0
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: e3b6cfae1d7db6e5 | Detected by: Agent_B at 2026-01-25T19:57:36.019635",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:38.067461"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "e7e735a6061dd994",
+      "feature_sample": [
+        5e-06,
+        2.0,
+        0.0,
+        200.0,
+        0.0,
+        200000.0051,
+        254.0,
+        0.0,
+        160000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: e7e735a6061dd994 | Detected by: Agent_B at 2026-01-25T19:57:38.130888",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:40.171554"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "5c983a641b4e72d1",
+      "feature_sample": [
+        0.27331,
+        10.0,
+        6.0,
+        898.0,
+        268.0,
+        54.882733,
+        254.0,
+        252.0,
+        23680.07031,
+        6556.657227
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 5c983a641b4e72d1 | Detected by: Agent_B at 2026-01-25T19:57:40.240630",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:42.314156"
+    },
+    {
+      "attack_category": "Analysis",
+      "signature_hash": "5f95e7d22c6faddc",
+      "feature_sample": [
+        8e-06,
+        2.0,
+        0.0,
+        200.0,
+        0.0,
+        125000.0003,
+        254.0,
+        0.0,
+        100000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Analysis] Monitor reconnaissance patterns; Implement honeypots; Enable deep packet inspection | Signature hash: 5f95e7d22c6faddc | Detected by: Agent_B at 2026-01-25T19:57:42.336799",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:44.414688"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "bad730b37d056a00",
+      "feature_sample": [
+        0.155371,
+        22.0,
+        8.0,
+        19834.0,
+        354.0,
+        186.650024,
+        254.0,
+        252.0,
+        974853.75,
+        15961.79492
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: bad730b37d056a00 | Detected by: Agent_B at 2026-01-25T19:57:44.443756",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:46.529217"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "6fda608387c1e00f",
+      "feature_sample": [
+        0.217978,
+        10.0,
+        6.0,
+        802.0,
+        268.0,
+        68.814284,
+        254.0,
+        252.0,
+        26498.08594,
+        8221.012695
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 6fda608387c1e00f | Detected by: Agent_B at 2026-01-25T19:57:46.588711",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:48.643585"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "c986aebe20b3c154",
+      "feature_sample": [
+        0.625488,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        27.17878,
+        254.0,
+        252.0,
+        6497.327148,
+        3964.904297
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: c986aebe20b3c154 | Detected by: Agent_B at 2026-01-25T19:57:48.707243",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:50.789715"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "a7f38af0b55968bb",
+      "feature_sample": [
+        0.2647,
+        10.0,
+        12.0,
+        2652.0,
+        9188.0,
+        79.335098,
+        254.0,
+        252.0,
+        72142.04688,
+        254567.4375
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: a7f38af0b55968bb | Detected by: Agent_B at 2026-01-25T19:57:50.852298",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:52.942990"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "236f4ce994520827",
+      "feature_sample": [
+        0.496533,
+        10.0,
+        10.0,
+        962.0,
+        1056.0,
+        38.265331,
+        62.0,
+        252.0,
+        13952.74805,
+        15322.24414
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 236f4ce994520827 | Detected by: Agent_B at 2026-01-25T19:57:52.985265",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:55.108428"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "3e8b2000ddd508b6",
+      "feature_sample": [
+        0.632841,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        26.862988,
+        254.0,
+        252.0,
+        6421.834473,
+        3918.835938
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 3e8b2000ddd508b6 | Detected by: Agent_B at 2026-01-25T19:57:55.168965",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:57.276242"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "cf4233c67c78472c",
+      "feature_sample": [
+        0.181007,
+        10.0,
+        6.0,
+        2792.0,
+        268.0,
+        82.869724,
+        254.0,
+        252.0,
+        111067.5313,
+        9900.169922
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: cf4233c67c78472c | Detected by: Agent_B at 2026-01-25T19:57:57.311086",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:57:59.408340"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "9ee7f0f038b1004d",
+      "feature_sample": [
+        0.626981,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        27.114058,
+        254.0,
+        252.0,
+        6481.85498,
+        3955.462646
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 9ee7f0f038b1004d | Detected by: Agent_B at 2026-01-25T19:57:59.463128",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:01.597912"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "c16a8c91bb13b3d9",
+      "feature_sample": [
+        1.755642,
+        62.0,
+        368.0,
+        3010.0,
+        474465.0,
+        244.355049,
+        62.0,
+        252.0,
+        13497.05664,
+        2156138.75
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: c16a8c91bb13b3d9 | Detected by: Agent_B at 2026-01-25T19:58:01.647395",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:03.747964"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "ebd398159f9a5963",
+      "feature_sample": [
+        0.633985,
+        18.0,
+        18.0,
+        1024.0,
+        3010.0,
+        55.206355,
+        62.0,
+        252.0,
+        12214.80078,
+        35874.66797
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: ebd398159f9a5963 | Detected by: Agent_B at 2026-01-25T19:58:03.786934",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:05.838556"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "2ff7ef504a778449",
+      "feature_sample": [
+        0.18229,
+        10.0,
+        6.0,
+        1006.0,
+        268.0,
+        82.286465,
+        254.0,
+        252.0,
+        39760.82031,
+        9830.489258
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 2ff7ef504a778449 | Detected by: Agent_B at 2026-01-25T19:58:05.873765",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:07.935438"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "0348928923ae5b2a",
+      "feature_sample": [
+        0.844803,
+        26.0,
+        20.0,
+        9199.0,
+        1596.0,
+        53.266858,
+        62.0,
+        252.0,
+        83768.64063,
+        14365.47949
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 0348928923ae5b2a | Detected by: Agent_B at 2026-01-25T19:58:07.956241",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:09.995495"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "b040e5f2d708472e",
+      "feature_sample": [
+        0.008271,
+        2.0,
+        2.0,
+        1386.0,
+        106.0,
+        362.713079,
+        254.0,
+        60.0,
+        670293.75,
+        51263.44922
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: b040e5f2d708472e | Detected by: Agent_B at 2026-01-25T19:58:10.051449",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:12.178998"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "71d36054f72f9164",
+      "feature_sample": [
+        1.122435,
+        90.0,
+        32.0,
+        94429.0,
+        2308.0,
+        107.801345,
+        62.0,
+        252.0,
+        665553.0625,
+        15936.78027
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 71d36054f72f9164 | Detected by: Agent_B at 2026-01-25T19:58:12.228789",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:14.282564"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "4790464a1c83710f",
+      "feature_sample": [
+        0.230717,
+        10.0,
+        12.0,
+        802.0,
+        7782.0,
+        91.0206,
+        62.0,
+        252.0,
+        25035.0,
+        247367.9844
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 4790464a1c83710f | Detected by: Agent_B at 2026-01-25T19:58:14.314345",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:16.369953"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "a5dca5875a385d70",
+      "feature_sample": [
+        0.638853,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        26.61019,
+        254.0,
+        252.0,
+        6361.400879,
+        3881.957031
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: a5dca5875a385d70 | Detected by: Agent_B at 2026-01-25T19:58:16.414542",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:18.498388"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "a166edb9c0cc4649",
+      "feature_sample": [
+        0.248781,
+        12.0,
+        26.0,
+        876.0,
+        29216.0,
+        148.725187,
+        62.0,
+        252.0,
+        25821.9082,
+        903380.875
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: a166edb9c0cc4649 | Detected by: Agent_B at 2026-01-25T19:58:18.548296",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:20.627297"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "b764e10e64f32250",
+      "feature_sample": [
+        1.96472,
+        22.0,
+        22.0,
+        1206.0,
+        1638.0,
+        21.88607,
+        62.0,
+        252.0,
+        4690.744629,
+        6368.337402
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: b764e10e64f32250 | Detected by: Agent_B at 2026-01-25T19:58:20.667494",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:22.789163"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "7e559a3760654569",
+      "feature_sample": [
+        1.914575,
+        26.0,
+        26.0,
+        3444.0,
+        3254.0,
+        26.637766,
+        254.0,
+        252.0,
+        13839.10254,
+        13074.44238
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 7e559a3760654569 | Detected by: Agent_B at 2026-01-25T19:58:22.847425",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:24.956497"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "d9d15e42071adb62",
+      "feature_sample": [
+        0.872915,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        19.474977,
+        254.0,
+        252.0,
+        4655.665039,
+        2841.05542
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: d9d15e42071adb62 | Detected by: Agent_B at 2026-01-25T19:58:24.979379",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:27.112555"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "9cc9a18fe3a309b6",
+      "feature_sample": [
+        4e-06,
+        2.0,
+        0.0,
+        200.0,
+        0.0,
+        250000.0006,
+        254.0,
+        0.0,
+        200000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 9cc9a18fe3a309b6 | Detected by: Agent_B at 2026-01-25T19:58:27.160478",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:29.249339"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "e5247fd00e5a6f95",
+      "feature_sample": [
+        0.618564,
+        12.0,
+        6.0,
+        4172.0,
+        268.0,
+        27.483009,
+        254.0,
+        252.0,
+        49469.41406,
+        2897.032471
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: e5247fd00e5a6f95 | Detected by: Agent_B at 2026-01-25T19:58:29.277754",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:31.367506"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "518decc37362132f",
+      "feature_sample": [
+        0.97472,
+        50.0,
+        24.0,
+        41333.0,
+        2022.0,
+        74.893303,
+        62.0,
+        252.0,
+        332460.5938,
+        15906.10645
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 518decc37362132f | Detected by: Agent_B at 2026-01-25T19:58:31.402287",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:33.529981"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "5717b0eb284e72b6",
+      "feature_sample": [
+        0.285157,
+        10.0,
+        8.0,
+        814.0,
+        2030.0,
+        59.616283,
+        62.0,
+        252.0,
+        20564.11133,
+        49853.23828
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 5717b0eb284e72b6 | Detected by: Agent_B at 2026-01-25T19:58:33.592414",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:35.737991"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "99ef03d56b2262b2",
+      "feature_sample": [
+        1e-05,
+        2.0,
+        0.0,
+        322.0,
+        0.0,
+        100000.0025,
+        254.0,
+        0.0,
+        128800000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: 99ef03d56b2262b2 | Detected by: Agent_B at 2026-01-25T19:58:35.796896",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:37.866871"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "16b00dd719afeac8",
+      "feature_sample": [
+        0.255045,
+        10.0,
+        6.0,
+        2456.0,
+        268.0,
+        58.813151,
+        254.0,
+        252.0,
+        69352.46875,
+        7026.210938
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 16b00dd719afeac8 | Detected by: Agent_B at 2026-01-25T19:58:37.908671",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:40.111958"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "77fc5e0c1af2292c",
+      "feature_sample": [
+        1.036788,
+        20.0,
+        82.0,
+        1268.0,
+        100496.0,
+        97.416252,
+        62.0,
+        252.0,
+        9297.947266,
+        765988.8125
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 77fc5e0c1af2292c | Detected by: Agent_B at 2026-01-25T19:58:40.149260",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:42.236462"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "d1e3eab504a9faf5",
+      "feature_sample": [
+        0.538437,
+        10.0,
+        8.0,
+        518.0,
+        354.0,
+        31.572867,
+        254.0,
+        252.0,
+        6938.601562,
+        4605.924316
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: d1e3eab504a9faf5 | Detected by: Agent_B at 2026-01-25T19:58:42.275264",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:44.354225"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "031ddbd2c9845ea1",
+      "feature_sample": [
+        1e-06,
+        2.0,
+        0.0,
+        104.0,
+        0.0,
+        1000000.003,
+        254.0,
+        0.0,
+        416000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 031ddbd2c9845ea1 | Detected by: Agent_B at 2026-01-25T19:58:44.381299",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:46.443554"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "b17b207f5df2592c",
+      "feature_sample": [
+        2e-06,
+        2.0,
+        0.0,
+        104.0,
+        0.0,
+        500000.0013,
+        254.0,
+        0.0,
+        208000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: b17b207f5df2592c | Detected by: Agent_B at 2026-01-25T19:58:46.472743",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:48.511717"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "4899493b638b48a1",
+      "feature_sample": [
+        0.301315,
+        10.0,
+        8.0,
+        812.0,
+        2864.0,
+        56.41936,
+        62.0,
+        252.0,
+        19408.25977,
+        66535.01563
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 4899493b638b48a1 | Detected by: Agent_B at 2026-01-25T19:58:48.538364",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:50.625732"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "99a1570032dd340e",
+      "feature_sample": [
+        1.285564,
+        12.0,
+        10.0,
+        1012.0,
+        1688.0,
+        16.335243,
+        62.0,
+        252.0,
+        5774.897461,
+        9458.883789
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 99a1570032dd340e | Detected by: Agent_B at 2026-01-25T19:58:50.653697",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:52.727894"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "43a4169b7920c4fc",
+      "feature_sample": [
+        0.664642,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        25.57768,
+        254.0,
+        252.0,
+        6114.570312,
+        3731.332275
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 43a4169b7920c4fc | Detected by: Agent_B at 2026-01-25T19:58:52.763836",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:54.889445"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "9ec6141e5510481f",
+      "feature_sample": [
+        0.221558,
+        10.0,
+        6.0,
+        628.0,
+        268.0,
+        67.702361,
+        254.0,
+        252.0,
+        20437.08594,
+        8088.175293
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: 9ec6141e5510481f | Detected by: Agent_B at 2026-01-25T19:58:54.932091",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:56.999365"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "d2dcd8adff5022bd",
+      "feature_sample": [
+        0.241523,
+        10.0,
+        8.0,
+        818.0,
+        1796.0,
+        70.386672,
+        62.0,
+        252.0,
+        24411.75391,
+        52069.57422
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: d2dcd8adff5022bd | Detected by: Agent_B at 2026-01-25T19:58:57.032578",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:58:59.166891"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "2799725f5b1a370a",
+      "feature_sample": [
+        0.616813,
+        26.0,
+        20.0,
+        9989.0,
+        1712.0,
+        72.95566,
+        62.0,
+        252.0,
+        124575.8438,
+        21102.01953
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 2799725f5b1a370a | Detected by: Agent_B at 2026-01-25T19:58:59.233896",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:59:01.345368"
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "signature_hash": "952b0afee59cd7ab",
+      "feature_sample": [
+        0.659375,
+        10.0,
+        8.0,
+        564.0,
+        354.0,
+        25.78199,
+        254.0,
+        252.0,
+        6163.412109,
+        3761.137451
+      ],
+      "mitigation_policy": "[Reconnaissance] Mask network topology; Enable port scan detection; Limit information disclosure | Signature hash: 952b0afee59cd7ab | Detected by: Agent_B at 2026-01-25T19:59:01.386144",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:59:03.529998"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "c00b143a72cac426",
+      "feature_sample": [
+        0.474746,
+        8.0,
+        10.0,
+        364.0,
+        5150.0,
+        35.808623,
+        62.0,
+        252.0,
+        5375.506348,
+        78104.92188
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: c00b143a72cac426 | Detected by: Agent_B at 2026-01-25T19:59:03.567847",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:59:05.702267"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "741625ee840e792c",
+      "feature_sample": [
+        8e-06,
+        2.0,
+        0.0,
+        104.0,
+        0.0,
+        125000.0003,
+        254.0,
+        0.0,
+        52000000.0,
+        0.0
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 741625ee840e792c | Detected by: Agent_B at 2026-01-25T19:59:05.747833",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:59:07.879690"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "c847f5edd83f9f84",
+      "feature_sample": [
+        0.379524,
+        10.0,
+        6.0,
+        1612.0,
+        268.0,
+        39.523193,
+        254.0,
+        252.0,
+        30585.68164,
+        4721.704102
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: c847f5edd83f9f84 | Detected by: Agent_B at 2026-01-25T19:59:07.929463",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T19:59:10.039425"
+    },
+    {
+      "attack_category": "Fuzzers",
+      "signature_hash": "4f836da0a3c16b4e",
+      "feature_sample": [
+        0.252441,
+        10.0,
+        6.0,
+        1844.0,
+        268.0,
+        59.419827,
+        254.0,
+        252.0,
+        52606.35547,
+        7098.688477
+      ],
+      "mitigation_policy": "[Fuzzers] Block anomalous packet sequences; Enable input validation; Rate limit suspicious sources | Signature hash: 4f836da0a3c16b4e | Detected by: Agent_B at 2026-01-25T20:04:23.146190",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T20:04:25.258572"
+    },
+    {
+      "attack_category": "Exploits",
+      "signature_hash": "287abc888e953412",
+      "feature_sample": [
+        0.186136,
+        10.0,
+        12.0,
+        816.0,
+        6574.0,
+        112.820729,
+        62.0,
+        252.0,
+        31589.80469,
+        259036.3906
+      ],
+      "mitigation_policy": "[Exploits] Patch vulnerable systems; Enable IPS signatures; Segment network zones | Signature hash: 287abc888e953412 | Detected by: Agent_B at 2026-01-25T20:04:25.315665",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T20:04:27.413585"
+    },
+    {
+      "attack_category": "DoS",
+      "signature_hash": "1ea0669793c2226c",
+      "feature_sample": [
+        0.417471,
+        10.0,
+        8.0,
+        786.0,
+        826.0,
+        40.721392,
+        62.0,
+        252.0,
+        13567.41016,
+        13854.85449
+      ],
+      "mitigation_policy": "[DoS] Enable rate limiting; Activate DDoS mitigation; Scale infrastructure resources | Signature hash: 1ea0669793c2226c | Detected by: Agent_B at 2026-01-25T20:04:27.669113",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T20:04:29.819826"
+    },
+    {
+      "attack_category": "Shellcode",
+      "signature_hash": "b26bc557b733d3e7",
+      "feature_sample": [
+        0.320574,
+        10.0,
+        6.0,
+        568.0,
+        268.0,
+        46.791071,
+        254.0,
+        252.0,
+        12777.08203,
+        5589.973145
+      ],
+      "mitigation_policy": "[Shellcode] Enable DEP/ASLR; Block executable payloads; Sandbox suspicious processes | Signature hash: b26bc557b733d3e7 | Detected by: Agent_B at 2026-01-25T20:04:30.005669",
+      "is_zero_day": false,
+      "learned_at": "2026-01-25T20:04:32.147437"
+    }
+  ],
+  "stats": {
+    "packets_processed": 26,
+    "normal_traffic": 0,
+    "attacks_detected": 26,
+    "zero_days_discovered": 0,
+    "updates_sent": 4,
+    "connection_errors": 0
+  },
+  "last_saved": "2026-01-25T20:04:32.147437"
+}
