@@ -1,0 +1,30 @@
+services:
+  # The IDS Agent (Receiver)
+  local-agentic-ids:
+    build:
+      context: ./local-agentic-ids  # Path to the folder containing your Agent Dockerfile
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"] # Adjust if you have a health endpoint
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # The Packet Streamer (Sender)
+  pkt-streamer:
+    build:
+      context: ./pkt-streamer      # Path to the folder containing your Streamer Dockerfile
+    # depends_on:
+    #   local-agentic-ids:
+    #     condition: service_started
+    environment:
+      - CSV_PATH=/data/UNSW-NB15_1.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_URL=http://localhost:5000/detect
+      - API_TIMEOUT=0.5
+      - STREAM_DELAY=3
+      - DROP_COLUMNS=attack_cat,Label
+    volumes:
+      # Mount your local dataset folder to the container's /data path
+      - ./data:/data:ro

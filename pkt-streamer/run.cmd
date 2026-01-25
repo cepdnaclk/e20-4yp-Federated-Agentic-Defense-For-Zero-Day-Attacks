@@ -1,0 +1,1 @@
+docker run --rm -it -v "D:\Git Clones\e20-4yp-Federated-Agentic-Defense-For-Zero-Day-Attacks\pkt-streamer\data:/data" -e API_URL="http://host.docker.internal:5000/detect" pkt-streamer
