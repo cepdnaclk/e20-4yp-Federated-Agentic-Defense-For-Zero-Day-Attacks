@@ -1,0 +1,107 @@
+version: "3.9"
+
+networks:
+  federated-net:
+    driver: bridge
+
+services:
+  fl-server:
+    build:
+      context: ./fl-server
+    environment:
+      - PORT=9090
+    networks:
+      - federated-net
+
+  ids-agent-org-a:
+    build:
+      context: ./agentic-ids-local
+    environment:
+      - ORG_ID=org-a
+      - FL_SERVER_URL=http://fl-server:9090
+      - AGENT_PORT=5000
+      - PORT=5000
+    depends_on:
+      - fl-server
+    networks:
+      - federated-net
+
+  ids-agent-org-b:
+    build:
+      context: ./agentic-ids-local
+    environment:
+      - ORG_ID=org-b
+      - FL_SERVER_URL=http://fl-server:9090
+      - AGENT_PORT=5000
+      - PORT=5000
+    depends_on:
+      - fl-server
+    networks:
+      - federated-net
+
+  ids-agent-org-c:
+    build:
+      context: ./agentic-ids-local
+    environment:
+      - ORG_ID=org-c
+      - FL_SERVER_URL=http://fl-server:9090
+      - AGENT_PORT=5000
+      - PORT=5000
+    depends_on:
+      - fl-server
+    networks:
+      - federated-net
+
+  pkt-streamer-org-a:
+    build:
+      context: ./pkt-streamer
+    environment:
+      - ORG_ID=org-a
+      - API_URL=http://ids-agent-org-a:5000/detect
+      - CSV_PATH=/data/UNSW-NB15_1.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_TIMEOUT=0.5
+      - STREAM_DELAY=1
+      - DROP_COLUMNS=attack_cat,Label
+    volumes:
+      - ./pkt-streamer/data:/data:ro
+    depends_on:
+      - ids-agent-org-a
+    networks:
+      - federated-net
+
+  pkt-streamer-org-b:
+    build:
+      context: ./pkt-streamer
+    environment:
+      - ORG_ID=org-b
+      - API_URL=http://ids-agent-org-b:5000/detect
+      - CSV_PATH=/data/UNSW-NB15_1.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_TIMEOUT=0.5
+      - STREAM_DELAY=1
+      - DROP_COLUMNS=attack_cat,Label
+    volumes:
+      - ./pkt-streamer/data:/data:ro
+    depends_on:
+      - ids-agent-org-b
+    networks:
+      - federated-net
+
+  pkt-streamer-org-c:
+    build:
+      context: ./pkt-streamer
+    environment:
+      - ORG_ID=org-c
+      - API_URL=http://ids-agent-org-c:5000/detect
+      - CSV_PATH=/data/UNSW-NB15_1.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_TIMEOUT=0.5
+      - STREAM_DELAY=1
+      - DROP_COLUMNS=attack_cat,Label
+    volumes:
+      - ./pkt-streamer/data:/data:ro
+    depends_on:
+      - ids-agent-org-c
+    networks:
+      - federated-net

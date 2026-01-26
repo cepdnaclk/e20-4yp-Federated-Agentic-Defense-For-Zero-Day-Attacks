@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+import numpy as np
 
 from aggregation.fedavg import FedAvgAggregator
 from aggregation.drift_detector import DriftDetector
@@ -30,7 +31,8 @@ def create_app():
     )
     app.config["SIGNATURE_STORE"] = SignatureStore(storage_path=os.environ.get("FL_SIGNATURE_PATH", "./fl-server/knowledge/signatures.json"))
     app.config["VERSION_MANAGER"] = app.config["SIGNATURE_STORE"].vm
-    app.config["GLOBAL_WEIGHTS"] = None
+    # Provide a dummy global model so broadcast/model works immediately
+    app.config["GLOBAL_WEIGHTS"] = [np.zeros((1,), dtype=np.float32), np.ones((1,), dtype=np.float32)]
 
     app.config["ROUND_SIZE"] = int(os.environ.get("FL_ROUND_SIZE", 2))
 

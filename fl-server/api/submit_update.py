@@ -31,6 +31,8 @@ def submit_update():
     signatures = payload.get("signatures", [])  # [{embedding: [...], recon_error: float}]
     round_end = bool(payload.get("round_end", False))
 
+    print(f"[FL Server] Update from {agent_id}: weights={'yes' if weights else 'no'}, signatures={len(signatures)}, samples={sample_count}")
+
     # Add to FedAvg aggregator
     agg = current_app.config["AGGREGATOR"]
     if weights:
