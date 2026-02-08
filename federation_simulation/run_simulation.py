@@ -78,14 +78,14 @@ def run_simulation_multiprocess(data_path: str, server_url: str = "http://localh
     - Agent_B processes rows 100-200
     """
     print("\n" + "="*70)
-    print("🌐 FEDERATED LEARNING SIMULATION - MULTIPROCESSING MODE")
+    print("  FEDERATED LEARNING SIMULATION - MULTIPROCESSING MODE")
     print("="*70 + "\n")
     
     # Create result queue for collecting agent statistics
     result_queue = multiprocessing.Queue()
     
     # Start the global server process
-    print("📡 Starting Global Server process...")
+    print("  Starting Global Server process...")
     server_process = multiprocessing.Process(
         target=start_server_process,
         args=("0.0.0.0", 8000),
@@ -94,7 +94,7 @@ def run_simulation_multiprocess(data_path: str, server_url: str = "http://localh
     server_process.start()
     
     # Wait for server to initialize
-    print("⏳ Waiting for server to initialize...")
+    print("  Waiting for server to initialize...")
     time.sleep(3)
     
     # Define agent configurations - attacks start around row 243
@@ -107,7 +107,7 @@ def run_simulation_multiprocess(data_path: str, server_url: str = "http://localh
     agent_processes = []
     
     for config in agents_config:
-        print(f"🤖 Starting {config['agent_id']}...")
+        print(f"  Starting {config['agent_id']}...")
         p = multiprocessing.Process(
             target=run_agent_worker,
             args=(
@@ -124,7 +124,7 @@ def run_simulation_multiprocess(data_path: str, server_url: str = "http://localh
         time.sleep(0.5)  # Stagger starts slightly
     
     # Wait for all agents to complete
-    print("\n⏳ Waiting for agents to complete their simulations...\n")
+    print("\n  Waiting for agents to complete their simulations...\n")
     
     for p in agent_processes:
         p.join(timeout=120)  # 2 minute timeout per agent
@@ -164,7 +164,7 @@ def run_simulation_threaded(
     """
     rag_status = f" + RAG ({rag_provider})" if use_rag else ""
     print("\n" + "="*70)
-    print(f"🌐 FEDERATED LEARNING SIMULATION - THREADING MODE{rag_status}")
+    print(f"  FEDERATED LEARNING SIMULATION - THREADING MODE{rag_status}")
     print("="*70 + "\n")
     
     from federation_simulation.client.agent_node import LocalAgent
@@ -187,11 +187,11 @@ def run_simulation_threaded(
             results[agent_id] = stats
     
     # Start the server in a background thread
-    print("📡 Starting Global Server thread...")
+    print("  Starting Global Server thread...")
     server_thread = start_server_thread("0.0.0.0", 8000)
     
     # Wait for server to initialize
-    print("⏳ Waiting for server to initialize...")
+    print("  Waiting for server to initialize...")
     time.sleep(2)
     
     # Define agent configurations - attacks start around row 243
@@ -204,7 +204,7 @@ def run_simulation_threaded(
     agent_threads = []
     
     for config in agents_config:
-        print(f"🤖 Starting {config['agent_id']}...")
+        print(f"  Starting {config['agent_id']}...")
         t = threading.Thread(
             target=agent_thread_worker,
             args=(config["agent_id"], config["start_idx"], config["end_idx"])
@@ -214,7 +214,7 @@ def run_simulation_threaded(
         time.sleep(0.5)  # Stagger starts slightly
     
     # Wait for all agents to complete
-    print("\n⏳ Waiting for agents to complete their simulations...\n")
+    print("\n  Waiting for agents to complete their simulations...\n")
     
     for t in agent_threads:
         t.join(timeout=120)
@@ -321,7 +321,7 @@ def main():
     
     data_path = str(data_path.resolve())
     
-    print(f"\n📁 Data path: {data_path}")
+    print(f"\n  Data path: {data_path}")
     
     # Check if dataset exists
     csv_path = Path(data_path) / "UNSW_NB15_training-set.csv"

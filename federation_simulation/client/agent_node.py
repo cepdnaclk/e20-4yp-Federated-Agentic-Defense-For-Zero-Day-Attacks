@@ -116,9 +116,9 @@ class LocalAgent:
                     provider=rag_provider,
                     api_key=rag_api_key
                 )
-                print(f"   🧠 RAG-enhanced policy generation enabled ({rag_provider})")
+                print(f"    RAG-enhanced policy generation enabled ({rag_provider})")
             except Exception as e:
-                print(f"   ⚠️  RAG initialization failed: {e}. Using rule-based policies.")
+                print(f"     RAG initialization failed: {e}. Using rule-based policies.")
                 self.use_rag = False
         
         # Dataset loader
@@ -128,11 +128,11 @@ class LocalAgent:
         else:
             self.loader = create_loader(use_testing=True)
         
-        print(f"\n🤖 Agent '{self.agent_id}' initialized")
+        print(f"\n  Agent '{self.agent_id}' initialized")
         print(f"   Server URL: {self.server_url}")
         if persist_knowledge:
-            print(f"   📁 Knowledge Base: {self.kb_storage_path}")
-            print(f"   📚 Known Attacks: {self.known_attacks if self.known_attacks else 'None (starting fresh)'}")
+            print(f"    Knowledge Base: {self.kb_storage_path}")
+            print(f"    Known Attacks: {self.known_attacks if self.known_attacks else 'None (starting fresh)'}")
     
     # ========================================================================
     # Local Knowledge Base Persistence
@@ -149,9 +149,9 @@ class LocalAgent:
                 self.signature_hashes = set(data.get("signature_hashes", []))
                 self.learned_signatures = data.get("learned_signatures", [])
                 
-                print(f"   📂 Loaded local KB: {len(self.known_attacks)} attack types, {len(self.learned_signatures)} signatures")
+                print(f"    Loaded local KB: {len(self.known_attacks)} attack types, {len(self.learned_signatures)} signatures")
             except Exception as e:
-                print(f"   ⚠️  Error loading local KB: {e}. Starting fresh.")
+                print(f"     Error loading local KB: {e}. Starting fresh.")
     
     def _save_local_knowledge(self):
         """Save local knowledge base to JSON file"""
@@ -172,7 +172,7 @@ class LocalAgent:
                 json.dump(data, f, indent=2)
                 
         except Exception as e:
-            print(f"   ⚠️  Error saving local KB: {e}")
+            print(f"     Error saving local KB: {e}")
     
     def _add_to_local_knowledge(
         self, 
@@ -205,7 +205,7 @@ class LocalAgent:
         self.learned_signatures = []
         if self.kb_storage_path.exists():
             self.kb_storage_path.unlink()
-        print(f"   🗑️  {self.agent_id}: Local knowledge base cleared")
+        print(f"     {self.agent_id}: Local knowledge base cleared")
     
     def get_local_knowledge_summary(self) -> Dict[str, Any]:
         """Get a summary of the local knowledge base"""
@@ -238,7 +238,7 @@ class LocalAgent:
                     agent_id=self.agent_id
                 )
             except Exception as e:
-                print(f"   ⚠️  RAG generation failed: {e}. Using fallback.")
+                print(f"     RAG generation failed: {e}. Using fallback.")
         
         # Fallback: Rule-based policy generation
         base_policy = self.MITIGATION_POLICIES.get(
@@ -290,21 +290,21 @@ class LocalAgent:
                 self.stats["updates_sent"] += 1
                 return True
             else:
-                print(f"⚠️  {self.agent_id}: Server returned status {response.status_code}")
+                print(f"   {self.agent_id}: Server returned status {response.status_code}")
                 return False
                 
         except requests.exceptions.ConnectionError:
             self.stats["connection_errors"] += 1
             if self.stats["connection_errors"] <= 3:
-                print(f"⚠️  {self.agent_id}: Cannot connect to server. Retrying...")
+                print(f"   {self.agent_id}: Cannot connect to server. Retrying...")
             return False
             
         except requests.exceptions.Timeout:
-            print(f"⚠️  {self.agent_id}: Request timed out")
+            print(f"  {self.agent_id}: Request timed out")
             return False
             
         except Exception as e:
-            print(f"❌ {self.agent_id}: Error sending update: {e}")
+            print(f" {self.agent_id}: Error sending update: {e}")
             return False
     
     def _fetch_global_model(self) -> Optional[Dict[str, Any]]:
@@ -317,7 +317,7 @@ class LocalAgent:
             if response.status_code == 200:
                 return response.json()
         except Exception as e:
-            print(f"⚠️  {self.agent_id}: Could not fetch global model: {e}")
+            print(f"  {self.agent_id}: Could not fetch global model: {e}")
         return None
     
     def _is_zero_day(self, attack_category: str) -> bool:
@@ -361,7 +361,7 @@ class LocalAgent:
             result["is_zero_day"] = True
             self.stats["zero_days_discovered"] += 1
             
-            print(f"\n🚨 {self.agent_id}: ZERO-DAY DETECTED!")
+            print(f"\n {self.agent_id}: ZERO-DAY DETECTED!")
             print(f"   Attack Category: {label}")
             print(f"   Feature Vector Size: {len(features)}")
             
@@ -372,10 +372,10 @@ class LocalAgent:
             if success:
                 # Learn: Add to local known attacks and persist
                 self._add_to_local_knowledge(label, features, policy, is_zero_day=True)
-                print(f"   ✅ Intelligence shared with global server")
-                print(f"   📚 Added '{label}' to local knowledge base")
+                print(f"    Intelligence shared with global server")
+                print(f"    Added '{label}' to local knowledge base")
             else:
-                print(f"   ⚠️  Failed to share with global server")
+                print(f"     Failed to share with global server")
         else:
             # Known attack - still might share if signature is unique
             sig_hash = self._generate_signature_hash(features)
@@ -407,14 +407,14 @@ class LocalAgent:
             Statistics dictionary
         """
         print(f"\n{'='*60}")
-        print(f"🚀 {self.agent_id}: Starting Federated Learning Simulation")
+        print(f" {self.agent_id}: Starting Federated Learning Simulation")
         print(f"   Processing rows {start_idx} to {end_idx or 'end'}")
         print(f"{'='*60}\n")
         
         # Load dataset if not already loaded
         if self.loader.dataframe is None:
             if not self.loader.load_dataset():
-                print(f"❌ {self.agent_id}: Failed to load dataset")
+                print(f" {self.agent_id}: Failed to load dataset")
                 return self.stats
         
         # Wait for server to be ready (with retries)
@@ -438,7 +438,7 @@ class LocalAgent:
         
         # Print summary
         print(f"\n{'='*60}")
-        print(f"📊 {self.agent_id}: Simulation Complete")
+        print(f" {self.agent_id}: Simulation Complete")
         print(f"{'='*60}")
         print(f"   Duration: {elapsed_time:.2f} seconds")
         print(f"   Packets Processed: {self.stats['packets_processed']}")
@@ -459,7 +459,7 @@ class LocalAgent:
             try:
                 response = requests.get(f"{self.server_url}/", timeout=5)
                 if response.status_code == 200:
-                    print(f"   {self.agent_id}: ✅ Connected to global server")
+                    print(f"   {self.agent_id}:  Connected to global server")
                     return True
             except requests.exceptions.ConnectionError:
                 if attempt < max_retries - 1:
@@ -468,7 +468,7 @@ class LocalAgent:
             except Exception as e:
                 print(f"   {self.agent_id}: Connection error: {e}")
         
-        print(f"   {self.agent_id}: ⚠️  Server not available, will retry during simulation")
+        print(f"   {self.agent_id}:   Server not available, will retry during simulation")
         return False
 
 

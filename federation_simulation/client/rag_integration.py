@@ -377,7 +377,7 @@ class RAGPolicyGenerator:
         self.vector_store = SimpleVectorStore(self.llm_client)
         self.vector_store.add_security_knowledge_base()
         
-        print(f"📚 RAG: Loaded {len(self.vector_store.documents)} security knowledge documents")
+        print(f" RAG: Loaded {len(self.vector_store.documents)} security knowledge documents")
     
     def _create_llm_client(self) -> LLMClient:
         """Create appropriate LLM client based on config"""
@@ -390,7 +390,7 @@ class RAGPolicyGenerator:
         elif provider == "ollama":
             return OllamaClient(self.config)
         else:
-            print(f"⚠️  Unknown provider '{provider}', using mock client")
+            print(f"  Unknown provider '{provider}', using mock client")
             return MockLLMClient(self.config)
     
     def generate_policy(
@@ -447,7 +447,7 @@ Format the response as a clear, prioritized action list."""
             policy = self.llm_client.generate(prompt)
             return policy
         except Exception as e:
-            print(f"❌ RAG: Error generating policy: {e}")
+            print(f"   RAG: Error generating policy: {e}")
             return f"[{attack_category}] Apply standard security controls. Error in RAG generation."
     
     def _summarize_features(self, features: List[float]) -> str:

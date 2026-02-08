@@ -46,11 +46,11 @@ class UNSW_NB15_Loader:
         """
         try:
             if not self.csv_path.exists():
-                print(f"❌ Dataset not found at: {self.csv_path}")
+                print(f"   Dataset not found at: {self.csv_path}")
                 print("   Please ensure 'UNSW_NB15_training-set.csv' is in the data directory.")
                 return False
             
-            print(f"📂 Loading dataset from: {self.csv_path}")
+            print(f" Loading dataset from: {self.csv_path}")
             self.dataframe = pd.read_csv(self.csv_path, low_memory=False)
             
             # Determine available feature columns
@@ -65,7 +65,7 @@ class UNSW_NB15_Loader:
             
             self.feature_columns = available_features
             
-            print(f"✅ Dataset loaded successfully!")
+            print(f"   Dataset loaded successfully!")
             print(f"   Total records: {len(self.dataframe)}")
             print(f"   Features used: {len(self.feature_columns)}")
             print(f"   Columns: {self.dataframe.columns.tolist()}")
@@ -77,7 +77,7 @@ class UNSW_NB15_Loader:
             return True
             
         except Exception as e:
-            print(f"❌ Error loading dataset: {e}")
+            print(f"   Error loading dataset: {e}")
             return False
     
     def yield_packet(
@@ -112,7 +112,7 @@ class UNSW_NB15_Loader:
         # Determine label column
         label_col = 'attack_cat' if 'attack_cat' in self.dataframe.columns else 'Label'
         
-        print(f"🔄 Streaming packets from index {start_idx} to {end_idx}")
+        print(f"   Streaming packets from index {start_idx} to {end_idx}")
         
         for idx in range(start_idx, end_idx):
             row = self.dataframe.iloc[idx]
