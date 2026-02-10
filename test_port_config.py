@@ -146,6 +146,18 @@ def test_port_consistency():
         REPO_ROOT / "PORT_CONFIGURATION.md",
     ]
     
+    def should_check_fl_server_port(file_path):
+        """Check if file should reference FL server port 9090"""
+        file_str = str(file_path).lower()
+        return any(keyword in file_str for keyword in ['fl-server', 'orchestrator', 'docker-compose'])
+    
+    def should_check_ids_port(file_path):
+        """Check if file should reference IDS agent port 5000"""
+        file_str = str(file_path).lower()
+        file_name = file_path.name
+        # Only check main.py and docker-compose for IDS port references
+        return file_name == 'main.py' or 'docker-compose' in file_str
+    
     for file_path in files_to_check:
         if not file_path.exists():
             errors.append(f"Missing file: {file_path}")
@@ -155,15 +167,14 @@ def test_port_consistency():
             content = f.read()
         
         # Check for FL server port mentions
-        if 'fl-server' in str(file_path).lower() or 'orchestrator' in str(file_path).lower() or 'docker-compose' in str(file_path).lower():
+        if should_check_fl_server_port(file_path):
             if '9090' not in content:
                 errors.append(f"{file_path.name} should reference FL server port 9090")
         
         # Check for IDS agent port mentions
-        if 'agentic-ids' in str(file_path).lower() or 'pkt-streamer' in str(file_path).lower() or 'docker-compose' in str(file_path).lower():
-            if 'main.py' in str(file_path) or 'docker-compose' in str(file_path):
-                if '5000' not in content:
-                    errors.append(f"{file_path.name} should reference IDS agent port 5000")
+        if should_check_ids_port(file_path):
+            if '5000' not in content:
+                errors.append(f"{file_path.name} should reference IDS agent port 5000")
     
     if errors:
         for error in errors:
