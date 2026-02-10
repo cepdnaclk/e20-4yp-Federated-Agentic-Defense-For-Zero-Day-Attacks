@@ -18,7 +18,10 @@ echo "[2/6] Waiting for services to be healthy..."
 MAX_WAIT=60
 ELAPSED=0
 while [ $ELAPSED -lt $MAX_WAIT ]; do
-    HEALTHY=$(docker compose ps --format json | grep -o '"Health":"healthy"' | wc -l || echo "0")
+    HEALTHY=$(docker compose ps --format json 2>/dev/null | grep -o '"Health":"healthy"' | wc -l)
+    if [ -z "$HEALTHY" ]; then
+        HEALTHY=0
+    fi
     if [ "$HEALTHY" -ge 2 ]; then
         echo "    Services are healthy!"
         break

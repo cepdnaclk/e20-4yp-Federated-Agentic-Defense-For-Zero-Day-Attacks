@@ -94,14 +94,15 @@ echo ""
 
 # Check port configurations
 echo "[✓] Checking port configurations..."
-if docker compose config | grep -q "published.*5000" || docker compose config | grep -q '"5000"'; then
+COMPOSE_CONFIG=$(docker compose config)
+if echo "$COMPOSE_CONFIG" | grep -q "published.*5000" || echo "$COMPOSE_CONFIG" | grep -q '"5000"'; then
     echo "    agentic-ids-local port 5000 mapped correctly"
 else
     echo "[✗] ERROR: agentic-ids-local port 5000 not mapped correctly!"
     exit 1
 fi
 
-if docker compose config | grep -q "published.*8000" || docker compose config | grep -q '"8000"'; then
+if echo "$COMPOSE_CONFIG" | grep -q "published.*8000" || echo "$COMPOSE_CONFIG" | grep -q '"8000"'; then
     echo "    fl-server port 8000 mapped correctly"
 else
     echo "[✗] ERROR: fl-server port 8000 not mapped correctly!"
@@ -121,6 +122,7 @@ echo ""
 
 # Check environment variables for pkt-streamer
 echo "[✓] Checking environment variables for pkt-streamer..."
+# Get pkt-streamer config once - 15 lines is sufficient to capture environment section
 PKT_CONFIG=$(docker compose config | grep -A 15 "pkt-streamer:")
 ENV_VARS=("API_URL" "CSV_PATH" "FEATURES_METADATA")
 for var in "${ENV_VARS[@]}"; do
