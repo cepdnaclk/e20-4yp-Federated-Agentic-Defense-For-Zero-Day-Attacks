@@ -47,8 +47,9 @@ services:
       - STREAM_DELAY=3
       - DROP_COLUMNS=attack_cat,Label
     volumes:
-      # Mount your local dataset folder to the container's /data path
-      - ./data:/data:ro
+      # Mount the data folder containing UNSW-NB15 dataset
+      # Place dataset files in ./pkt-streamer/data/ directory before running
+      - ./pkt-streamer/data:/data:ro
 
 networks:
   ids-network:
