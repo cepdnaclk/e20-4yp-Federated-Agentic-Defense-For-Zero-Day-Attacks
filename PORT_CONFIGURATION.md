@@ -160,6 +160,23 @@ To test connectivity between services:
 
 ## Troubleshooting
 
+### Quick Diagnostics
+
+Use the provided tools to quickly diagnose issues:
+
+```bash
+# 1. Check port configuration
+./check_ports.sh
+
+# 2. Validate configuration consistency
+python test_port_config.py
+
+# 3. Test live connectivity (when services are running)
+./test_connectivity.sh
+```
+
+### Detailed Troubleshooting
+
 1. **Check if port is already in use**:
    ```bash
    lsof -i :9090  # Check FL server port

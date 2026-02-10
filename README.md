@@ -129,6 +129,32 @@ docker-compose down
 
 ## Troubleshooting
 
+### Port Configuration Tools
+
+This repository includes several tools to help diagnose and verify port configurations:
+
+1. **check_ports.sh** - Validates port configuration across all files
+   ```bash
+   ./check_ports.sh
+   ```
+   This script checks:
+   - If expected ports are listening
+   - Docker Compose configuration
+   - Configuration files
+   - Source code port references
+
+2. **test_port_config.py** - Automated validation test suite
+   ```bash
+   python test_port_config.py
+   ```
+   Runs 6 validation tests to ensure port consistency across the codebase.
+
+3. **test_connectivity.sh** - Tests live service connectivity
+   ```bash
+   ./test_connectivity.sh
+   ```
+   Tests actual HTTP connectivity when services are running.
+
 ### Connection Issues
 
 If services can't connect to each other:
