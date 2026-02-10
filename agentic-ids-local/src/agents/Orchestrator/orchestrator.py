@@ -7,6 +7,7 @@ import uuid
 from agents.A3_federation_agent.async_sender import AsyncSignatureSender
 import threading
 from datetime import datetime
+import os
 
 
 class Orchestrator:
@@ -89,8 +90,9 @@ class Orchestrator:
         
 
         ## Testing
-        ## Debiug purpose: Send sample signature asynchronously
-        sender = AsyncSignatureSender("http://localhost:9090")
+        ## Debug purpose: Send sample signature asynchronously
+        fl_server_url = os.getenv("FL_SERVER_URL", "http://localhost:8000")
+        sender = AsyncSignatureSender(fl_server_url)
         sample_signature = {
             "signature_id": str(uuid.uuid4()),
             "feature_deviation": {
