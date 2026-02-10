@@ -27,6 +27,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /local-agentic-ids
 
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Copy the virtual environment from the builder stage
 COPY --from=builder /opt/venv /opt/venv
 
