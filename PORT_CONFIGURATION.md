@@ -2,6 +2,45 @@
 
 This document provides a comprehensive overview of port configurations across all services in the Federated Agentic Defense system.
 
+## Network Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Federated Network (Docker)                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌───────────────────┐                                          │
+│  │   FL Server       │                                          │
+│  │   Port: 9090      │◄─────────────┐                          │
+│  └───────────────────┘               │                          │
+│            ▲                          │                          │
+│            │                          │                          │
+│            │ /api/submit_update       │                          │
+│            │ /api/broadcast/*         │                          │
+│            │                          │                          │
+│  ┌─────────┴─────────┐     ┌─────────┴─────────┐               │
+│  │ IDS Agent Org A   │     │ IDS Agent Org B   │               │
+│  │ Port: 5000        │     │ Port: 5000        │    ...        │
+│  │                   │     │                   │               │
+│  │ FL_SERVER_URL:    │     │ FL_SERVER_URL:    │               │
+│  │ fl-server:9090    │     │ fl-server:9090    │               │
+│  └───────────────────┘     └───────────────────┘               │
+│            ▲                          ▲                          │
+│            │                          │                          │
+│            │ POST /detect             │ POST /detect            │
+│            │                          │                          │
+│  ┌─────────┴─────────┐     ┌─────────┴─────────┐               │
+│  │ Pkt Stream Org A  │     │ Pkt Stream Org B  │               │
+│  │ (Client only)     │     │ (Client only)     │    ...        │
+│  │                   │     │                   │               │
+│  │ API_URL:          │     │ API_URL:          │               │
+│  │ ids-agent-org-a:  │     │ ids-agent-org-b:  │               │
+│  │     5000/detect   │     │     5000/detect   │               │
+│  └───────────────────┘     └───────────────────┘               │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ## Service Port Mapping
 
 ### FL Server (Federated Learning Server)
