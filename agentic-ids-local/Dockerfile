@@ -1,38 +1,36 @@
-# Stage 1: Build
 FROM python:3.12-slim-bookworm AS builder
 
-# Set environment variables to optimize Python
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-WORKDIR /local-agentic-ids
+WORKDIR /app
 
-# Create a virtual environment to isolate dependencies
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy only the requirements file to leverage Docker's layer caching
-COPY requirements.txt .
+COPY requirements.txt constraints.txt ./
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir \
+    -r requirements.txt \
+    -c constraints.txt \
+    --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Stage 2: Runtime
 FROM python:3.12-slim-bookworm
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    TRANSFORMERS_NO_TF=1 \
+    TRANSFORMERS_NO_FLAX=1 \
+    PATH="/opt/venv/bin:$PATH" \
+    HF_HOME=/models \
+    TRANSFORMERS_CACHE=/models \
+    SENTENCE_TRANSFORMERS_HOME=/models
 
-WORKDIR /local-agentic-ids
+WORKDIR /app
 
-# Copy the virtual environment from the builder stage
 COPY --from=builder /opt/venv /opt/venv
+COPY src ./src
 
-# Copy your application source code
-COPY . .
-
-# Set the working directory to where your main script resides
-WORKDIR /local-agentic-ids/src
+WORKDIR /app/src
 CMD ["python", "main.py"]
