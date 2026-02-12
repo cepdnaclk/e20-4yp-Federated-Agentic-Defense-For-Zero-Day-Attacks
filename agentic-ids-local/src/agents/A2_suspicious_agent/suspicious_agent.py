@@ -69,7 +69,10 @@ MAX_DOCS_TOTAL = 3000
 MAX_DOCS_PER_ATTACK_CAT = 250
 
 suspicious_vector_store: Optional[FAISS] = None
-embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+embedding_model = HuggingFaceEmbeddings(
+    model_name=EMBEDDING_MODEL_NAME,
+    model_kwargs={"device": "cpu"}
+)
 
 
 def get_mock_kb_data() -> List[Document]:

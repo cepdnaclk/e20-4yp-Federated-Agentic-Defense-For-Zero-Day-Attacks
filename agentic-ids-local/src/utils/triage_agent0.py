@@ -51,7 +51,10 @@ class TriageDecision(BaseModel):
 #KNOWLEDGE BASE (RAG SETUP)
 
 # Use Local Embeddings (Privacy Preserving)
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={"device": "cpu"}
+)
 triage_vector_store = None
 KB_FILE = "soc_knowledge.csv"
 

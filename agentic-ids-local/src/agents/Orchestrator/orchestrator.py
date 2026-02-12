@@ -7,6 +7,7 @@ import uuid
 from agents.A3_federation_agent.async_sender import AsyncSignatureSender
 import threading
 from datetime import datetime
+import os
 
 
 class Orchestrator:
@@ -26,7 +27,10 @@ class Orchestrator:
         # known attack mitigation 
         self.A2_agent = suspicious_agent
 
-        # 
+        # Federated server configuration from environment
+        self.org_id = os.getenv("ORG_ID", "org-unknown")
+        self.fl_server_url = os.getenv("FL_SERVER_URL", "http://fl-server:9090")
+        self.signature_sender = AsyncSignatureSender(self.fl_server_url)
 
     def process_autoencoder_input(self, json_data: dict):
         """
@@ -89,8 +93,7 @@ class Orchestrator:
         
 
         ## Testing
-        ## Debiug purpose: Send sample signature asynchronously
-        sender = AsyncSignatureSender("http://localhost:9090")
+        ## Debug purpose: Send sample signature asynchronously
         sample_signature = {
             "signature_id": str(uuid.uuid4()),
             "feature_deviation": {
@@ -101,11 +104,12 @@ class Orchestrator:
             "confidence": 0.93,
             "frequency": 5,
             "time_window": "10s",
-            "agent_id": "agent_async_01",
+            "agent_id": self.org_id,
             "timestamp": datetime.utcnow().isoformat()
         }
 
-        sender.enqueue(sample_signature)
+        print(f"[Orchestrator] Org {self.org_id} enqueuing signature to {self.fl_server_url}")
+        self.signature_sender.enqueue(sample_signature)
         time.sleep(10)
 
         # Dispatch to Agent
