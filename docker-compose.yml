@@ -13,9 +13,11 @@ services:
     networks:
       - federated-net
 
+  # Build the IDS agent image once and reuse for all organizations
   ids-agent-org-a:
     build:
       context: ./agentic-ids-local
+    image: agentic-ids:latest
     environment:
       - ORG_ID=org-a
       - FL_SERVER_URL=http://fl-server:9090
@@ -27,8 +29,7 @@ services:
       - federated-net
 
   ids-agent-org-b:
-    build:
-      context: ./agentic-ids-local
+    image: agentic-ids:latest
     environment:
       - ORG_ID=org-b
       - FL_SERVER_URL=http://fl-server:9090
@@ -40,8 +41,7 @@ services:
       - federated-net
 
   ids-agent-org-c:
-    build:
-      context: ./agentic-ids-local
+    image: agentic-ids:latest
     environment:
       - ORG_ID=org-c
       - FL_SERVER_URL=http://fl-server:9090
@@ -76,7 +76,7 @@ services:
     environment:
       - ORG_ID=org-b
       - API_URL=http://ids-agent-org-b:5000/detect
-      - CSV_PATH=/data/UNSW-NB15_1.csv
+      - CSV_PATH=/data/UNSW-NB15_2.csv
       - FEATURES_METADATA=/data/dataset_features.json
       - API_TIMEOUT=0.5
       - STREAM_DELAY=1
@@ -94,7 +94,7 @@ services:
     environment:
       - ORG_ID=org-c
       - API_URL=http://ids-agent-org-c:5000/detect
-      - CSV_PATH=/data/UNSW-NB15_1.csv
+      - CSV_PATH=/data/UNSW-NB15_3.csv
       - FEATURES_METADATA=/data/dataset_features.json
       - API_TIMEOUT=0.5
       - STREAM_DELAY=1
