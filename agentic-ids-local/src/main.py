@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify
 import time
 import json
-from service_container import inference_service
-import agents.Orchestrator.orchestrator as orchestrator
 import os
 import dotenv
+import warnings
 
+# Suppress scikit-learn version warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -14,6 +15,14 @@ PORT = int(os.getenv("PORT", 5000))
 
 # FORCE TensorFlow to use the legacy Keras (tf-keras package)
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
+# Suppress TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress INFO and WARNING messages
+import tensorflow as tf
+tf.get_logger().setLevel('ERROR')
+
+from service_container import inference_service
+import agents.Orchestrator.orchestrator as orchestrator
 
 
 app = Flask(__name__)

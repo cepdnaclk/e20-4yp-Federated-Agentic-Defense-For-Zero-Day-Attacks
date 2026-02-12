@@ -1,10 +1,26 @@
 
+import warnings
+import os
+
+# Suppress scikit-learn version warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
+warnings.filterwarnings("ignore", message=".*Trying to unpickle estimator.*")
+
+# Suppress TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 from services.feature_service import FeatureService
 from services.inference_service import InferenceService
 import joblib
 import json
 import tensorflow as tf 
 import keras
+
+# Additional TensorFlow warning suppression
+tf.get_logger().setLevel('ERROR')
+
+# Suppress TensorFlow deprecation warnings
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 # Load artifacts
 with open(".config/model_columns.json") as f:
