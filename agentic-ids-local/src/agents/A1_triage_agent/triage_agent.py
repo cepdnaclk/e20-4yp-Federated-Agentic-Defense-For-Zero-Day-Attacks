@@ -53,7 +53,10 @@ EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 # KNOWLEDGE BASE (RAG SETUP)
 
 # Use Local Embeddings (privacy preserving; embeddings computed locally)
-embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+embedding_model = HuggingFaceEmbeddings(
+    model_name=EMBEDDING_MODEL_NAME,
+    model_kwargs={"device": "cpu"}
+    )
 triage_vector_store: Optional[FAISS] = None
 KB_FILE = Path(__file__).resolve().parent / "./KB/soc_knowledge.csv"
 

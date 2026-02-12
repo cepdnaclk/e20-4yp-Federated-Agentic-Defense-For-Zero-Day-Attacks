@@ -1,30 +1,107 @@
-services:
-  # The IDS Agent (Receiver)
-  local-agentic-ids:
-    build:
-      context: ./local-agentic-ids  # Path to the folder containing your Agent Dockerfile
-    ports:
-      - "5000:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"] # Adjust if you have a health endpoint
-      interval: 10s
-      timeout: 5s
-      retries: 5
+version: "3.9"
 
-  # The Packet Streamer (Sender)
-  pkt-streamer:
+networks:
+  federated-net:
+    driver: bridge
+
+services:
+  fl-server:
     build:
-      context: ./pkt-streamer      # Path to the folder containing your Streamer Dockerfile
-    # depends_on:
-    #   local-agentic-ids:
-    #     condition: service_started
+      context: ./fl-server
     environment:
+      - PORT=9090
+    networks:
+      - federated-net
+
+  # Build the IDS agent image once and reuse for all organizations
+  ids-agent-org-a:
+    build:
+      context: ./agentic-ids-local
+    image: agentic-ids:latest
+    environment:
+      - ORG_ID=org-a
+      - FL_SERVER_URL=http://fl-server:9090
+      - AGENT_PORT=5000
+      - PORT=5000
+    depends_on:
+      - fl-server
+    networks:
+      - federated-net
+
+  ids-agent-org-b:
+    image: agentic-ids:latest
+    environment:
+      - ORG_ID=org-b
+      - FL_SERVER_URL=http://fl-server:9090
+      - AGENT_PORT=5000
+      - PORT=5000
+    depends_on:
+      - fl-server
+    networks:
+      - federated-net
+
+  ids-agent-org-c:
+    image: agentic-ids:latest
+    environment:
+      - ORG_ID=org-c
+      - FL_SERVER_URL=http://fl-server:9090
+      - AGENT_PORT=5000
+      - PORT=5000
+    depends_on:
+      - fl-server
+    networks:
+      - federated-net
+
+  pkt-streamer-org-a:
+    build:
+      context: ./pkt-streamer
+    environment:
+      - ORG_ID=org-a
+      - API_URL=http://ids-agent-org-a:5000/detect
       - CSV_PATH=/data/UNSW-NB15_1.csv
       - FEATURES_METADATA=/data/dataset_features.json
-      - API_URL=http://localhost:5000/detect
       - API_TIMEOUT=0.5
-      - STREAM_DELAY=3
+      - STREAM_DELAY=1
       - DROP_COLUMNS=attack_cat,Label
     volumes:
-      # Mount your local dataset folder to the container's /data path
-      - ./data:/data:ro
+      - ./pkt-streamer/data:/data:ro
+    depends_on:
+      - ids-agent-org-a
+    networks:
+      - federated-net
+
+  pkt-streamer-org-b:
+    build:
+      context: ./pkt-streamer
+    environment:
+      - ORG_ID=org-b
+      - API_URL=http://ids-agent-org-b:5000/detect
+      - CSV_PATH=/data/UNSW-NB15_2.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_TIMEOUT=0.5
+      - STREAM_DELAY=1
+      - DROP_COLUMNS=attack_cat,Label
+    volumes:
+      - ./pkt-streamer/data:/data:ro
+    depends_on:
+      - ids-agent-org-b
+    networks:
+      - federated-net
+
+  pkt-streamer-org-c:
+    build:
+      context: ./pkt-streamer
+    environment:
+      - ORG_ID=org-c
+      - API_URL=http://ids-agent-org-c:5000/detect
+      - CSV_PATH=/data/UNSW-NB15_3.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_TIMEOUT=0.5
+      - STREAM_DELAY=1
+      - DROP_COLUMNS=attack_cat,Label
+    volumes:
+      - ./pkt-streamer/data:/data:ro
+    depends_on:
+      - ids-agent-org-c
+    networks:
+      - federated-net
