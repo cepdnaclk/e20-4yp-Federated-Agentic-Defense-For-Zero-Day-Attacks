@@ -29,7 +29,7 @@ class Orchestrator:
 
         # Federated server configuration from environment
         self.org_id = os.getenv("ORG_ID", "org-unknown")
-        self.fl_server_url = os.getenv("FL_SERVER_URL", "http://fl-server:9090")
+        self.fl_server_url = os.getenv("FL_SERVER_URL", "http://localhost:9090")
         self.signature_sender = AsyncSignatureSender(self.fl_server_url)
 
     def process_autoencoder_input(self, json_data: dict):
