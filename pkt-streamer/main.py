@@ -71,9 +71,17 @@ def stream_data():
         }
 
         try:
-            session.post(API_URL, json=payload, timeout= API_TIMEOUT)
-        except requests.exceptions.RequestException:
-            print(f"[WARNING] Request to {API_URL} failed for flow_id {i}")
+            response = session.post(API_URL, json=payload, timeout=API_TIMEOUT)
+            if response.status_code == 200:
+                print(f"[SUCCESS] Flow ID {i} processed successfully")
+            else:
+                print(f"[WARNING] Request to {API_URL} failed for flow_id {i} - HTTP {response.status_code}")
+        except requests.exceptions.ConnectionError as e:
+            print(f"[ERROR] Connection failed to {API_URL} for flow_id {i} - Service not running: {e}")
+        except requests.exceptions.Timeout as e:
+            print(f"[ERROR] Request timeout to {API_URL} for flow_id {i} - Increase API_TIMEOUT: {e}")
+        except requests.exceptions.RequestException as e:
+            print(f"[ERROR] Request to {API_URL} failed for flow_id {i} - {type(e).__name__}: {e}")
             pass  # fire-and-forget
 
         time.sleep(STREAM_DELAY)
