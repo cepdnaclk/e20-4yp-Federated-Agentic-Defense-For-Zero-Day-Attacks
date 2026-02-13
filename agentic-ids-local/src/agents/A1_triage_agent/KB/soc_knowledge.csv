@@ -1,21 +1,101 @@
 Type,Content
-Asset,Server-Alpha (192.168.1.10) is a Critical Finance Database hosting sensitive customer records.
-Asset,Server-Beta (192.168.1.11) is a Critical Web Server exposed to the public internet (DMZ).
-Asset,Workstation-Dev-01 (192.168.2.50) is a High Priority Developer Machine with access to source code.
-Asset,Workstation-HR-04 (192.168.2.51) is a Medium Priority HR endpoint handling internal documents.
-Asset,IoT-Thermostat-01 (10.0.0.5) is a Low Priority Smart Device on the Guest Network.
-Asset,Backup-Server (192.168.1.99) is a Critical Asset storing offline backups (Air-gapped usually).
-Policy,All traffic on Port 445 (SMB) from external IPs is strictly forbidden (WannaCry vector).
-Policy,Port 3389 (RDP) must only be accessible via the VPN Gateway, never directly from the internet.
-Policy,Port 4444 is a known default listener port for Metasploit (High Probability of Compromise).
-Policy,Port 6667 (IRC) is suspicious on enterprise servers often indicating Botnet C2 communication.
-Policy,Outbound traffic to .onion domains or TOR exit nodes is a Policy Violation.
-Policy,SSH Root login is disabled on all Linux servers; use key-based authentication only.
-Threat_Intel,IP 203.0.113.55 is a known Command and Control (C2) server associated with APT29.
-Threat_Intel,File Hash a1b2c3d4... is associated with the 'Emotet' banking trojan.
-Threat_Intel,User Agent 'sqlmap' indicates an automated SQL Injection attack attempt.
-Zero_Day_Indicator,Traffic volume > 1GB in under 5 minutes from a Critical Asset to an unknown external IP is a Data Exfiltration anomaly.
-Zero_Day_Indicator,A process launching PowerShell with encoded commands is a behavioral indicator of a Zero-Day exploit.
-Zero_Day_Indicator,Sudden modification of system logs or disabling of Antivirus by a non-admin user is a High Severity Alert.
-Zero_Day_Indicator,Multiple failed login attempts followed by a successful login from a different geolocation indicates Credential Stuffing.
-Zero_Day_Indicator,New unknown service listening on high ephemeral ports (49152-65535) on a Database Server is suspicious.
+Asset,SIS-Server (10.1.1.10) is a Critical Student Information System hosting academic records and personal data of 20000+ students.
+Asset,LMS-Server (10.1.1.15) is a Critical Learning Management System (Moodle/BlackBoard) serving faculty and students.
+Asset,Research-HPC-Cluster (10.2.0.0/24) is a High Priority High Performance Computing cluster for research data processing.
+Asset,Library-Catalog-Server (10.1.1.20) is a Medium Priority system managing digital library resources and archives.
+Asset,Finance-ERP (10.1.1.25) is a Critical Enterprise Resource Planning system handling university finances and payroll.
+Asset,Email-Server (10.1.1.30) is a Critical Microsoft Exchange/Google Workspace server for university communications.
+Asset,WiFi-Controller (10.1.2.1) is a High Priority Cisco/Aruba controller managing campus-wide wireless infrastructure.
+Asset,CCTV-NVR-System (10.3.1.0/24) is a Medium Priority Network Video Recorder system for campus security monitoring.
+Asset,DNS-Server-Primary (10.1.1.5) is a Critical DNS server resolving pdn.ac.lk and internal domains.
+Asset,Web-Portal (10.1.1.35) is a Critical public-facing university website and portal (www.pdn.ac.lk).
+Asset,Backup-NAS (10.1.1.99) is a Critical Network Attached Storage for automated daily backups of all systems.
+Asset,AD-Domain-Controller (10.1.1.2) is a Critical Active Directory server managing user authentication university-wide.
+Asset,Faculty-Workstation (10.4.0.0/24) is a Medium Priority faculty computers with access to research data and grade systems.
+Asset,Student-Lab-Computers (10.5.0.0/22) is a Low Priority computer lab systems used by students for coursework.
+Asset,IoT-Environmental-Sensors (10.6.0.0/24) is a Low Priority smart building sensors monitoring temperature and energy usage.
+Policy,Port 445 (SMB) traffic from external networks to university assets is strictly prohibited (WannaCry/NotPetya prevention).
+Policy,Port 3389 (RDP) access to university servers must be through VPN with multi-factor authentication only.
+Policy,Student network (10.5.0.0/22) cannot access administrative systems (10.1.1.0/24) directly - firewall rules enforced.
+Policy,All research data transfers >100MB to external locations require IT approval and encryption verification.
+Policy,Guest WiFi network must be completely isolated from internal university networks and systems.
+Policy,SSH access to research clusters requires key-based authentication and faculty/research staff authorization.
+Policy,Port 1433 (SQL Server) and 3306 (MySQL) must never be accessible from internet-facing interfaces.
+Policy,After-hours access (10PM-6AM) to critical systems generates automatic security team alerts.
+Policy,USB device usage on administrative workstations requires endpoint protection and logging.
+Policy,Email attachments >25MB are automatically quarantined and scanned for 24 hours before delivery.
+Policy,VPN access for non-university IP ranges requires approval from IT Security and session logging.
+Policy,Academic network traffic to file-sharing sites (BitTorrent/P2P) is blocked during business hours.
+Threat_Intel,IP 185.220.100.0/24 is a known TOR exit node range frequently used for credential stuffing against universities.
+Threat_Intel,Domain typo-squatting pdn-ac-lk.com attempts to phish university credentials through fake login pages.
+Threat_Intel,File hash SHA256:7d685dbc4ec7d4b5c1f3c6f05c8db7cf is associated with academic-targeted ransomware 'EduLocker'.
+Threat_Intel,User-Agent 'NICKLSoft WinInet' is associated with credential harvesting malware targeting university networks.
+Threat_Intel,Email from sender domains like 'university-portal.net' are phishing attempts impersonating legitimate university communications.
+Threat_Intel,IP 203.78.103.0/24 (Sri Lankan ISP range) shows unusual scanning patterns toward university login portals.
+Threat_Intel,Executable files named 'student-results.exe' or 'grade-report.exe' are malicious and target academic institutions.
+Threat_Intel,DNS queries for 'bit.ly' and 'tinyurl.com' from university systems often indicate phishing email clicks.
+Threat_Intel,Outbound connections to mining pools (stratum+tcp://) from university networks indicate cryptojacking malware.
+Threat_Intel,HTTP POST requests to '/wp-admin/admin-ajax.php' with unusual parameters indicate WordPress exploitation attempts.
+Zero_Day_Indicator,Unusual data transfer >500MB from Student Information System outside business hours indicates potential data breach.
+Zero_Day_Indicator,Failed login attempts >50 per hour on university portal followed by successful login indicates credential stuffing attack.
+Zero_Day_Indicator,New scheduled tasks created on domain controllers outside maintenance windows indicates persistence mechanism.
+Zero_Day_Indicator,PowerShell execution with base64 encoded commands from faculty workstations indicates compromise or lateral movement.
+Zero_Day_Indicator,DNS exfiltration patterns (long subdomain queries) from research networks indicates data theft via covert channels.
+Zero_Day_Indicator,Multiple service account password changes within 10 minutes indicates potential privilege escalation attack.
+Zero_Day_Indicator,Unusual SMB traffic between student network and administrative systems indicates lateral movement attempt.
+Zero_Day_Indicator,New user account creation during non-business hours without proper approval workflow indicates unauthorized access.
+Zero_Day_Indicator,Antivirus/Windows Defender disabled on multiple university workstations simultaneously indicates coordinated attack.
+Zero_Day_Indicator,Backup system access from non-authorized IP addresses indicates potential ransomware preparation activity.
+Zero_Day_Indicator,Grade database queries returning more than 1000 records simultaneously indicates potential academic fraud or data theft.
+Zero_Day_Indicator,Email forwarding rules created automatically on multiple faculty accounts indicates Business Email Compromise (BEC).
+Asset,RFID-Access-Control (10.7.1.0/24) is a Medium Priority card reader system controlling building access across university campus.
+Asset,Exam-Management-Server (10.1.1.40) is a Critical online examination platform used for semester assessments and entrance exams.
+Asset,Research-Data-Repository (10.2.1.10) is a Critical repository storing PhD dissertations, research publications, and intellectual property.
+Asset,Alumni-Portal (10.1.1.45) is a Medium Priority system managing alumni database and donation tracking.
+Asset,Hostel-Management-System (10.8.1.5) is a Medium Priority platform managing student accommodation and meal plans.
+Asset,Transport-GPS-Fleet (10.9.1.0/24) is a Low Priority GPS tracking system for university buses and service vehicles.
+Asset,Medical-Center-HIPAA (10.10.1.5) is a High Priority electronic health records system for campus medical services.
+Asset,Conference-AV-System (10.11.1.0/24) is a Low Priority audiovisual equipment in lecture halls and conference rooms.
+Asset,Printing-Management (10.12.1.5) is a Medium Priority centralized printing system across campus with quota management.
+Asset,Emergency-Alert-System (10.13.1.1) is a High Priority mass notification system for campus-wide emergency communications.
+Asset,Energy-Management-SCADA (10.14.1.0/24) is a Medium Priority industrial control system managing campus power and utilities.
+Asset,Sports-Complex-Management (10.15.1.5) is a Low Priority facility booking and equipment management for athletic facilities.
+Policy,Academic calendar system updates require approval from Registrar's office and IT Security team verification.
+Policy,Research data classified as 'Confidential' must be encrypted at rest and in transit with AES-256 encryption.
+Policy,Faculty promotion and tenure documents must be stored on air-gapped systems with audit trails enabled.
+Policy,Student disciplinary records access is restricted to authorized personnel with role-based access controls.
+Policy,External research collaborations require data sharing agreements approved by Legal and IT Security departments.
+Policy,Campus IoT devices must be on segregated VLAN with default credentials changed within 24 hours of installation.
+Policy,Biometric data from RFID access control systems must be anonymized and retained for maximum 2 years.
+Policy,Third-party software installations on university systems require security assessment and vulnerability scanning.
+Policy,Faculty sabbatical account suspensions must follow automated workflow with proper access restoration procedures.
+Policy,Student thesis defense recordings must be encrypted and stored with 7-year retention policy compliance.
+Policy,Campus emergency drills trigger automatic security system testing and incident response team activation.
+Policy,International student data transfers require compliance with data protection regulations of their home countries.
+Threat_Intel,Email attachments with names like 'scholarship-application.docx' contain malicious macros targeting university students.
+Threat_Intel,Fake university portal domains using Unicode homograph attacks (рdn.ac.lk with Cyrillic 'р') to deceive users.
+Threat_Intel,IP ranges from academic networks in other countries (edu domains) show unusual reconnaissance against university systems.
+Threat_Intel,Social media profiles impersonating university officials are used for spear-phishing against faculty members.
+Threat_Intel,Mobile apps named 'UOP Student Portal' or similar on unofficial app stores contain malware and credential stealers.
+Threat_Intel,Compromised university email accounts from other institutions are being used to send targeted phishing to faculty.
+Threat_Intel,Cryptocurrency wallet addresses found in university network traffic indicate ransomware payment preparation activities.
+Threat_Intel,Suspicious job posting websites targeting graduating students are harvesting personal information for identity theft.
+Threat_Intel,Conference registration systems at academic events are being compromised to steal attendee credentials.
+Threat_Intel,Research grant application portals are being targeted with SQL injection attacks to steal proposal information.
+Threat_Intel,University research paper databases are being scraped by automated bots for intellectual property theft.
+Threat_Intel,Campus WiFi networks with names like 'UOP-Free-WiFi' are rogue access points capturing user credentials.
+Zero_Day_Indicator,Multiple faculty accessing grade systems from the same IP address outside university indicates shared compromised credentials.
+Zero_Day_Indicator,Unusual database queries targeting student personal information during exam periods indicates potential fraud.
+Zero_Day_Indicator,Automated scripts accessing research repositories at high frequency indicates intellectual property theft.
+Zero_Day_Indicator,Campus security camera feeds being accessed from unauthorized locations indicates physical security breach.
+Zero_Day_Indicator,Student portal login attempts using faculty credentials indicates privilege escalation attempts.
+Zero_Day_Indicator,Mass email deletion from multiple faculty accounts simultaneously indicates evidence destruction activity.
+Zero_Day_Indicator,Research data being copied to external storage devices during non-research hours indicates potential data theft.
+Zero_Day_Indicator,University domain being used to register new subdomains without IT approval indicates DNS hijacking.
+Zero_Day_Indicator,Academic calendar being modified outside of registrar working hours indicates unauthorized system access.
+Zero_Day_Indicator,Student financial aid records being accessed by non-authorized staff indicates potential fraud investigation needed.
+Zero_Day_Indicator,Campus emergency alert system being tested outside of scheduled drill times indicates potential compromise.
+Zero_Day_Indicator,Multiple hostel management system logins from off-campus locations indicates potential student data breach.
+Zero_Day_Indicator,Research collaboration tools showing unusual data synchronization patterns indicates potential academic espionage.
+Zero_Day_Indicator,University press release drafts being accessed before official announcements indicates information leakage.
+Zero_Day_Indicator,Faculty sabbatical accounts showing activity during sabbatical periods indicates potential account compromise.
