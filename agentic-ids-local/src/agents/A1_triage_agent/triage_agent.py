@@ -204,7 +204,11 @@ def process_anomaly(alert_text: str, raw_data: Optional[Dict[str, Any]] = None) 
 
 
     #  Print log 
-    print(f"[TRIAGE] Decision: {decision.category.upper()} | Routed: {decision.routing} | Reason: {decision.reasoning}")
+    print(f"[TRIAGE] Flow Classification:")
+    print(f"         Decision: {decision.category.upper()}")
+    print(f"         Pipeline: {decision.routing}")
+    print(f"         Reasoning: {decision.reasoning}")
+    print(f"         Context Retrieved: {len(retrieved_context)} characters")
     # print(f"TRIAGE RESULT: {decision.category.upper()}")
     # print(f"ROUTING TO: {decision.routing}")
     # print(f"REASONING: {decision.reasoning}")

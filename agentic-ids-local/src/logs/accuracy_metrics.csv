@@ -1,0 +1,1 @@
+timestamp,flow_id,anomaly_score,prediction,triage_classification,triage_reasoning,target_pipeline,final_action,threat_type,confidence,processing_time_ms

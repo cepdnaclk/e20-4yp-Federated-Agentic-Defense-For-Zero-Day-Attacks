@@ -26,7 +26,14 @@ class InferenceService:
         prediction = int(anomaly_score > self.threshold)
 
         if prediction == 1:
-            print(f"[INFERENCE SERVICE] Anomaly detected with score: {anomaly_score:.6f}")
+            print(f"[INFERENCE] ANOMALY DETECTED:")
+            print(f"            Score: {anomaly_score:.6f} (threshold: {self.threshold})")
+            print(f"            Source: {features.get('srcip', 'Unknown')}:{features.get('sport', 'Unknown')}")
+            print(f"            Dest: {features.get('dstip', 'Unknown')}:{features.get('dsport', 'Unknown')}")
+            print(f"            Protocol: {features.get('proto', 'Unknown')}")
+            print(f"            Service: {features.get('service', 'Unknown')}")
+        else:
+            print(f"[INFERENCE] Normal traffic: {features.get('srcip', 'Unknown')} -> {features.get('dstip', 'Unknown')} | Score: {anomaly_score:.6f}")
 
         return {
             "flow_id": str(uuid.uuid4()),

@@ -4,10 +4,14 @@ import time
 import agents.A1_triage_agent.triage_agent as triage_agent
 import agents.A2_suspicious_agent.suspicious_agent as suspicious_agent
 import uuid 
-from agents.A3_federation_agent.async_sender import AsyncSignatureSender
+# FEDERATION COMMENTED OUT FOR TESTING
+# from agents.A3_federation_agent.async_sender import AsyncSignatureSender
 import threading
 from datetime import datetime
 import os
+
+# Import monitoring service
+from utils.monitoring_service import log_triage_classification
 
 
 class Orchestrator:
@@ -27,12 +31,15 @@ class Orchestrator:
         # known attack mitigation 
         self.A2_agent = suspicious_agent
 
+        # FEDERATION COMMENTED OUT FOR TESTING PHASE
         # Federated server configuration from environment
-        self.org_id = os.getenv("ORG_ID", "org-unknown")
-        self.fl_server_url = os.getenv("FL_SERVER_URL", "http://localhost:9090")
-        self.signature_sender = AsyncSignatureSender(self.fl_server_url)
+        # self.org_id = os.getenv("ORG_ID", "org-unknown")
+        # self.fl_server_url = os.getenv("FL_SERVER_URL", "http://localhost:9090")
+        # self.signature_sender = AsyncSignatureSender(self.fl_server_url)
+        
+        print("[Orchestrator] Initialized - Federation disabled for testing phase")
 
-    def process_autoencoder_input(self, json_data: dict):
+    def process_autoencoder_input(self, json_data: dict, flow_id: str = None):
         """
         Transforms raw Autoencoder JSON into behavioral insights
         for the Triage Agent.
@@ -82,38 +89,123 @@ class Orchestrator:
             f"----------------------------"
         )
         
-        # print(f"\n[Orchestrator] Dispatched Behavioral Alert:\n{formatted_alert}")
-        triage_result = self.A1_agent.process_anomaly(formatted_alert)
-
-        if triage_result["target_pipeline"] == "CorrectiveRAG":
-            self.A2_agent.handle_suspicious_alert(triage_result)
-
-        if triage_result["target_pipeline"] == "AdaptiveRAG":
-            print("[Orchestrator] AdaptiveRAG pipeline selected - currently not implemented.")
+    def process_autoencoder_input(self, json_data: dict, flow_id: str = None):
+        """
+        Transforms raw Autoencoder JSON into behavioral insights
+        for the Triage Agent.
+        """
         
+        processing_start = time.time()
+        
+        if flow_id is None:
+            flow_id = json_data.get("flow_id", str(uuid.uuid4()))
 
-        ## Testing
-        ## Debug purpose: Send sample signature asynchronously
-        sample_signature = {
-            "signature_id": str(uuid.uuid4()),
-            "feature_deviation": {
-                "conn_rate": 4.2,
-                "dst_entropy": 3.1,
-                "avg_pkt_size": -1.7
-            },
-            "confidence": 0.93,
-            "frequency": 5,
-            "time_window": "10s",
-            "agent_id": self.org_id,
-            "timestamp": datetime.utcnow().isoformat()
+        # 1. Extract Metadata
+        score = json_data.get("anomaly_score", 0.0)
+        timestamp = json_data.get("timestamp", "Unknown Time")
+        features = json_data.get("features", {})
+
+        # 2. Extract Basic Network Identifiers
+        network_info = {
+            "src": f"{features.get('srcip')}:{features.get('sport')}",
+            "dst": f"{features.get('dstip')}:{features.get('dsport')}",
+            "proto": features.get("proto", "TCP").upper(),
+            "service": features.get("service", "General"),
+            "state": features.get("state", "Unknown")
         }
 
-        print(f"[Orchestrator] Org {self.org_id} enqueuing signature to {self.fl_server_url}")
-        self.signature_sender.enqueue(sample_signature)
-        time.sleep(10)
+        # 3. Behavioral Feature Engineering (Crucial for Zero-Day)
+        # Intensity: How frequent is this connection pattern?
+        intensity = features.get("ct_srv_src", 0) 
+        
+        # Efficiency: Packet size consistency (Zero-day exploits often have abnormal ratios)
+        spkts = max(features.get("Spkts", 1), 1)
+        s_efficiency = features.get("sbytes", 0) / spkts
 
-        # Dispatch to Agent
-        # return self.agent.process_anomaly(formatted_alert)
+        # Network TTL Profile: Detects spoofing or unusual routing
+        ttl_path = f"Source TTL: {features.get('sttl')} | Dest TTL: {features.get('dttl')}"
+
+        # Latency Profile: High tcprtt can indicate MITM or scanning lag
+        latency = features.get("tcprtt", 0)
+
+        # 4. Construct the Behavioral Narrative for the LLM
+        # We provide context, not just data.
+        formatted_alert = (
+            f"--- ZERO-DAY THREAT ALERT ---\n"
+            f"Timestamp: {timestamp}\n"
+            f"Anomaly Confidence: {score:.2f}\n"
+            f"Flow: {network_info['src']} -> {network_info['dst']} ({network_info['proto']})\n"
+            f"Service: {network_info['service']} | State: {network_info['state']}\n"
+            f"\nBEHAVIORAL INDICATORS:\n"
+            f"- Traffic Intensity: {intensity} concurrent connections (High suggests automated attack)\n"
+            f"- Payload Profile: {s_efficiency:.2f} bytes/packet (Check for exfiltration/buffer overflow)\n"
+            f"- Network Path: {ttl_path}\n"
+            f"- TCP Latency: {latency}s\n"
+            f"----------------------------"
+        )
+        
+        print(f"[Orchestrator] Processing flow {flow_id} with anomaly score {score:.4f}")
+        
+        # Process through triage agent
+        triage_result = self.A1_agent.process_anomaly(formatted_alert)
+        
+        # Log triage results with monitoring
+        processing_time = (time.time() - processing_start) * 1000  # Convert to ms
+        classification = log_triage_classification(flow_id, triage_result, processing_time)
+
+        # Route to appropriate pipeline
+        if triage_result["target_pipeline"] == "CorrectiveRAG":
+            print(f"[Orchestrator] Routing {flow_id} to Suspicious Agent for verification")
+            suspicious_result = self.A2_agent.handle_suspicious_alert(triage_result)
+            
+            # Log threat action if any
+            from utils.monitoring_service import log_threat_response
+            action_type = "investigate" if suspicious_result.get("verification_status") == "TRUE_THREAT" else "monitor"
+            log_threat_response(flow_id, action_type, suspicious_result)
+
+        elif triage_result["target_pipeline"] == "AgenticRAG":
+            print(f"[Orchestrator] {flow_id} classified as BENIGN - logging for compliance")
+            
+        elif triage_result["target_pipeline"] == "AdaptiveRAG":
+            print(f"[Orchestrator] {flow_id} classified as ZERO-DAY CANDIDATE - alerting SOC team")
+            # Log as high-priority threat
+            from utils.monitoring_service import log_threat_response
+            threat_details = {
+                "likely_attack_category": "Zero-Day Candidate",
+                "confidence": score,
+                "verification_status": "REQUIRES_INVESTIGATION",
+                "mitigation_plan": "Immediate SOC review required"
+            }
+            log_threat_response(flow_id, "alert_soc", threat_details)
+        
+
+        ## FEDERATION FUNCTIONALITY COMMENTED OUT FOR TESTING
+        ## Debug purpose: Send sample signature asynchronously
+        # sample_signature = {
+        #     "signature_id": str(uuid.uuid4()),
+        #     "feature_deviation": {
+        #         "conn_rate": 4.2,
+        #         "dst_entropy": 3.1,
+        #         "avg_pkt_size": -1.7
+        #     },
+        #     "confidence": 0.93,
+        #     "frequency": 5,
+        #     "time_window": "10s",
+        #     "agent_id": self.org_id,
+        #     "timestamp": datetime.utcnow().isoformat()
+        # }
+
+        # print(f"[Orchestrator] Org {self.org_id} enqueuing signature to {self.fl_server_url}")
+        # self.signature_sender.enqueue(sample_signature)
+        # time.sleep(10)
+
+        return {
+            "flow_id": flow_id,
+            "processing_time_ms": processing_time,
+            "triage_result": triage_result,
+            "classification": classification,
+            "anomaly_score": score
+        }
 
 if __name__ == "__main__":
     orchestrator = Orchestrator()

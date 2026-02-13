@@ -529,9 +529,15 @@ def handle_suspicious_alert(triage_output_json: dict) -> Dict[str, Any]:
     #     print(f"{message}")
 
 
-    print(f"[Suspicious Agent ] Status: {final_state.verification_status}\n")
+    print(f"[Suspicious Agent] Analysis Results:")
+    print(f"                   Status: {final_state.verification_status}")
+    print(f"                   Attack Category: {final_state.likely_attack_category}")
+    print(f"                   Confidence: {getattr(final_state, 'confidence', 'N/A')}")
+    print(f"                   Action Plan: {final_state.action_plan}")
+    print(f"                   KB Context Used: {len(final_state.kb_context) if final_state.kb_context else 0} chars")
+    print()
 
-    
+
     
     
     return {
@@ -542,6 +548,7 @@ def handle_suspicious_alert(triage_output_json: dict) -> Dict[str, Any]:
         "kb_context": final_state.kb_context,
         "likely_attack_category": final_state.likely_attack_category,
         "mitigation_plan": final_state.mitigation_plan,
+        "confidence": getattr(final_state, 'confidence', 0.5),
     }
 
 # 6. TEST EXECUTION
