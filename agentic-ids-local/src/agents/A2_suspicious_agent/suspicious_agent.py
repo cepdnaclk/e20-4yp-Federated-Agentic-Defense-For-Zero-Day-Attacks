@@ -1,4 +1,3 @@
-import csv
 import os
 import sys
 import json
@@ -61,10 +60,12 @@ llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
 
 
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-KB_FILE = Path(__file__).resolve().parent / "UNSW_NB15_training-set.csv"
+KB_STRUCTURED_FILE = Path(__file__).resolve().parent / "unsw_knowledge_base.json"
+KB_VECTOR_FILE = Path(__file__).resolve().parent / "unsw_vector_docs.jsonl"
+KB_CACHE_FILE = Path(__file__).resolve().parent / "enhanced_kb_cache.json"
 
-# UNSW_NB15_training-set.csv is large (~175k rows). Embedding every row is expensive.
-# Keep a representative subset so retrieval is fast and repeatable.
+# Knowledge base files in JSON/JSONL format for faster loading and processing.
+# Prioritize cache, then vector docs, then structured KB as fallback.
 MAX_DOCS_TOTAL = 3000
 MAX_DOCS_PER_ATTACK_CAT = 250
 
@@ -90,12 +91,17 @@ def _to_int(value: Any, default: int = 0) -> int:
         return default
 
 
-def _row_to_unsw_text(row: Dict[str, Any]) -> str:
-    """Convert an UNSW_NB15 row (many numeric fields) into compact text for embedding."""
-
-    attack_cat = (row.get("attack_cat") or "").strip() or "Unknown"
-    label = (row.get("label") or "").strip()
-
+def _json_to_unsw_text(data: Dict[str, Any]) -> str:
+    """Convert a JSON knowledge base entry into compact text for embedding."""
+    
+    # Handle pre-formatted text from vector docs
+    if "content" in data:
+        return data["content"]
+    
+    # Handle structured data from knowledge base
+    attack_cat = (data.get("attack_cat") or "").strip() or "Unknown"
+    label = data.get("label", "")
+    
     # Keep a small subset of high-signal fields
     keys = [
         "proto",
@@ -130,7 +136,7 @@ def _row_to_unsw_text(row: Dict[str, Any]) -> str:
         parts.append(f"label={label}")
 
     for key in keys:
-        val = row.get(key)
+        val = data.get(key)
         if val is None:
             continue
         sval = str(val).strip()
@@ -150,17 +156,46 @@ def initialize_suspicious_kb():
     print("[INIT] Building Suspicious Knowledge Base (FAISS)...")
 
     docs: List[Document] = []
-    if KB_FILE.exists():
+    loaded_from = "mock data"
+    
+    # Try to load from enhanced cache first (fastest)
+    if KB_CACHE_FILE.exists():
+        try:
+            with open(KB_CACHE_FILE, "r", encoding="utf-8") as f:
+                cache_data = json.load(f)
+            
+            # Extract documents from cache
+            if "documents" in cache_data:
+                for doc_data in cache_data["documents"]:
+                    if isinstance(doc_data, dict) and "content" in doc_data:
+                        docs.append(Document(page_content=doc_data["content"]))
+                    elif isinstance(doc_data, str):
+                        docs.append(Document(page_content=doc_data))
+            
+            if docs:
+                loaded_from = f"enhanced cache ({len(docs)} docs)"
+        except Exception as e:
+            print(f"[WARN] Failed to load enhanced cache: {e}")
+            docs = []
+    
+    # Try vector docs file if cache loading failed
+    if not docs and KB_VECTOR_FILE.exists():
         try:
             per_cat_counts: Dict[str, int] = {}
-            with open(KB_FILE, "r", newline="", encoding="utf-8") as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    attack_cat = (row.get("attack_cat") or "Unknown").strip() or "Unknown"
-                    label = _to_int(row.get("label"), default=0)
+            with open(KB_VECTOR_FILE, "r", encoding="utf-8") as f:
+                for line in f:
+                    if len(docs) >= MAX_DOCS_TOTAL:
+                        break
+                    
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    data = json.loads(line)
+                    attack_cat = (data.get("attack_cat") or "Unknown").strip() or "Unknown"
+                    label = _to_int(data.get("label"), default=0)
 
                     # Prefer malicious examples (label=1), but keep some normal too.
-                    # Cap by category to get balanced coverage.
                     current = per_cat_counts.get(attack_cat, 0)
                     if current >= MAX_DOCS_PER_ATTACK_CAT:
                         continue
@@ -169,25 +204,72 @@ def initialize_suspicious_kb():
                     if attack_cat.lower() == "normal" and current >= max(25, MAX_DOCS_PER_ATTACK_CAT // 8):
                         continue
 
-                    text = _row_to_unsw_text(row)
+                    text = _json_to_unsw_text(data)
                     if not text:
                         continue
 
                     docs.append(Document(page_content=text))
                     per_cat_counts[attack_cat] = current + 1
+            
+            if docs:
+                loaded_from = f"vector docs ({len(docs)} docs)"
+        except Exception as e:
+            print(f"[WARN] Failed to load vector docs: {e}")
+            docs = []
+    
+    # Try structured KB as fallback
+    if not docs and KB_STRUCTURED_FILE.exists():
+        try:
+            per_cat_counts: Dict[str, int] = {}
+            with open(KB_STRUCTURED_FILE, "r", encoding="utf-8") as f:
+                kb_data = json.load(f)
+            
+            # Handle different structures
+            data_list = []
+            if isinstance(kb_data, list):
+                data_list = kb_data
+            elif isinstance(kb_data, dict) and "data" in kb_data:
+                data_list = kb_data["data"]
+            elif isinstance(kb_data, dict) and "samples" in kb_data:
+                data_list = kb_data["samples"]
+            
+            for data in data_list:
+                if len(docs) >= MAX_DOCS_TOTAL:
+                    break
+                
+                attack_cat = (data.get("attack_cat") or "Unknown").strip() or "Unknown"
+                label = _to_int(data.get("label"), default=0)
 
-                    if len(docs) >= MAX_DOCS_TOTAL:
-                        break
+                # Prefer malicious examples (label=1), but keep some normal too.
+                current = per_cat_counts.get(attack_cat, 0)
+                if current >= MAX_DOCS_PER_ATTACK_CAT:
+                    continue
 
-            print(f"[INIT] Loaded {len(docs)} sampled records from {KB_FILE.name}")
-        except Exception:
-            docs = get_mock_kb_data()
-    else:
-        print("[ERROR] KB CSV not found. Using mock KB data.")
+                # For "Normal" only keep a smaller subset.
+                if attack_cat.lower() == "normal" and current >= max(25, MAX_DOCS_PER_ATTACK_CAT // 8):
+                    continue
+
+                text = _json_to_unsw_text(data)
+                if not text:
+                    continue
+
+                docs.append(Document(page_content=text))
+                per_cat_counts[attack_cat] = current + 1
+            
+            if docs:
+                loaded_from = f"structured KB ({len(docs)} docs)"
+        except Exception as e:
+            print(f"[WARN] Failed to load structured KB: {e}")
+            docs = []
+    
+    # Use mock data if all file loading failed
+    if not docs:
+        print("[ERROR] All KB files not found or invalid. Using mock KB data.")
         docs = get_mock_kb_data()
+        loaded_from = "mock data (fallback)"
 
     suspicious_vector_store = FAISS.from_documents(docs, embedding_model)
-    print("[INIT] Suspicious Knowledge Base Ready.")
+    print(f"[INIT] Suspicious Knowledge Base Ready. Loaded from: {loaded_from}")
 
 
 def retrieve_kb_context(query: str, k: int = 4) -> str:
