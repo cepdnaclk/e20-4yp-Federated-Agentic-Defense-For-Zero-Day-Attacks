@@ -4,4 +4,4 @@ __pycache__/
 *.pyc
 *.egg-info
 src/data/UNSW_NB15/*.csv
-src/logs
+src/logs/
