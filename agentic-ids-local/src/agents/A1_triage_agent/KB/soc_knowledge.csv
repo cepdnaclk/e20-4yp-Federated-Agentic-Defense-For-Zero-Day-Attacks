@@ -1,101 +1,171 @@
 Type,Content
-Asset,SIS-Server (10.1.1.10) is a Critical Student Information System hosting academic records and personal data of 20000+ students.
-Asset,LMS-Server (10.1.1.15) is a Critical Learning Management System (Moodle/BlackBoard) serving faculty and students.
-Asset,Research-HPC-Cluster (10.2.0.0/24) is a High Priority High Performance Computing cluster for research data processing.
-Asset,Library-Catalog-Server (10.1.1.20) is a Medium Priority system managing digital library resources and archives.
-Asset,Finance-ERP (10.1.1.25) is a Critical Enterprise Resource Planning system handling university finances and payroll.
-Asset,Email-Server (10.1.1.30) is a Critical Microsoft Exchange/Google Workspace server for university communications.
-Asset,WiFi-Controller (10.1.2.1) is a High Priority Cisco/Aruba controller managing campus-wide wireless infrastructure.
-Asset,CCTV-NVR-System (10.3.1.0/24) is a Medium Priority Network Video Recorder system for campus security monitoring.
-Asset,DNS-Server-Primary (10.1.1.5) is a Critical DNS server resolving pdn.ac.lk and internal domains.
-Asset,Web-Portal (10.1.1.35) is a Critical public-facing university website and portal (www.pdn.ac.lk).
-Asset,Backup-NAS (10.1.1.99) is a Critical Network Attached Storage for automated daily backups of all systems.
-Asset,AD-Domain-Controller (10.1.1.2) is a Critical Active Directory server managing user authentication university-wide.
-Asset,Faculty-Workstation (10.4.0.0/24) is a Medium Priority faculty computers with access to research data and grade systems.
-Asset,Student-Lab-Computers (10.5.0.0/22) is a Low Priority computer lab systems used by students for coursework.
-Asset,IoT-Environmental-Sensors (10.6.0.0/24) is a Low Priority smart building sensors monitoring temperature and energy usage.
-Policy,Port 445 (SMB) traffic from external networks to university assets is strictly prohibited (WannaCry/NotPetya prevention).
-Policy,Port 3389 (RDP) access to university servers must be through VPN with multi-factor authentication only.
-Policy,Student network (10.5.0.0/22) cannot access administrative systems (10.1.1.0/24) directly - firewall rules enforced.
-Policy,All research data transfers >100MB to external locations require IT approval and encryption verification.
-Policy,Guest WiFi network must be completely isolated from internal university networks and systems.
-Policy,SSH access to research clusters requires key-based authentication and faculty/research staff authorization.
-Policy,Port 1433 (SQL Server) and 3306 (MySQL) must never be accessible from internet-facing interfaces.
-Policy,After-hours access (10PM-6AM) to critical systems generates automatic security team alerts.
-Policy,USB device usage on administrative workstations requires endpoint protection and logging.
-Policy,Email attachments >25MB are automatically quarantined and scanned for 24 hours before delivery.
-Policy,VPN access for non-university IP ranges requires approval from IT Security and session logging.
-Policy,Academic network traffic to file-sharing sites (BitTorrent/P2P) is blocked during business hours.
-Threat_Intel,IP 185.220.100.0/24 is a known TOR exit node range frequently used for credential stuffing against universities.
-Threat_Intel,Domain typo-squatting pdn-ac-lk.com attempts to phish university credentials through fake login pages.
-Threat_Intel,File hash SHA256:7d685dbc4ec7d4b5c1f3c6f05c8db7cf is associated with academic-targeted ransomware 'EduLocker'.
-Threat_Intel,User-Agent 'NICKLSoft WinInet' is associated with credential harvesting malware targeting university networks.
-Threat_Intel,Email from sender domains like 'university-portal.net' are phishing attempts impersonating legitimate university communications.
-Threat_Intel,IP 203.78.103.0/24 (Sri Lankan ISP range) shows unusual scanning patterns toward university login portals.
-Threat_Intel,Executable files named 'student-results.exe' or 'grade-report.exe' are malicious and target academic institutions.
-Threat_Intel,DNS queries for 'bit.ly' and 'tinyurl.com' from university systems often indicate phishing email clicks.
-Threat_Intel,Outbound connections to mining pools (stratum+tcp://) from university networks indicate cryptojacking malware.
-Threat_Intel,HTTP POST requests to '/wp-admin/admin-ajax.php' with unusual parameters indicate WordPress exploitation attempts.
-Zero_Day_Indicator,Unusual data transfer >500MB from Student Information System outside business hours indicates potential data breach.
-Zero_Day_Indicator,Failed login attempts >50 per hour on university portal followed by successful login indicates credential stuffing attack.
-Zero_Day_Indicator,New scheduled tasks created on domain controllers outside maintenance windows indicates persistence mechanism.
-Zero_Day_Indicator,PowerShell execution with base64 encoded commands from faculty workstations indicates compromise or lateral movement.
-Zero_Day_Indicator,DNS exfiltration patterns (long subdomain queries) from research networks indicates data theft via covert channels.
-Zero_Day_Indicator,Multiple service account password changes within 10 minutes indicates potential privilege escalation attack.
-Zero_Day_Indicator,Unusual SMB traffic between student network and administrative systems indicates lateral movement attempt.
-Zero_Day_Indicator,New user account creation during non-business hours without proper approval workflow indicates unauthorized access.
-Zero_Day_Indicator,Antivirus/Windows Defender disabled on multiple university workstations simultaneously indicates coordinated attack.
-Zero_Day_Indicator,Backup system access from non-authorized IP addresses indicates potential ransomware preparation activity.
-Zero_Day_Indicator,Grade database queries returning more than 1000 records simultaneously indicates potential academic fraud or data theft.
-Zero_Day_Indicator,Email forwarding rules created automatically on multiple faculty accounts indicates Business Email Compromise (BEC).
-Asset,RFID-Access-Control (10.7.1.0/24) is a Medium Priority card reader system controlling building access across university campus.
-Asset,Exam-Management-Server (10.1.1.40) is a Critical online examination platform used for semester assessments and entrance exams.
-Asset,Research-Data-Repository (10.2.1.10) is a Critical repository storing PhD dissertations, research publications, and intellectual property.
-Asset,Alumni-Portal (10.1.1.45) is a Medium Priority system managing alumni database and donation tracking.
-Asset,Hostel-Management-System (10.8.1.5) is a Medium Priority platform managing student accommodation and meal plans.
-Asset,Transport-GPS-Fleet (10.9.1.0/24) is a Low Priority GPS tracking system for university buses and service vehicles.
-Asset,Medical-Center-HIPAA (10.10.1.5) is a High Priority electronic health records system for campus medical services.
-Asset,Conference-AV-System (10.11.1.0/24) is a Low Priority audiovisual equipment in lecture halls and conference rooms.
-Asset,Printing-Management (10.12.1.5) is a Medium Priority centralized printing system across campus with quota management.
-Asset,Emergency-Alert-System (10.13.1.1) is a High Priority mass notification system for campus-wide emergency communications.
-Asset,Energy-Management-SCADA (10.14.1.0/24) is a Medium Priority industrial control system managing campus power and utilities.
-Asset,Sports-Complex-Management (10.15.1.5) is a Low Priority facility booking and equipment management for athletic facilities.
-Policy,Academic calendar system updates require approval from Registrar's office and IT Security team verification.
-Policy,Research data classified as 'Confidential' must be encrypted at rest and in transit with AES-256 encryption.
-Policy,Faculty promotion and tenure documents must be stored on air-gapped systems with audit trails enabled.
-Policy,Student disciplinary records access is restricted to authorized personnel with role-based access controls.
-Policy,External research collaborations require data sharing agreements approved by Legal and IT Security departments.
-Policy,Campus IoT devices must be on segregated VLAN with default credentials changed within 24 hours of installation.
-Policy,Biometric data from RFID access control systems must be anonymized and retained for maximum 2 years.
-Policy,Third-party software installations on university systems require security assessment and vulnerability scanning.
-Policy,Faculty sabbatical account suspensions must follow automated workflow with proper access restoration procedures.
-Policy,Student thesis defense recordings must be encrypted and stored with 7-year retention policy compliance.
-Policy,Campus emergency drills trigger automatic security system testing and incident response team activation.
-Policy,International student data transfers require compliance with data protection regulations of their home countries.
-Threat_Intel,Email attachments with names like 'scholarship-application.docx' contain malicious macros targeting university students.
-Threat_Intel,Fake university portal domains using Unicode homograph attacks (рdn.ac.lk with Cyrillic 'р') to deceive users.
-Threat_Intel,IP ranges from academic networks in other countries (edu domains) show unusual reconnaissance against university systems.
-Threat_Intel,Social media profiles impersonating university officials are used for spear-phishing against faculty members.
-Threat_Intel,Mobile apps named 'UOP Student Portal' or similar on unofficial app stores contain malware and credential stealers.
-Threat_Intel,Compromised university email accounts from other institutions are being used to send targeted phishing to faculty.
-Threat_Intel,Cryptocurrency wallet addresses found in university network traffic indicate ransomware payment preparation activities.
-Threat_Intel,Suspicious job posting websites targeting graduating students are harvesting personal information for identity theft.
-Threat_Intel,Conference registration systems at academic events are being compromised to steal attendee credentials.
-Threat_Intel,Research grant application portals are being targeted with SQL injection attacks to steal proposal information.
-Threat_Intel,University research paper databases are being scraped by automated bots for intellectual property theft.
-Threat_Intel,Campus WiFi networks with names like 'UOP-Free-WiFi' are rogue access points capturing user credentials.
-Zero_Day_Indicator,Multiple faculty accessing grade systems from the same IP address outside university indicates shared compromised credentials.
-Zero_Day_Indicator,Unusual database queries targeting student personal information during exam periods indicates potential fraud.
-Zero_Day_Indicator,Automated scripts accessing research repositories at high frequency indicates intellectual property theft.
-Zero_Day_Indicator,Campus security camera feeds being accessed from unauthorized locations indicates physical security breach.
-Zero_Day_Indicator,Student portal login attempts using faculty credentials indicates privilege escalation attempts.
-Zero_Day_Indicator,Mass email deletion from multiple faculty accounts simultaneously indicates evidence destruction activity.
-Zero_Day_Indicator,Research data being copied to external storage devices during non-research hours indicates potential data theft.
-Zero_Day_Indicator,University domain being used to register new subdomains without IT approval indicates DNS hijacking.
-Zero_Day_Indicator,Academic calendar being modified outside of registrar working hours indicates unauthorized system access.
-Zero_Day_Indicator,Student financial aid records being accessed by non-authorized staff indicates potential fraud investigation needed.
-Zero_Day_Indicator,Campus emergency alert system being tested outside of scheduled drill times indicates potential compromise.
-Zero_Day_Indicator,Multiple hostel management system logins from off-campus locations indicates potential student data breach.
-Zero_Day_Indicator,Research collaboration tools showing unusual data synchronization patterns indicates potential academic espionage.
-Zero_Day_Indicator,University press release drafts being accessed before official announcements indicates information leakage.
-Zero_Day_Indicator,Faculty sabbatical accounts showing activity during sabbatical periods indicates potential account compromise.
+Asset,"Database servers (Finance-DB, Customer-DB). Criticality: CRITICAL. Allowed Ports: 443, 22, 3306/5432 only. Behavior: No outbound internet access, encrypted internal communication only."
+Asset,"Web servers (Web-Frontend, API-Gateway). Criticality: HIGH. Allowed Ports: 80, 443, 22. Behavior: High inbound traffic, limited outbound to internal services only."
+Asset,"Mail servers (SMTP-Server, Exchange). Criticality: HIGH. Allowed Ports: 25, 465, 587, 993, 995. Behavior: Email traffic patterns, expected large volumes during business hours."
+Asset,"Domain controllers (DC1, DC2). Criticality: CRITICAL. Allowed Ports: 53, 88, 135, 139, 389, 445, 464, 636. Behavior: Authentication traffic, no direct internet access."
+Asset,"Employee workstations. Criticality: MEDIUM. Behavior: Standard web browsing, email, file access during business hours."
+Asset,"Guest WiFi network (192.168.100.x). Criticality: LOW. Behavior: High traffic volume expected, limited internal access."
+Asset,"IoT devices (Cameras, Sensors). Criticality: LOW. Behavior: Minimal bandwidth, specific communication patterns to central management."
+Asset,"Network infrastructure (Routers, Switches). Criticality: HIGH. Behavior: Management traffic only, SNMP monitoring."
+Pattern,"Generic malicious activity using TCP protocol with large data transfers and finished connections. Indicators: >20 packets, >10KB data, FIN state."
+Pattern,"Generic UDP-based attacks with high rate and interrupted connections. Indicators: >2 packets, >1KB data, rate >100K, INT state."
+Pattern,"DNS-based attacks via UDP with interrupted connections. Indicators: Small payloads ~114 bytes, very high rates >200K."
+Pattern,"Exploitation attempts via unknown protocols (3pc, a/n, aes-sp3-d). Indicators: 2 packets, 200 bytes, interrupted connections."
+Pattern,"Sequential port scanning across ranges 7000-9000. Indicator of C2 communication initiation or reconnaissance."
+Pattern,"Encrypted payloads on non-standard ports (8080, 8888, 9999) targeting database servers. Potential data exfiltration."
+Pattern,"High-volume SMTP traffic with unusual packet ratios. Indicators: >100 source packets, >30 dest packets, >100KB data."
+Pattern,"SSL/TLS connections with abnormal duration and data volumes. Indicators: >50 packets each direction, >13 second duration."
+Pattern,"OSPF protocol abuse for malicious communication. Indicators: 44+ packets, >8KB data, interrupted or request states."
+Pattern,"SCTP protocol exploitation with large data transfers. Indicators: >35 packets, >35KB source bytes, live connections."
+Pattern,"Backdoor communication patterns using various protocols with specific byte signatures and timing."
+Pattern,"Reconnaissance activity including port scanning, network enumeration, and service discovery attempts."
+Pattern,"DoS attack patterns with high packet rates, connection flooding, or resource exhaustion attempts."
+Pattern,"Worm propagation signatures with self-replicating network behavior and lateral movement indicators."
+Pattern,"Fuzzer activity with malformed packets, unusual protocol usage, or testing patterns."
+Pattern,"Shellcode injection attempts with executable payloads and memory manipulation indicators."
+Policy,"Failed login attempts <5 on LOW criticality assets are classified as BENIGN."
+Policy,"Failed login attempts >5 on any asset are classified as SUSPICIOUS."
+Policy,"ANY unexpected outbound connections from CRITICAL assets are ZERO-DAY candidates until proven otherwise."
+Policy,"Data transfers >1GB from database servers to external IPs are ZERO-DAY candidates."
+Policy,"Communications on non-standard ports from CRITICAL/HIGH assets require SUSPICIOUS classification."
+Policy,"Known attack signature matches should be classified as SUSPICIOUS and verified through CorrectiveRAG."
+Policy,"Encrypted traffic on unusual ports (not 443, 993, 995) from internal assets is SUSPICIOUS."
+Policy,"Multiple protocol violations from same source IP within 1 hour indicate SUSPICIOUS activity."
+Policy,"Traffic patterns deviating >3 standard deviations from normal baselines are ZERO-DAY candidates."
+Policy,"Cross-network communications violating network segmentation policies are ZERO-DAY candidates."
+Policy,"Privilege escalation attempts or admin account abuse are always SUSPICIOUS minimum."
+Policy,"Lateral movement patterns across multiple assets indicate ZERO-DAY or advanced persistent threat."
+Baseline,"TCP normal behavior: 1-5 packets per direction, <1KB typical payload, connection durations <10 seconds for most services."
+Baseline,"UDP normal behavior: 1-2 packets, <500 bytes payload, rates <1000 for most services except streaming."
+Baseline,"HTTP normal: 23 source packets, 83 destination packets, 3-104KB data exchange, <2 second duration."
+Baseline,"SMTP normal: Variable packet count, up to 132KB source data, <3 second duration for message transfer."
+Baseline,"SSH normal: Low packet count, minimal data for administration, authentication bursts followed by idle."
+Baseline,"DNS normal: 2 packets typical query/response, 57-114 bytes payload, sub-second response times."
+Baseline,"FTP normal: Control channel <1KB, data channel variable based on file size, separate connections."
+Baseline,"SSL normal: Handshake 10-20 packets, then variable data based on application, encrypt overhead 5-15%."
+Baseline,"DHCP normal: 4 packet DISCOVER/OFFER/REQUEST/ACK sequence, 200-300 byte payloads."
+Baseline,"ARP normal: Broadcast requests, unicast responses, 42-60 byte frames, periodic refresh."
+Threat,"Port knocking sequences (7000, 8000, 9000) indicate C2 channel establishment attempts."
+Threat,"Data exfiltration via DNS tunneling shows high query volumes with encoded payloads."
+Threat,"Lateral movement using WMI, PSExec, or SMB with admin credentials from compromised workstations."
+Threat,"Cryptocurrency mining malware shows sustained high CPU usage and pool communication patterns."
+Threat,"Ransomware behavior includes file encryption activity, network share scanning, and ransom note deployment."
+Threat,"APT indicators include long-term persistence, scheduled task creation, and periodic data staging."
+Threat,"Web shell deployment through vulnerable applications with subsequent command execution attempts."
+Threat,"SQL injection attempts via web applications with database error responses or timing delays."
+Threat,"Buffer overflow exploits targeting specific services with crafted payloads and ROP chains."
+Threat,"Zero-day exploits show novel attack vectors without known signatures or CVE references."
+Threat,"Insider threats exhibit abnormal data access patterns, privilege abuse, or policy violations."
+Threat,"Supply chain attacks through compromised software updates or third-party integrations."
+Classification,"BENIGN: Routine business operations, expected user activities, normal system maintenance, approved software installations."
+Classification,"SUSPICIOUS: Known attack patterns, policy violations, unusual but explainable activities, signature matches requiring verification."
+Classification,"ZERO-DAY: Novel attack patterns, behavior contradicting asset profiles, unknown threat vectors, advanced evasion techniques."
+Protocol,"ARP baseline: Minimal packets (1-2), 42-60 bytes, local network only, periodic refresh every 4 hours."
+Protocol,"OSPF baseline: Routing updates, Hello packets every 10 seconds, LSA flooding during topology changes."
+Protocol,"TCP baseline: 3-way handshake, data transfer, 4-way close, connection state tracking, sequence numbers."
+Protocol,"UDP baseline: Connectionless, single request/response, DNS queries, SNMP polls, minimal state."
+Protocol,"SCTP baseline: Multi-homing support, stream control, heartbeat messages, association management."
+Protocol,"HTTP baseline: Request/response pattern, GET/POST methods, headers <2KB, response codes 200-400 range."
+Protocol,"SMTP baseline: HELO/EHLO greeting, AUTH if required, MAIL FROM/RCPT TO envelope, DATA message transfer."
+Protocol,"SSH baseline: Version negotiation, key exchange, authentication, encrypted channel, keep-alive messages."
+Protocol,"SSL/TLS baseline: Handshake negotiation, certificate exchange, cipher selection, encrypted application data."
+Protocol,"DNS baseline: Query/response, A/AAAA/CNAME records, recursive/iterative resolution, 512 byte UDP limit."
+Service,"Web services: HTTP/HTTPS on ports 80/443, expected response times <3 seconds, standard status codes."
+Service,"Email services: SMTP/IMAP/POP3, authentication required, message size limits, spam filtering."
+Service,"File services: FTP/SFTP/SMB, authentication required, access controls, transfer logging."
+Service,"Database services: MySQL/PostgreSQL/MSSQL, encrypted connections preferred, query logging enabled."
+Service,"Directory services: LDAP/AD, authentication traffic, policy distribution, replication between DCs."
+Service,"Remote access: RDP/VNC/SSH, strong authentication required, session logging, time limits."
+Service,"Network services: DHCP/DNS/NTP, infrastructure support, monitoring required, redundancy configured."
+Service,"Backup services: Scheduled operations, encrypted transfers, integrity verification, retention policies."
+Anomaly,"Unusual data volumes: >10x normal baseline for service indicates potential data exfiltration or DDoS."
+Anomaly,"Abnormal connection patterns: Persistent connections where short-lived expected, or vice versa."
+Anomaly,"Geographic anomalies: Connections from unexpected countries or impossible travel times between logins."
+Anomaly,"Time-based anomalies: Activity during off-hours without authorization or scheduled maintenance."
+Anomaly,"Protocol anomalies: Mismatched protocol usage, tunneling detection, or covert channels."
+Anomaly,"Behavioral anomalies: User actions inconsistent with role, access patterns, or historical behavior."
+Anomaly,"Performance anomalies: Response times, throughput, or resource usage outside normal parameters."
+Anomaly,"Frequency anomalies: Event counts, rates, or intervals significantly different from baseline."
+Feature,"Source IP analysis: Same source IP with >50 different destination IPs in 5 minutes indicates scanning behavior."
+Feature,"Port analysis: Source ports <1024 from non-privileged hosts indicate potential privilege escalation or spoofing."
+Feature,"Destination port analysis: Connections to ports >50000 or non-standard service ports require investigation."
+Feature,"Protocol analysis: Non-TCP/UDP protocols (OSPF, SCTP, ARP) from end-user hosts are suspicious."
+Feature,"Connection state analysis: High ratio of INT (interrupted) states indicates failed connection attempts or scanning."
+Feature,"Duration analysis: Connections <0.001 seconds or >3600 seconds deviate from normal application behavior."
+Feature,"Byte transfer analysis: Source bytes >1MB with destination bytes <1KB indicates potential data exfiltration."
+Feature,"TTL analysis: TTL values <30 or >128 may indicate packet crafting or routing anomalies."
+Feature,"Packet loss analysis: >10% packet loss (sloss/dloss) in internal networks indicates network issues or attacks."
+Feature,"Load analysis: Source load >10Mbps from single host indicates potential DDoS participation or compromise."
+Feature,"Packet count analysis: >1000 packets in single flow indicates bulk transfer or potential attack traffic."
+Feature,"Window size analysis: TCP window sizes <1024 or >65535 may indicate stack fingerprinting or evasion."
+Feature,"Sequence number analysis: TCP sequence number patterns can reveal OS fingerprinting attempts."
+Feature,"Packet size analysis: Mean packet sizes <64 or >1500 bytes indicate potential protocol abuse or tunneling."
+Feature,"HTTP transaction depth >10 indicates potential HTTP pipelining abuse or application layer attacks."
+Feature,"HTTP response body >10MB without corresponding application need indicates potential data exfiltration."
+Feature,"Jitter analysis: Network jitter >100ms indicates potential congestion, routing issues, or quality degradation."
+Feature,"Inter-packet timing: Consistent timing patterns may indicate automated tools or bot behavior."
+Feature,"TCP RTT analysis: Round-trip times >500ms for local networks indicate potential network issues or man-in-middle."
+Feature,"SYN-ACK timing: >100ms between SYN and SYN-ACK indicates potential SYN flood or network congestion."
+Feature,"ACK-DATA timing: >50ms between ACK and DATA indicates application delays or processing issues."
+Feature,"Same IP/Port analysis: Source and destination IP/ports being identical indicates potential loopback or reflection attacks."
+Feature,"State-TTL correlation: Abnormal TTL values for specific connection states indicate potential evasion techniques."
+Feature,"HTTP method analysis: Unusual HTTP methods or >100 flows with same method indicate potential web attacks."
+Feature,"FTP login analysis: Multiple failed FTP login attempts indicate brute force or credential stuffing attacks."
+Feature,"FTP command analysis: >50 FTP commands in single session indicate potential automated exploitation or data theft."
+Feature,"Service connection analysis: >20 connections to same service from single source indicate potential service abuse."
+Feature,"Destination connection analysis: >100 connections to single destination indicate potential DDoS or focused attack."
+Feature,"Source connection analysis: >100 connections from single source indicate potential infected host or attack tool."
+Feature,"Port destination analysis: >50 connections to same destination port indicate potential service-specific attacks."
+Feature,"Address pair analysis: >10 connections between same source-destination pair indicate potential persistent compromise."
+State,"ACC (Accepted): Normal for established connections, abnormal if >1000 concurrent for single source."
+State,"CLO (Closed): Normal connection termination, suspicious if immediate after establishment without data transfer."
+State,"CON (Connected): Active data transfer state, monitor for duration and data volume anomalies."
+State,"ECO (Echo): ICMP echo state, suspicious if high volume or from internal hosts to external networks."
+State,"ECR (Echo Reply): ICMP echo reply, monitor for timing patterns indicating reconnaissance."
+State,"FIN (Finished): Normal TCP termination, suspicious if immediate or without proper handshake sequence."
+State,"INT (Interrupted): Connection interrupted, high rates indicate scanning, failed exploits, or network issues."
+State,"MAS (Masquerading): Indicates potential IP spoofing or masquerading behavior, always suspicious."
+State,"PAR (Partial): Incomplete connection establishment, high rates indicate SYN flood or scanning."
+State,"REQ (Request): Connection request state, monitor for request/response ratios and timing."
+State,"RST (Reset): Connection reset, high rates indicate port scanning or service disruption attempts."
+State,"TST (Test): Test connections, should be minimal in production networks, investigate all occurrences."
+State,"TXD (Transaction Done): Transaction completed, monitor for timing and data volume consistency."
+State,"URH (Urgent): Urgent data flag set, rare in normal traffic, investigate for potential evasion techniques."
+State,"URN (Urgent No): Urgent flag cleared, monitor in context of URH states for protocol manipulation."
+Service,"HTTP service: Normal GET/POST ratio 3:1, >10:1 indicates potential web scraping or reconnaissance."
+Service,"FTP service: Normal login followed by data transfer, multiple logins without transfer indicate brute force."
+Service,"SMTP service: Normal message size 1-10MB, >50MB indicates potential data exfiltration via email."
+Service,"SSH service: Normal session 5-60 minutes, >4 hours indicates potential persistent access or tunneling."
+Service,"DNS service: Normal query/response 1:1 ratio, >5:1 indicates potential DNS tunneling or amplification."
+Service,"FTP-DATA service: Should correlate with FTP control channel, standalone data connections are suspicious."
+Service,"IRC service: Rare in corporate networks, any IRC traffic should be investigated for C2 communication."
+Service,"Unknown services (-): High volume of unknown service traffic indicates potential covert channels."
+Attack,"Fuzzers: Characterized by malformed packets, unusual protocol usage, rapid connection attempts to test vulnerabilities."
+Attack,"Analysis: Network reconnaissance including port scanning, service enumeration, OS fingerprinting, and vulnerability scanning."
+Attack,"Backdoors: Persistent access mechanisms with periodic beaconing, often using encrypted or obfuscated communication."
+Attack,"DoS: High packet rates, connection flooding, resource exhaustion targeting availability of services or network."
+Attack,"Exploits: Targeted attacks against specific vulnerabilities, often with unusual packet patterns or payload signatures."
+Attack,"Generic: Basic malicious activity not fitting other categories, often automated or scripted attacks."
+Attack,"Reconnaissance: Information gathering activities including network mapping, service discovery, and target profiling."
+Attack,"Shellcode: Code injection attempts with executable payloads designed to gain control of target systems."
+Attack,"Worms: Self-propagating malware with network scanning and automated exploitation of discovered vulnerabilities."
+Timing,"Normal inter-packet arrival: 1-100ms for interactive applications, 0.1-1ms for bulk transfers."
+Timing,"Abnormal jitter patterns: >50ms variation indicates network congestion or potential quality of service attacks."
+Timing,"Suspicious timing regularity: Exactly timed intervals indicate automated tools or bot behavior."
+Timing,"Connection timing: <1ms establishment indicates local connections, >1000ms indicates distant or slow connections."
+Timing,"Data transfer timing: Consistent with connection bandwidth and latency, deviations indicate potential issues."
+Flow,"Normal packet ratios: Bidirectional flows should have response packets, unidirectional may indicate scanning."
+Flow,"Abnormal byte ratios: >100:1 source to destination ratio indicates potential command injection or data exfiltration."
+Flow,"Connection persistence: Long-duration connections normal for some applications, monitor for data volume consistency."
+Flow,"Flow termination patterns: Normal applications close connections cleanly, abnormal termination indicates potential attacks."
+Protocol,"TCP flow characteristics: Three-way handshake, data transfer, four-way close. Deviations indicate evasion or attacks."
+Protocol,"UDP flow characteristics: Stateless request/response. Persistent UDP flows may indicate tunneling or abuse."
+Protocol,"ICMP flow characteristics: Echo request/reply, error messages. High volumes indicate reconnaissance or attacks."
+Network,"Internal network baselines: Establish normal communication patterns between network segments and critical assets."
+Network,"External network baselines: Monitor outbound connections for data volume, timing, and destination patterns."
+Network,"Cross-network communication: Inter-VLAN traffic should match business requirements and security policies."
+Network,"Bandwidth utilization: Establish per-host and per-service baselines for normal bandwidth consumption patterns."
+Behavioral,"User activity patterns: Establish normal working hours, application usage, and data access patterns per user role."
+Behavioral,"Host activity patterns: Normal process communications, service startups, and resource utilization per host type."
+Behavioral,"Application behavioral baselines: Normal transaction volumes, response times, and error rates per application."
+Behavioral,"Seasonal and temporal patterns: Account for business cycles, maintenance windows, and scheduled activities."
