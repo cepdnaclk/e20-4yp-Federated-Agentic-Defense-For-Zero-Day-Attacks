@@ -1,0 +1,67 @@
+{
+  "organization": {
+    "name": "Enterprise SOC",
+    "network_segments": {
+      "dmz": {
+        "subnets": ["10.0.1.0/24", "10.0.2.0/24"],
+        "description": "DMZ servers, web services",
+        "criticality": "Medium"
+      },
+      "internal": {
+        "subnets": ["192.168.1.0/24", "192.168.2.0/24"],
+        "description": "Internal workstations, file servers",
+        "criticality": "High"
+      },
+      "critical": {
+        "subnets": ["172.16.1.0/24"],
+        "description": "Database servers, domain controllers",
+        "criticality": "Critical"
+      }
+    },
+    "assets": {
+      "critical_servers": ["172.16.1.10", "172.16.1.11", "172.16.1.12"],
+      "web_servers": ["10.0.1.10", "10.0.1.11"],
+      "dns_servers": ["192.168.1.1", "192.168.1.2"],
+      "mail_servers": ["10.0.2.10"]
+    }
+  },
+  "security_policies": {
+    "response_levels": {
+      "low": {
+        "actions": ["monitor", "log"],
+        "notification": false,
+        "auto_block": false
+      },
+      "medium": {
+        "actions": ["monitor", "log", "alert_admin"],
+        "notification": true,
+        "auto_block": false
+      },
+      "high": {
+        "actions": ["monitor", "log", "alert_soc", "isolate_host"],
+        "notification": true,
+        "auto_block": false
+      },
+      "critical": {
+        "actions": ["monitor", "log", "alert_soc", "block_ip", "isolate_host", "emergency_response"],
+        "notification": true,
+        "auto_block": true
+      }
+    },
+    "firewall_rules": {
+      "block_template": "deny ip from {src_ip} to any",
+      "quarantine_template": "redirect {host_ip} to quarantine_vlan"
+    }
+  },
+  "contact_info": {
+    "soc_team": {
+      "email": "soc@organization.com",
+      "phone": "+1-555-SOC-TEAM",
+      "slack": "#incident-response"
+    },
+    "network_admin": {
+      "email": "netadmin@organization.com", 
+      "phone": "+1-555-NET-ADMIN"
+    }
+  }
+}

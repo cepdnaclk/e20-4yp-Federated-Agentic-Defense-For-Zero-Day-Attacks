@@ -3,6 +3,7 @@ import time
 # Assuming triage_agent_final has a class or method 'process_anomaly'
 import agents.A1_triage_agent.triage_agent as triage_agent
 import agents.A2_suspicious_agent.suspicious_agent as suspicious_agent
+import agents.A4_action_agent.action_agent as action_agent
 import uuid 
 # FEDERATION COMMENTED OUT FOR TESTING
 # from agents.A3_federation_agent.async_sender import AsyncSignatureSender
@@ -38,6 +39,7 @@ class Orchestrator:
         # self.signature_sender = AsyncSignatureSender(self.fl_server_url)
         
         print("[Orchestrator] Initialized - Federation disabled for testing phase")
+        print("[Orchestrator] A4 Action Agent loaded for threat response")
 
     def process_autoencoder_input(self, json_data: dict, flow_id: str = None):
         """
@@ -153,12 +155,20 @@ class Orchestrator:
         processing_time = (time.time() - processing_start) * 1000  # Convert to ms
         classification = log_triage_classification(flow_id, triage_result, processing_time)
 
+        # Initialize action response tracking
+        action_response = None
+
         # Route to appropriate pipeline
         if triage_result["target_pipeline"] == "CorrectiveRAG":
             print(f"[Orchestrator] Routing {flow_id} to Suspicious Agent for verification")
             suspicious_result = self.A2_agent.handle_suspicious_alert(triage_result)
             
-            # Log threat action if any
+            # Generate action response for verified threats
+            if suspicious_result.get("verification_status") == "TRUE_THREAT":
+                print(f"[Orchestrator] {flow_id} confirmed as threat - generating action plan")
+                action_response = action_agent.process_threat_response(triage_result, json_data, flow_id)
+            
+            # Log threat action
             from utils.monitoring_service import log_threat_response
             action_type = "investigate" if suspicious_result.get("verification_status") == "TRUE_THREAT" else "monitor"
             log_threat_response(flow_id, action_type, suspicious_result)
@@ -167,16 +177,21 @@ class Orchestrator:
             print(f"[Orchestrator] {flow_id} classified as BENIGN - logging for compliance")
             
         elif triage_result["target_pipeline"] == "AdaptiveRAG":
-            print(f"[Orchestrator] {flow_id} classified as ZERO-DAY CANDIDATE - alerting SOC team")
+            print(f"[Orchestrator] {flow_id} classified as ZERO-DAY CANDIDATE - generating emergency response")
+            
+            # Generate immediate action plan for zero-day candidates  
+            action_response = action_agent.process_threat_response(triage_result, json_data, flow_id)
+            
             # Log as high-priority threat
             from utils.monitoring_service import log_threat_response
             threat_details = {
                 "likely_attack_category": "Zero-Day Candidate",
                 "confidence": score,
-                "verification_status": "REQUIRES_INVESTIGATION",
-                "mitigation_plan": "Immediate SOC review required"
+                "verification_status": "REQUIRES_INVESTIGATION", 
+                "mitigation_plan": f"Emergency response initiated - Priority {action_response.get('action_plan', {}).get('priority', 5)}",
+                "action_response": action_response
             }
-            log_threat_response(flow_id, "alert_soc", threat_details)
+            log_threat_response(flow_id, "emergency_response", threat_details)
         
 
         ## FEDERATION FUNCTIONALITY COMMENTED OUT FOR TESTING
@@ -204,7 +219,8 @@ class Orchestrator:
             "processing_time_ms": processing_time,
             "triage_result": triage_result,
             "classification": classification,
-            "anomaly_score": score
+            "anomaly_score": score,
+            "action_response": action_response  # Include action response if generated
         }
 
 if __name__ == "__main__":
