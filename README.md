@@ -110,7 +110,7 @@ When running services locally (not in Docker):
 3. **Start Packet Streamer**:
    ```bash
    cd pkt-streamer
-   API_URL=http://localhost:5000/detect python main.py
+   API_URL=http://localhost:5000/detect py
    ```
 
 ### Docker Development
@@ -134,7 +134,7 @@ docker-compose down
 This repository includes several tools to help diagnose and verify port configurations:
 
 1. **check_ports.sh** - Validates port configuration across all files
-   ```bash
+   ```bashthon main.py
    ./check_ports.sh
    ```
    This script checks:

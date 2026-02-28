@@ -13,10 +13,13 @@ class DriftDetector:
     - A cluster is a zero-day candidate if:
       * mean reconstruction error >= T_recon
       * low similarity to known signatures (cosine < T_sim)
-      * observed across >= N_min distinct agents within window
+      * observed by >= N_min distinct agents (default N_min=1 for single-agent sharing)
+    
+    MODIFIED: Default N_min=1 enables single-agent sharing - any agent detecting
+    a new attack pattern can immediately share it with the federation.
     """
 
-    def __init__(self, eps: float = 0.8, t_recon: float = 0.9, t_sim: float = 0.6, n_min_agents: int = 2):
+    def __init__(self, eps: float = 0.8, t_recon: float = 0.9, t_sim: float = 0.6, n_min_agents: int = 1):
         self.eps = eps
         self.t_recon = t_recon
         self.t_sim = t_sim

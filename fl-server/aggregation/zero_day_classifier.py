@@ -10,15 +10,24 @@ class ZeroDayClassifier:
     Criteria:
     - High reconstruction error (>= T_recon)
     - Low similarity to known signatures (cosine < T_sim)
-    - Observed across >= N_min agents
+    - Observed by at least N_min agents (set to 1 for single-agent sharing)
+
+    MODIFIED: N_min defaults to 1 - any single agent detection triggers sharing.
+    This removes the cross-validation requirement so new attacks are immediately shared.
 
     Outputs an explanation for auditability.
     """
 
-    def __init__(self, t_recon: float = 0.9, t_sim: float = 0.6, n_min_agents: int = 2):
+    def __init__(self, t_recon: float = 0.9, t_sim: float = 0.6, n_min_agents: int = 1):
+        """
+        Args:
+            t_recon: Minimum reconstruction error threshold (default 0.9)
+            t_sim: Maximum similarity to known signatures (default 0.6)
+            n_min_agents: Minimum number of reporting agents (default 1 - single agent sharing)
+        """
         self.t_recon = t_recon
         self.t_sim = t_sim
-        self.n_min_agents = n_min_agents
+        self.n_min_agents = n_min_agents  # Changed from 2 to 1: single agent can share
 
     @staticmethod
     def _cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
@@ -44,7 +53,8 @@ class ZeroDayClassifier:
             "observed_agent_count": agent_count,
             "mean_recon": mean_recon,
             "max_similarity_to_known": max_sim,
-            "reason": "High reconstruction error, low similarity to known signatures, cross-agent recurrence"
+            "reason": "High reconstruction error, low similarity to known signatures" + 
+                      (" (single-agent sharing enabled)" if self.n_min_agents == 1 else ", cross-agent recurrence")
         }
 
         result = dict(candidate)

@@ -13,6 +13,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 dotenv.load_dotenv()
 
 PORT = int(os.getenv("PORT", 5000))
+FL_ENABLED = os.getenv("FL_ENABLED", "true").lower() == "true"
 
 # FORCE TensorFlow to use the legacy Keras (tf-keras package) 
 os.environ["TF_USE_LEGACY_KERAS"] = "1"
@@ -32,6 +33,21 @@ from utils.monitoring_service import (
     log_inference_prediction,
     print_monitoring_summary
 )
+
+# Import federation components for background KB sync
+if FL_ENABLED:
+    try:
+        from agents.A3_federation_agent.kb_sync_daemon import (
+            start_kb_sync_daemon,
+            register_rag_update_callback
+        )
+        from agents.A3_federation_agent.rag_updater import rag_update_callback
+        FEDERATION_AVAILABLE = True
+    except ImportError as e:
+        print(f"[WARN] Federation imports failed: {e}")
+        FEDERATION_AVAILABLE = False
+else:
+    FEDERATION_AVAILABLE = False
 
 
 app = Flask(__name__)
@@ -55,6 +71,35 @@ def monitoring_summary():
     monitor.print_session_summary()
     metrics = monitor.get_session_metrics()
     return jsonify({"message": "Summary printed to console", "metrics": metrics}), 200
+
+@app.route("/federation/status", methods=["GET"])
+def federation_status():
+    """Endpoint to get federation sync status"""
+    if not FL_ENABLED or not FEDERATION_AVAILABLE:
+        return jsonify({"enabled": False, "message": "Federation disabled"}), 200
+    
+    try:
+        from agents.A3_federation_agent.kb_sync_daemon import get_kb_sync_daemon
+        daemon = get_kb_sync_daemon()
+        status = daemon.get_status()
+        status["enabled"] = True
+        return jsonify(status), 200
+    except Exception as e:
+        return jsonify({"enabled": True, "error": str(e)}), 500
+
+@app.route("/federation/sync", methods=["POST"])
+def federation_sync_now():
+    """Endpoint to trigger immediate federation sync"""
+    if not FL_ENABLED or not FEDERATION_AVAILABLE:
+        return jsonify({"error": "Federation disabled"}), 400
+    
+    try:
+        from agents.A3_federation_agent.kb_sync_daemon import get_kb_sync_daemon
+        daemon = get_kb_sync_daemon()
+        result = daemon.sync_now()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/detect", methods=["POST"])
 def detect():
@@ -105,10 +150,26 @@ if __name__ == "__main__":
     # Print startup message
     print(f"[INFO] Starting Agentic IDS Local Server on port {PORT}...")
     print(f"[INFO] Monitoring system initialized - logs will be saved to: {get_monitoring_service().log_dir}")
-    print(f"[INFO] Federation functionality: DISABLED (commented out for testing)")
+    
+    # Initialize federation KB sync daemon
+    if FL_ENABLED and FEDERATION_AVAILABLE:
+        try:
+            # Register RAG update callback
+            register_rag_update_callback(rag_update_callback)
+            # Start background sync daemon
+            kb_daemon = start_kb_sync_daemon()
+            print(f"[INFO] Federation enabled - Single-agent sharing active (N_min=1)")
+            print(f"[INFO] KB Sync daemon started - syncing signatures from FL server")
+        except Exception as e:
+            print(f"[WARN] Failed to start federation daemon: {e}")
+    else:
+        print(f"[INFO] Federation functionality: DISABLED (set FL_ENABLED=true to enable)")
+    
     print(f"[INFO] Available endpoints:")
-    print(f"       - POST /detect     : Process network packets")
-    print(f"       - GET  /health     : Health check")  
-    print(f"       - GET  /monitoring : Get current metrics")
-    print(f"       - GET  /monitoring/summary : Print and get full summary")
+    print(f"       - POST /detect            : Process network packets")
+    print(f"       - GET  /health            : Health check")  
+    print(f"       - GET  /monitoring        : Get current metrics")
+    print(f"       - GET  /monitoring/summary: Print and get full summary")
+    print(f"       - GET  /federation/status : Get federation sync status")
+    print(f"       - POST /federation/sync   : Trigger immediate sync")
     app.run(host="0.0.0.0", port=PORT, debug=True)

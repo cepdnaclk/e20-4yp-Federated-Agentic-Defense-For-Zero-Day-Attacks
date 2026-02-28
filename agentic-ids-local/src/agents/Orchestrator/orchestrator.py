@@ -5,8 +5,10 @@ import agents.A1_triage_agent.triage_agent as triage_agent
 import agents.A2_suspicious_agent.suspicious_agent as suspicious_agent
 import agents.A4_action_agent.action_agent as action_agent
 import uuid 
-# FEDERATION COMMENTED OUT FOR TESTING
-# from agents.A3_federation_agent.async_sender import AsyncSignatureSender
+
+# Import Federation Agent for zero-day signature sharing
+from agents.A3_federation_agent.adaptive_agent import get_adaptive_agent
+
 import threading
 from datetime import datetime
 import os
@@ -19,6 +21,10 @@ class Orchestrator:
     """
     Central controller to manage alert data flows. 
     Specifically tuned for Zero-Day behavioral detection.
+    
+    UPDATED: Now includes AdaptiveRAG pipeline with federated signature sharing.
+    Single-agent sharing enabled (N_min=1) - any zero-day detection triggers
+    immediate sharing with the federation.
     """
 
     
@@ -32,14 +38,17 @@ class Orchestrator:
         # known attack mitigation 
         self.A2_agent = suspicious_agent
 
-        # FEDERATION COMMENTED OUT FOR TESTING PHASE
-        # Federated server configuration from environment
-        # self.org_id = os.getenv("ORG_ID", "org-unknown")
-        # self.fl_server_url = os.getenv("FL_SERVER_URL", "http://localhost:9090")
-        # self.signature_sender = AsyncSignatureSender(self.fl_server_url)
+        # Initialize Federated AdaptiveRAG Agent for zero-day handling
+        try:
+            self.A3_adaptive_agent = get_adaptive_agent()
+            self.federation_enabled = True
+            print("[Orchestrator] Federation enabled - Single-agent sharing active")
+        except Exception as e:
+            print(f"[Orchestrator] Warning: Could not initialize Federation Agent: {e}")
+            self.A3_adaptive_agent = None
+            self.federation_enabled = False
         
-        print("[Orchestrator] Initialized - Federation disabled for testing phase")
-        print("[Orchestrator] A4 Action Agent loaded for threat response")
+        print("[Orchestrator] Initialized - A4 Action Agent loaded for threat response")
 
     def process_autoencoder_input(self, json_data: dict, flow_id: str = None):
         """
@@ -182,6 +191,31 @@ class Orchestrator:
             # Generate immediate action plan for zero-day candidates  
             action_response = action_agent.process_threat_response(triage_result, json_data, flow_id)
             
+            # FEDERATED ZERO-DAY SHARING (N_min=1 - Single Agent Sharing)
+            federation_result = None
+            if self.federation_enabled and self.A3_adaptive_agent:
+                print(f"[Orchestrator] Processing zero-day through AdaptiveRAG federation pipeline")
+                
+                # Prepare anomaly data with latent embedding for signature generation
+                anomaly_data_for_federation = {
+                    "latent_embedding": json_data.get("latent_embedding", []),
+                    "anomaly_score": score,
+                    "feature_vector": json_data.get("feature_vector", []),
+                    "features": features,
+                    "triage_result": triage_result
+                }
+                
+                # Process through AdaptiveRAG agent - creates and submits signature
+                try:
+                    federation_result = self.A3_adaptive_agent.sync_process_zero_day(anomaly_data_for_federation)
+                    if federation_result.get("federation_submitted"):
+                        print(f"[Orchestrator] Zero-day signature shared with federation: {federation_result.get('signature_id')}")
+                    else:
+                        print(f"[Orchestrator] Zero-day processed but not submitted to federation")
+                except Exception as e:
+                    print(f"[Orchestrator] Federation error (continuing without): {e}")
+                    federation_result = {"error": str(e)}
+            
             # Log as high-priority threat
             from utils.monitoring_service import log_threat_response
             threat_details = {
@@ -189,30 +223,21 @@ class Orchestrator:
                 "confidence": score,
                 "verification_status": "REQUIRES_INVESTIGATION", 
                 "mitigation_plan": f"Emergency response initiated - Priority {action_response.get('action_plan', {}).get('priority', 5)}",
-                "action_response": action_response
+                "action_response": action_response,
+                "federation_result": federation_result
             }
             log_threat_response(flow_id, "emergency_response", threat_details)
         
 
-        ## FEDERATION FUNCTIONALITY COMMENTED OUT FOR TESTING
-        ## Debug purpose: Send sample signature asynchronously
-        # sample_signature = {
-        #     "signature_id": str(uuid.uuid4()),
-        #     "feature_deviation": {
-        #         "conn_rate": 4.2,
-        #         "dst_entropy": 3.1,
-        #         "avg_pkt_size": -1.7
-        #     },
-        #     "confidence": 0.93,
-        #     "frequency": 5,
-        #     "time_window": "10s",
-        #     "agent_id": self.org_id,
-        #     "timestamp": datetime.utcnow().isoformat()
-        # }
-
-        # print(f"[Orchestrator] Org {self.org_id} enqueuing signature to {self.fl_server_url}")
-        # self.signature_sender.enqueue(sample_signature)
-        # time.sleep(10)
+        # Periodically sync federated signatures to local RAG context
+        if self.federation_enabled and self.A3_adaptive_agent:
+            try:
+                # Fetch any new signatures from federation (background sync)
+                new_signatures = self.A3_adaptive_agent.fetch_federated_signatures()
+                if new_signatures:
+                    print(f"[Orchestrator] Received {len(new_signatures)} new signatures from federation")
+            except Exception as e:
+                print(f"[Orchestrator] Federation sync error (continuing): {e}")
 
         return {
             "flow_id": flow_id,
@@ -220,7 +245,8 @@ class Orchestrator:
             "triage_result": triage_result,
             "classification": classification,
             "anomaly_score": score,
-            "action_response": action_response  # Include action response if generated
+            "action_response": action_response,  # Include action response if generated
+            "federation_enabled": self.federation_enabled
         }
 
 if __name__ == "__main__":

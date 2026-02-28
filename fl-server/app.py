@@ -22,12 +22,12 @@ def create_app():
         eps=float(os.environ.get("FL_EPS", 0.8)),
         t_recon=float(os.environ.get("FL_T_RECON", 0.9)),
         t_sim=float(os.environ.get("FL_T_SIM", 0.6)),
-        n_min_agents=int(os.environ.get("FL_N_MIN_AGENTS", 2))
+        n_min_agents=int(os.environ.get("FL_N_MIN_AGENTS", 1))  # Changed: single-agent sharing
     )
     app.config["ZERO_DAY_CLASSIFIER"] = ZeroDayClassifier(
         t_recon=float(os.environ.get("FL_T_RECON", 0.9)),
         t_sim=float(os.environ.get("FL_T_SIM", 0.6)),
-        n_min_agents=int(os.environ.get("FL_N_MIN_AGENTS", 2))
+        n_min_agents=int(os.environ.get("FL_N_MIN_AGENTS", 1))  # Changed: single-agent sharing
     )
     app.config["SIGNATURE_STORE"] = SignatureStore(storage_path=os.environ.get("FL_SIGNATURE_PATH", "./fl-server/knowledge/signatures.json"))
     app.config["VERSION_MANAGER"] = app.config["SIGNATURE_STORE"].vm
