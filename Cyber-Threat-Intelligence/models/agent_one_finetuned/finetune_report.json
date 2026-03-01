@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-03-01T13:39:05.958400",
+  "model": "agent_one_finetuned",
+  "threshold": 0.010722326605707107,
+  "test_samples": 275431,
+  "metrics": {
+    "accuracy": 0.8897872788466077,
+    "precision": 0.8888439468053739,
+    "recall": 0.9959717727588485,
+    "f1": 0.9393634318907279,
+    "fpr": 0.7473250819630467
+  },
+  "confusion_matrix": {
+    "tp": 235133,
+    "fp": 29405,
+    "tn": 9942,
+    "fn": 951
+  },
+  "targets_met": {
+    "recall_>=_95%": true,
+    "fpr_<=_5%": 

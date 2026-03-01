@@ -1,0 +1,131 @@
+{
+  "doc_count": 14,
+  "documents": [
+    {
+      "id": "doc_0",
+      "text": "Denial of Service (DoS) Attack: A DoS attack aims to make a service unavailable by overwhelming it with traffic. Key indicators include: extremely high packet rates, abnormal connection patterns, repeated SYN packets without completing handshake (SYN flood), amplification through DNS/NTP/SSDP reflectors. Mitigation: rate limiting, traffic filtering, blackholing, CDN protection.",
+      "metadata": {
+        "category": "DoS",
+        "severity": "high",
+        "doc_id": "doc_0"
+      }
+    },
+    {
+      "id": "doc_1",
+      "text": "SYN Flood Attack: A type of DoS where attacker sends many SYN packets but never completes TCP handshake. Signs: high number of half-open connections, source IPs may be spoofed, server resources exhausted. Look for: high spkts with low completed connections, abnormal sttl values, state=SYN or REQ.",
+      "metadata": {
+        "category": "DoS",
+        "severity": "high",
+        "doc_id": "doc_1"
+      }
+    },
+    {
+      "id": "doc_2",
+      "text": "Port Scanning Attack: Reconnaissance technique to discover open ports and services. Types: TCP SYN scan (half-open), TCP connect scan, UDP scan, XMAS scan, NULL scan. Indicators: many connections to different ports from same source, short duration connections, specific flag combinations. Precursor to targeted attacks.",
+      "metadata": {
+        "category": "Reconnaissance",
+        "severity": "medium",
+        "doc_id": "doc_2"
+      }
+    },
+    {
+      "id": "doc_3",
+      "text": "Network Reconnaissance: Attackers gather information about network topology, services, and vulnerabilities. Methods: ping sweeps, traceroute, DNS enumeration, banner grabbing. Look for: sequential IP connections, multiple service probes, unusual DNS queries. Defense: minimize information disclosure, use IDS.",
+      "metadata": {
+        "category": "Reconnaissance",
+        "severity": "medium",
+        "doc_id": "doc_3"
+      }
+    },
+    {
+      "id": "doc_4",
+      "text": "Exploit Attack: Leverages software vulnerabilities to gain unauthorized access. Common types: buffer overflow, SQL injection, command injection, path traversal, deserialization attacks. Network indicators: unusual payloads, shellcode signatures, abnormal service behavior, unexpected response sizes.",
+      "metadata": {
+        "category": "Exploits",
+        "severity": "high",
+        "doc_id": "doc_4"
+      }
+    },
+    {
+      "id": "doc_5",
+      "text": "Web Application Exploit: Attacks targeting web services. SQL injection visible through unusual query parameters, XSS through script tags in requests, path traversal via ../ sequences. Look for: unusual response_body_len, high ct_flw_http_mthd, abnormal trans_depth. May lead to data theft or RCE.",
+      "metadata": {
+        "category": "Exploits",
+        "severity": "high",
+        "doc_id": "doc_5"
+      }
+    },
+    {
+      "id": "doc_6",
+      "text": "Backdoor Attack: Malicious code providing persistent unauthorized access. Often installed after initial compromise. Signs: unexpected outbound connections (C2), unusual ports, encrypted traffic to unknown hosts, periodic beaconing patterns. Critical severity - indicates successful compromise.",
+      "metadata": {
+        "category": "Backdoors",
+        "severity": "critical",
+        "doc_id": "doc_6"
+      }
+    },
+    {
+      "id": "doc_7",
+      "text": "Command and Control (C2) Traffic: Communication between compromised host and attacker server. Patterns: regular interval connections (beaconing), DNS tunneling, HTTP/HTTPS to unusual domains, encoded payloads. Detection: baseline traffic analysis, DNS monitoring, TLS inspection.",
+      "metadata": {
+        "category": "Backdoors",
+        "severity": "critical",
+        "doc_id": "doc_7"
+      }
+    },
+    {
+      "id": "doc_8",
+      "text": "Shellcode Attack: Machine code injected to execute commands on target. Typically delivered via exploits. Indicators: NOP sleds in payloads, unusual byte patterns, execution of /bin/sh or cmd.exe, memory corruption signs. Often precedes full system compromise.",
+      "metadata": {
+        "category": "Shellcode",
+        "severity": "critical",
+        "doc_id": "doc_8"
+      }
+    },
+    {
+      "id": "doc_9",
+      "text": "Worm Attack: Self-propagating malware spreading across networks. Signs: one infected host scanning/attacking others, rapid increase in similar traffic patterns, exploitation of same vulnerability across hosts. Famous examples: WannaCry, NotPetya, Conficker. Requires immediate network isolation.",
+      "metadata": {
+        "category": "Worms",
+        "severity": "critical",
+        "doc_id": "doc_9"
+      }
+    },
+    {
+      "id": "doc_10",
+      "text": "Fuzzing Attack: Sending malformed or random data to find vulnerabilities. Identified by: high volume of requests, random/unusual parameter values, incremental variations in payloads, application errors/crashes. May precede exploit development.",
+      "metadata": {
+        "category": "Fuzzers",
+        "severity": "medium",
+        "doc_id": "doc_10"
+      }
+    },
+    {
+      "id": "doc_11",
+      "text": "Traffic Analysis Attack: Gathering intelligence from network traffic patterns without accessing content. Methods: timing analysis, volume analysis, correlation attacks. Even encrypted traffic can reveal: communication partners, message sizes, timing patterns. Defense: traffic padding, mixing networks.",
+      "metadata": {
+        "category": "Analysis",
+        "severity": "medium",
+        "doc_id": "doc_11"
+      }
+    },
+    {
+      "id": "doc_12",
+      "text": "Generic Network Attack: Attacks not fitting specific categories. May involve multiple techniques or novel methods. Signs: anomalous traffic patterns, unusual protocol behavior, suspicious timing sequences. Requires detailed analysis and human investigation to classify properly.",
+      "metadata": {
+        "category": "Generic",
+        "severity": "medium",
+        "doc_id": "doc_12"
+      }
+    },
+    {
+      "id": "doc_13",
+      "text": "Zero-Day Attack Indicators: Novel attacks exploiting unknown vulnerabilities. Warning signs: traffic patterns don't match known signatures, low confidence from ML models, unusual service/port combinations, suspicious but unclassifiable behavior. Requires careful analysis and may indicate APT activity.",
+      "metadata": {
+        "category": "Unknown/Zero-day",
+        "severity": "high",
+        "doc_id": "doc_13"
+      }
+    }
+  ]
+}

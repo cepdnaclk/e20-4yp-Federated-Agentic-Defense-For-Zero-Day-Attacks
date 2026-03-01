@@ -1,0 +1,76 @@
+# Requirements for Cyber-Threat-Intelligence Data Pipeline
+# Core dependencies for the UNSW-NB15 data pipeline
+
+# Data manipulation
+numpy>=1.21.0
+pandas>=1.4.0
+
+# Machine learning utilities
+scikit-learn>=1.0.0
+
+# Deep learning framework
+torch>=2.0.0
+
+# Progress bars
+tqdm>=4.62.0
+
+# =============================================================================
+# Agent Two: Classification and Reasoning
+# =============================================================================
+
+# XGBoost classifier
+xgboost>=1.7.0
+
+# Model persistence
+joblib>=1.2.0
+
+# LangChain for RAG pipeline
+langchain>=0.1.0
+langchain-community>=0.0.10
+
+# Vector database
+faiss-cpu>=1.7.4
+
+# Embeddings
+sentence-transformers>=2.2.0
+
+# HTTP client for LLM calls
+requests>=2.28.0
+
+# =============================================================================
+# Agent Three: Reinforcement Learning for Network Mitigation
+# =============================================================================
+
+# Gymnasium for RL environments
+gymnasium>=0.29.0
+
+# Stable Baselines 3 for RL algorithms (PPO)
+stable-baselines3>=2.0.0
+
+# =============================================================================
+# Federated Learning: Privacy-Preserving Distributed Training
+# =============================================================================
+
+# Flower framework for federated learning
+flwr>=1.5.0
+
+# Flower simulation extras (optional, for testing)
+# Install with: pip install flwr[simulation]
+
+# =============================================================================
+# Data Augmentation and Balancing
+# =============================================================================
+
+# SMOTE and class balancing
+imbalanced-learn>=0.11.0
+
+# =============================================================================
+# Testing and Metrics
+# =============================================================================
+
+# Testing framework
+pytest>=7.0.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.12.0

@@ -1,0 +1,32 @@
+{
+  "training_timesteps": 50000,
+  "training_time_seconds": 289.674501,
+  "training_stats": {
+    "total_decisions": 51200,
+    "true_positives": 19445,
+    "false_positives": 6305,
+    "true_negatives": 24409,
+    "false_negatives": 1041,
+    "precision": 0.7551456310679583,
+    "recall": 0.9491848091379433,
+    "f1_score": 0.841119473953586,
+    "accuracy": 0.8565234375,
+    "false_positive_rate": 0.12314453125
+  },
+  "final_evaluation": {
+    "total_decisions": 10000,
+    "true_positives": 7018,
+    "false_positives": 0,
+    "true_negatives": 2982,
+    "false_negatives": 0,
+    "precision": 0.9999999999999858,
+    "recall": 0.9999999999999858,
+    "f1_score": 0.9999999999499858,
+    "accuracy": 1.0,
+    "false_positive_rate": 0.0,
+    "mean_episode_reward": 3924.53,
+    "std_episode_reward": 260.02228577566194,
+    "n_episodes": 100
+  },
+  "save_path": "models\\agent_three"
+}

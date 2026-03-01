@@ -1,0 +1,25 @@
+{
+  "is_trained": true,
+  "learning_rate": 0.0003,
+  "n_steps": 2048,
+  "batch_size": 64,
+  "n_epochs": 10,
+  "gamma": 0.99,
+  "training_history": [
+    {
+      "timesteps": 100000,
+      "final_stats": {
+        "total_decisions": 100352,
+        "true_positives": 68487,
+        "false_positives": 5331,
+        "true_negatives": 24990,
+        "false_negatives": 1544,
+        "precision": 0.9277818418271954,
+        "recall": 0.9779526209821351,
+        "f1_score": 0.9522068279432763,
+        "accuracy": 0.9314911511479592,
+        "false_positive_rate": 0.053123007015306124
+      }
+    }
+  ]
+}
