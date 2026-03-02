@@ -1,0 +1,19 @@
+{
+  "compression_random_0.1": [
+    {
+      "round": 1,
+      "accuracy": 0.5,
+      "compression_ratio": 0.0535132
+    },
+    {
+      "round": 2,
+      "accuracy": 0.5,
+      "compression_ratio": 0.051806399999999996
+    },
+    {
+      "round": 3,
+      "accuracy": 0.5391014354594637,
+      "compression_ratio": 0.05200720000000001
+    }
+  ]
+}

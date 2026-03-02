@@ -1,0 +1,16 @@
+{
+  "compression_random_0.1": {
+    "method_name": "compression_random_0.1",
+    "accuracy": 0.5391014354594637,
+    "f1_score": 0.5121463636864905,
+    "epsilon_spent": Infinity,
+    "delta": 0.0,
+    "mia_auc": 0.5009057141003307,
+    "gradient_risk": 0.04000000000000001,
+    "compression_ratio": 0.05244226666666666,
+    "communication_mb": 0.0031465359999999997,
+    "computation_time_s": 0.010002613067626953,
+    "privacy_level": "amplified",
+    "rounds_completed": 3
+  }
+}
