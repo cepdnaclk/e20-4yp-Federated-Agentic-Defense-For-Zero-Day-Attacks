@@ -7,10 +7,12 @@ from aggregation.drift_detector import DriftDetector
 from aggregation.zero_day_classifier import ZeroDayClassifier
 from knowledge.signature_store import SignatureStore
 from knowledge.versioning import VersionManager
+from privacy.privacy_metrics import PrivacyMetricsCollector
 
 from api.register import bp_register
 from api.submit_update import bp_submit
 from api.broadcast import bp_broadcast
+from api.privacy import bp_privacy
 
 
 def create_app():
@@ -35,6 +37,16 @@ def create_app():
     app.config["GLOBAL_WEIGHTS"] = [np.zeros((1,), dtype=np.float32), np.ones((1,), dtype=np.float32)]
 
     app.config["ROUND_SIZE"] = int(os.environ.get("FL_ROUND_SIZE", 2))
+    
+    # Privacy Metrics Collector
+    app.config["PRIVACY_COLLECTOR"] = PrivacyMetricsCollector(
+        log_path=os.environ.get("FL_PRIVACY_LOG_PATH", "./privacy_logs"),
+        target_epsilon=float(os.environ.get("FL_TARGET_EPSILON", 10.0)),
+        target_delta=float(os.environ.get("FL_TARGET_DELTA", 1e-5)),
+        noise_multiplier=float(os.environ.get("FL_NOISE_MULTIPLIER", 1.0)),
+        clip_norm=float(os.environ.get("FL_CLIP_NORM", 1.0))
+    )
+    app.config["CURRENT_ROUND"] = 0
 
     # Optional MQTT config
     mqtt_host = os.environ.get("FL_MQTT_HOST")
@@ -60,6 +72,7 @@ def create_app():
     app.register_blueprint(bp_register)
     app.register_blueprint(bp_submit)
     app.register_blueprint(bp_broadcast)
+    app.register_blueprint(bp_privacy)
 
     return app
 

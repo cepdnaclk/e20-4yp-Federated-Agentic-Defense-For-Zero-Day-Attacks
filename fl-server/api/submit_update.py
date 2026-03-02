@@ -1,5 +1,6 @@
 import base64
 import io
+import sys
 from typing import List
 
 import numpy as np
@@ -33,10 +34,30 @@ def submit_update():
 
     print(f"[FL Server] Update from {agent_id}: weights={'yes' if weights else 'no'}, signatures={len(signatures)}, samples={sample_count}")
 
+    # Privacy Metrics: Ensure a round is started
+    privacy_collector = current_app.config.get("PRIVACY_COLLECTOR")
+    if privacy_collector and privacy_collector._current_round is None:
+        current_app.config["CURRENT_ROUND"] += 1
+        privacy_collector.start_round(current_app.config["CURRENT_ROUND"])
+        print(f"[Privacy] Started round {current_app.config['CURRENT_ROUND']}")
+
     # Add to FedAvg aggregator
     agg = current_app.config["AGGREGATOR"]
+    decoded_weights = None
+    raw_bytes = len(json.dumps(payload).encode('utf-8'))
+    
     if weights:
+        decoded_weights = _decode_weights(weights)
         agg.add_update(agent_id, weights, sample_count)
+        
+        # Privacy: Record agent update
+        if privacy_collector:
+            privacy_collector.record_agent_update(
+                agent_id=agent_id,
+                weights=decoded_weights,
+                sample_count=sample_count,
+                raw_bytes=raw_bytes
+            )
 
     # Submit signatures to drift detector
     dd = current_app.config["DRIFT_DETECTOR"]
@@ -44,6 +65,10 @@ def submit_update():
         embeddings = np.array([s.get("embedding", []) for s in signatures], dtype=np.float32)
         recons = np.array([float(s.get("recon_error", 0.0)) for s in signatures], dtype=np.float32)
         dd.submit_signatures(agent_id, embeddings, recons)
+        
+        # Privacy: Record signature submissions
+        if privacy_collector:
+            privacy_collector.record_signatures(agent_id, embeddings, recons)
 
     result = {"status": "accepted"}
 
@@ -63,8 +88,8 @@ def submit_update():
             if mqtt:
                 try:
                     encoded = agg.encode_weights(aggregated_weights)
-                    payload = {"model_version": vm.versions.model_version, "weights": encoded}
-                    mqtt["client"].publish(mqtt["topic_model"], json.dumps(payload))
+                    mqtt_payload = {"model_version": vm.versions.model_version, "weights": encoded}
+                    mqtt["client"].publish(mqtt["topic_model"], json.dumps(mqtt_payload))
                 except Exception as e:
                     print(f"[FL Server] MQTT model publish failed: {e}")
 
@@ -89,9 +114,27 @@ def submit_update():
         mqtt = current_app.config.get("MQTT")
         if mqtt:
             try:
-                payload = {"signature_version": ss.vm.versions.signature_version, "updates": promoted}
-                mqtt["client"].publish(mqtt["topic_sigs"], json.dumps(payload))
+                mqtt_payload = {"signature_version": ss.vm.versions.signature_version, "updates": promoted}
+                mqtt["client"].publish(mqtt["topic_sigs"], json.dumps(mqtt_payload))
             except Exception as e:
                 print(f"[FL Server] MQTT signatures publish failed: {e}")
+
+    # Privacy: End round and collect metrics when aggregation happens
+    if aggregated_weights and privacy_collector:
+        try:
+            privacy_metrics = privacy_collector.end_round(
+                aggregated_weights=aggregated_weights,
+                zero_day_count=len(promoted)
+            )
+            result["privacy_metrics"] = {
+                "round_id": privacy_metrics.round_id,
+                "epsilon": privacy_metrics.epsilon,
+                "cumulative_epsilon": privacy_metrics.cumulative_epsilon,
+                "exposure_risk": privacy_metrics.information_exposure_risk,
+                "gradient_similarity": privacy_metrics.gradient_similarity
+            }
+            print(f"[Privacy] Round {privacy_metrics.round_id} completed - ε={privacy_metrics.epsilon:.4f}, cumulative_ε={privacy_metrics.cumulative_epsilon:.4f}")
+        except Exception as e:
+            print(f"[Privacy] Error recording metrics: {e}")
 
     return jsonify(result), 200

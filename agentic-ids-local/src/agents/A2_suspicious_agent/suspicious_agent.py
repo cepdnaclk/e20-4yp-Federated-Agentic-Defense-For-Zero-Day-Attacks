@@ -60,9 +60,9 @@ llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
 
 
 EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-KB_STRUCTURED_FILE = Path(__file__).resolve().parent / "unsw_knowledge_base.json"
-KB_VECTOR_FILE = Path(__file__).resolve().parent / "unsw_vector_docs.jsonl"
-KB_CACHE_FILE = Path(__file__).resolve().parent / "enhanced_kb_cache.json"
+KB_STRUCTURED_FILE = Path(__file__).resolve().parent / "KB" / "unsw_knowledge_base.json"
+KB_VECTOR_FILE = Path(__file__).resolve().parent / "KB" / "unsw_vector_docs.jsonl"
+KB_CACHE_FILE = Path(__file__).resolve().parent / "KB" / "enhanced_kb_cache.json"
 
 # Knowledge base files in JSON/JSONL format for faster loading and processing.
 # Prioritize cache, then vector docs, then structured KB as fallback.

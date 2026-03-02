@@ -29,8 +29,15 @@ services:
     build:
       context: ./fl-server
     image: fl-server:latest
+    ports:
+      - "9090:9090"
     environment:
       - PORT=9090
+      - FL_PRIVACY_LOG_PATH=/app/privacy_logs
+      - FL_TARGET_EPSILON=10.0
+      - FL_NOISE_MULTIPLIER=1.0
+    volumes:
+      - ./fl-server/privacy_logs:/app/privacy_logs
     networks:
       - federated-net
     restart: unless-stopped

@@ -1,0 +1,95 @@
+version: "3.9"
+
+networks:
+  federated-net:
+    driver: bridge
+
+services:
+
+  fl-server:
+    build:
+      context: ./fl-server
+    image: fl-server:latest
+    ports:
+      - "9090:9090"
+    environment:
+      - PORT=9090
+      - FL_PRIVACY_LOG_PATH=/app/privacy_logs
+      - FL_TARGET_EPSILON=10.0
+      - FL_NOISE_MULTIPLIER=1.0
+      - FL_ROUND_SIZE=2
+    volumes:
+      - ./fl-server/privacy_logs:/app/privacy_logs
+    networks:
+      - federated-net
+    restart: unless-stopped
+
+  ids-agent-org-a:
+    build:
+      context: ./agentic-ids-local
+    image: agentic-ids:latest
+    depends_on:
+      - fl-server
+    ports:
+      - "5001:5001"
+    environment:
+      - ORG_ID=org-a
+      - FL_SERVER_URL=http://fl-server:9090
+      - PORT=5001
+    networks:
+      - federated-net
+    restart: unless-stopped
+
+  ids-agent-org-b:
+    image: agentic-ids:latest
+    depends_on:
+      - fl-server
+      - ids-agent-org-a
+    ports:
+      - "5002:5002"
+    environment:
+      - ORG_ID=org-b
+      - FL_SERVER_URL=http://fl-server:9090
+      - PORT=5002
+    networks:
+      - federated-net
+    restart: unless-stopped
+
+  pkt-streamer-org-a:
+    build:
+      context: ./pkt-streamer
+    image: pkt-streamer:latest
+    depends_on:
+      - ids-agent-org-a
+    volumes:
+      - ./pkt-streamer/data:/data:ro
+    environment:
+      - ORG_ID=org-a
+      - API_URL=http://ids-agent-org-a:5001/detect
+      - CSV_PATH=/data/UNSW-NB15_1.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_TIMEOUT=2
+      - STREAM_DELAY=2
+      - DROP_COLUMNS=attack_cat,Label
+    networks:
+      - federated-net
+    restart: unless-stopped
+
+  pkt-streamer-org-b:
+    image: pkt-streamer:latest
+    depends_on:
+      - ids-agent-org-b
+      - pkt-streamer-org-a
+    volumes:
+      - ./pkt-streamer/data:/data:ro
+    environment:
+      - ORG_ID=org-b
+      - API_URL=http://ids-agent-org-b:5002/detect
+      - CSV_PATH=/data/UNSW-NB15_2.csv
+      - FEATURES_METADATA=/data/dataset_features.json
+      - API_TIMEOUT=2
+      - STREAM_DELAY=2
+      - DROP_COLUMNS=attack_cat,Label
+    networks:
+      - federated-net
+    restart: unless-stopped

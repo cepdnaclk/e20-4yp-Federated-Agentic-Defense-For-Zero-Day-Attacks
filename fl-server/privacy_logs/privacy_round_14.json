@@ -1,0 +1,24 @@
+{
+  "round_id": 14,
+  "timestamp": "2026-02-28T19:38:17.972465",
+  "epsilon": 4.844805262605389,
+  "delta": 1e-05,
+  "noise_scale": 2.0,
+  "cumulative_epsilon": 67.82727367647546,
+  "weight_update_magnitude": 14.087382316589355,
+  "weight_update_sparsity": 1.0,
+  "gradient_similarity": 0.0035133124329149723,
+  "information_exposure_risk": 0.043667472898960114,
+  "bytes_transmitted": 58195,
+  "embedding_dimension": 16,
+  "abstraction_level": 0.4021833539009094,
+  "signature_count": 35,
+  "participating_agents": 2,
+  "total_samples": 244,
+  "model_convergence_delta": 14.100881576538086,
+  "zero_day_candidates_found": 0,
+  "agent_privacy_scores": {
+    "org-e": 0.42819344997406006,
+    "org-b": 0.4309327006340027
+  }
+}
