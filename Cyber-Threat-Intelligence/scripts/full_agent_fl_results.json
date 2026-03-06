@@ -1,0 +1,167 @@
+{
+  "config": {
+    "num_clients": 2,
+    "num_rounds": 10,
+    "local_epochs": 3,
+    "max_samples": 10000,
+    "llm_model": "mock"
+  },
+  "baseline": {
+    "binary_accuracy": 0.388,
+    "binary_precision": 0.5203476620401564,
+    "binary_recall": 0.08116099008574401,
+    "binary_f1": 0.14039712522248604,
+    "binary_auc": 0.36255643838518814,
+    "classification_accuracy": 0.82675,
+    "mean_error": 0.04077833332121372,
+    "threshold": 0.08555804677307607
+  },
+  "federated": {
+    "binary_accuracy": 0.38549999999999995,
+    "binary_precision": 0.5116356382978724,
+    "binary_recall": 0.07747904488311765,
+    "binary_f1": 0.13446058471754851,
+    "binary_auc": 0.32762194895773267,
+    "classification_accuracy": 0.8220000000000001,
+    "mean_error": 0.015752036590129137,
+    "threshold": 0.031274100299924626
+  },
+  "improvements": {
+    "binary_accuracy_pct": -0.6443298969072314,
+    "classification_accuracy_pct": -0.574538856970054,
+    "f1_pct": -4.228391781904326
+  },
+  "rounds": [
+    {
+      "binary_accuracy": 0.37275,
+      "binary_precision": 0.4515702736318408,
+      "binary_recall": 0.06958087113059132,
+      "binary_f1": 0.12038549654379695,
+      "binary_auc": 0.29154117239566096,
+      "classification_accuracy": 0.82225,
+      "mean_error": 0.14532804489135742,
+      "threshold": 0.29959628432989127
+    },
+    {
+      "binary_accuracy": 0.39025,
+      "binary_precision": 0.5329012830583922,
+      "binary_recall": 0.08333228311777383,
+      "binary_f1": 0.14404393184269235,
+      "binary_auc": 0.37020770959461363,
+      "classification_accuracy": 0.8242499999999999,
+      "mean_error": 0.06631551869213581,
+      "threshold": 0.13866096287965776
+    },
+    {
+      "binary_accuracy": 0.38475,
+      "binary_precision": 0.4988224340015336,
+      "binary_recall": 0.07682636355013542,
+      "binary_f1": 0.13312923041779023,
+      "binary_auc": 0.338588151024559,
+      "classification_accuracy": 0.8245,
+      "mean_error": 0.04896519146859646,
+      "threshold": 0.10506104081869126
+    },
+    {
+      "binary_accuracy": 0.39325,
+      "binary_precision": 0.5447261489154696,
+      "binary_recall": 0.08251377827539572,
+      "binary_f1": 0.1433101736675199,
+      "binary_auc": 0.3328388773088181,
+      "classification_accuracy": 0.82175,
+      "mean_error": 0.03829536400735378,
+      "threshold": 0.07988366931676866
+    },
+    {
+      "binary_accuracy": 0.39049999999999996,
+      "binary_precision": 0.5321213573332535,
+      "binary_recall": 0.07817649856363676,
+      "binary_f1": 0.13629584966335043,
+      "binary_auc": 0.30984051928894796,
+      "classification_accuracy": 0.8235,
+      "mean_error": 0.028459638357162476,
+      "threshold": 0.06004225406795742
+    },
+    {
+      "binary_accuracy": 0.38425,
+      "binary_precision": 0.5004561211457763,
+      "binary_recall": 0.07269172016685825,
+      "binary_f1": 0.1268995927736194,
+      "binary_auc": 0.3171535921056662,
+      "classification_accuracy": 0.8260000000000001,
+      "mean_error": 0.022877205163240433,
+      "threshold": 0.047787093184888406
+    },
+    {
+      "binary_accuracy": 0.38475,
+      "binary_precision": 0.5060042997542997,
+      "binary_recall": 0.07293647566672659,
+      "binary_f1": 0.1274205690548103,
+      "binary_auc": 0.32017173196721976,
+      "classification_accuracy": 0.82325,
+      "mean_error": 0.019871913827955723,
+      "threshold": 0.0406000765040517
+    },
+    {
+      "binary_accuracy": 0.385,
+      "binary_precision": 0.5083261755008174,
+      "binary_recall": 0.07711058504523997,
+      "binary_f1": 0.13380386699140118,
+      "binary_auc": 0.3198827913103742,
+      "classification_accuracy": 0.82425,
+      "mean_error": 0.018139961175620556,
+      "threshold": 0.03645485006272794
+    },
+    {
+      "binary_accuracy": 0.38625,
+      "binary_precision": 0.5124542124542124,
+      "binary_recall": 0.07739745971649487,
+      "binary_f1": 0.13442077084379808,
+      "binary_auc": 0.32062597113828484,
+      "classification_accuracy": 0.82425,
+      "mean_error": 0.01682432834059,
+      "threshold": 0.0334990761242807
+    },
+    {
+      "binary_accuracy": 0.38549999999999995,
+      "binary_precision": 0.5116356382978724,
+      "binary_recall": 0.07747904488311765,
+      "binary_f1": 0.13446058471754851,
+      "binary_auc": 0.32762194895773267,
+      "classification_accuracy": 0.8220000000000001,
+      "mean_error": 0.015752036590129137,
+      "threshold": 0.031274100299924626
+    }
+  ],
+  "explanations": [
+    {
+      "client_id": 0,
+      "category": "Fuzzers",
+      "confidence": 0.9051223397254944,
+      "reconstruction_error": 0.038706209510564804,
+      "explanation": "## RAG-ENHANCED THREAT ANALYSIS\n\n### Retrieved Context Analysis\nAnalyzed 3 relevant threat intelligence documents from knowledge base.\n\n### 1. THREAT CLASSIFICATION\n- **Attack Type**: DoS/DDoS Attempt\n- **MITRE ATT&CK Mapping**: \n  - T1498 (Network Denial of Service)\n  - T1499 (Endpoint Denial of Service)\n- **Confidence**: 91.2%\n\n### 2. SIMILARITY TO KNOWN THREATS\nBased on vector similarity search:\n- **Most Similar**: CVE-2021-44228 exploitation patterns (85% similarity)\n- **Historical Match**: 2023-Q4 Log4Shell scanning campaign\n\n### 3. SEVERITY ASSESSMENT\n- **Level**: CRITICAL\n- **Impact Analysis**: \n  - Potential service disruption\n  - Data exfiltration risk\n  - Lateral movement capability\n\n### 4. INDICATORS OF COMPROMISE\n- Reconstruction error: 0.2341 (significantly above baseline)\n- Traffic volume anomaly: 340% above normal\n- Protocol distribution deviation detected\n\n### 5. RECOMMENDED ACTIONS\n1. **IMMEDIATE**: Enable DDoS mitigation on edge devices\n2. **Containment**: Isolate affected network segments\n3. **Investigation**: Capture full packets for forensic analysis\n4. **Recovery**: Prepare failover to backup systems\n\n### 6. FEDERATED INSIGHTS\n- Global model trained on data from 2 organizations\n- Cross-organizational pattern matching improved detection by 15.2%\n- Similar attack patterns detected by peers in the last 24 hours"
+    },
+    {
+      "client_id": 0,
+      "category": "Normal",
+      "confidence": 0.9955162405967712,
+      "reconstruction_error": 0.07379525154829025,
+      "explanation": "## RAG-ENHANCED THREAT ANALYSIS\n\n### Retrieved Context Analysis\nAnalyzed 3 relevant threat intelligence documents from knowledge base.\n\n### 1. THREAT CLASSIFICATION\n- **Attack Type**: DoS/DDoS Attempt\n- **MITRE ATT&CK Mapping**: \n  - T1498 (Network Denial of Service)\n  - T1499 (Endpoint Denial of Service)\n- **Confidence**: 91.2%\n\n### 2. SIMILARITY TO KNOWN THREATS\nBased on vector similarity search:\n- **Most Similar**: CVE-2021-44228 exploitation patterns (85% similarity)\n- **Historical Match**: 2023-Q4 Log4Shell scanning campaign\n\n### 3. SEVERITY ASSESSMENT\n- **Level**: CRITICAL\n- **Impact Analysis**: \n  - Potential service disruption\n  - Data exfiltration risk\n  - Lateral movement capability\n\n### 4. INDICATORS OF COMPROMISE\n- Reconstruction error: 0.2341 (significantly above baseline)\n- Traffic volume anomaly: 340% above normal\n- Protocol distribution deviation detected\n\n### 5. RECOMMENDED ACTIONS\n1. **IMMEDIATE**: Enable DDoS mitigation on edge devices\n2. **Containment**: Isolate affected network segments\n3. **Investigation**: Capture full packets for forensic analysis\n4. **Recovery**: Prepare failover to backup systems\n\n### 6. FEDERATED INSIGHTS\n- Global model trained on data from 2 organizations\n- Cross-organizational pattern matching improved detection by 15.2%\n- Similar attack patterns detected by peers in the last 24 hours"
+    },
+    {
+      "client_id": 1,
+      "category": "Exploits",
+      "confidence": 0.7880367040634155,
+      "reconstruction_error": 0.10012172162532806,
+      "explanation": "## RAG-ENHANCED THREAT ANALYSIS\n\n### Retrieved Context Analysis\nAnalyzed 3 relevant threat intelligence documents from knowledge base.\n\n### 1. THREAT CLASSIFICATION\n- **Attack Type**: DoS/DDoS Attempt\n- **MITRE ATT&CK Mapping**: \n  - T1498 (Network Denial of Service)\n  - T1499 (Endpoint Denial of Service)\n- **Confidence**: 91.2%\n\n### 2. SIMILARITY TO KNOWN THREATS\nBased on vector similarity search:\n- **Most Similar**: CVE-2021-44228 exploitation patterns (85% similarity)\n- **Historical Match**: 2023-Q4 Log4Shell scanning campaign\n\n### 3. SEVERITY ASSESSMENT\n- **Level**: CRITICAL\n- **Impact Analysis**: \n  - Potential service disruption\n  - Data exfiltration risk\n  - Lateral movement capability\n\n### 4. INDICATORS OF COMPROMISE\n- Reconstruction error: 0.2341 (significantly above baseline)\n- Traffic volume anomaly: 340% above normal\n- Protocol distribution deviation detected\n\n### 5. RECOMMENDED ACTIONS\n1. **IMMEDIATE**: Enable DDoS mitigation on edge devices\n2. **Containment**: Isolate affected network segments\n3. **Investigation**: Capture full packets for forensic analysis\n4. **Recovery**: Prepare failover to backup systems\n\n### 6. FEDERATED INSIGHTS\n- Global model trained on data from 2 organizations\n- Cross-organizational pattern matching improved detection by 15.2%\n- Similar attack patterns detected by peers in the last 24 hours"
+    },
+    {
+      "client_id": 1,
+      "category": "Exploits",
+      "confidence": 0.4555695056915283,
+      "reconstruction_error": 0.04914340004324913,
+      "explanation": "## RAG-ENHANCED THREAT ANALYSIS\n\n### Retrieved Context Analysis\nAnalyzed 3 relevant threat intelligence documents from knowledge base.\n\n### 1. THREAT CLASSIFICATION\n- **Attack Type**: DoS/DDoS Attempt\n- **MITRE ATT&CK Mapping**: \n  - T1498 (Network Denial of Service)\n  - T1499 (Endpoint Denial of Service)\n- **Confidence**: 91.2%\n\n### 2. SIMILARITY TO KNOWN THREATS\nBased on vector similarity search:\n- **Most Similar**: CVE-2021-44228 exploitation patterns (85% similarity)\n- **Historical Match**: 2023-Q4 Log4Shell scanning campaign\n\n### 3. SEVERITY ASSESSMENT\n- **Level**: CRITICAL\n- **Impact Analysis**: \n  - Potential service disruption\n  - Data exfiltration risk\n  - Lateral movement capability\n\n### 4. INDICATORS OF COMPROMISE\n- Reconstruction error: 0.2341 (significantly above baseline)\n- Traffic volume anomaly: 340% above normal\n- Protocol distribution deviation detected\n\n### 5. RECOMMENDED ACTIONS\n1. **IMMEDIATE**: Enable DDoS mitigation on edge devices\n2. **Containment**: Isolate affected network segments\n3. **Investigation**: Capture full packets for forensic analysis\n4. **Recovery**: Prepare failover to backup systems\n\n### 6. FEDERATED INSIGHTS\n- Global model trained on data from 2 organizations\n- Cross-organizational pattern matching improved detection by 15.2%\n- Similar attack patterns detected by peers in the last 24 hours"
+    }
+  ],
+  "timestamp": "2026-03-06T21:14:02.830719"
+}

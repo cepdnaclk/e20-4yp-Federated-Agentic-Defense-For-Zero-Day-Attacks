@@ -325,6 +325,14 @@ class IntegrationCoordinator:
         self._anomalies_detected = 0
         self._zero_days_flagged = 0
         
+        # Federated learning state
+        self._federated_round = 0
+        self._pending_samples_for_reanalysis: List[Dict[str, Any]] = []
+        self._on_reanalysis_complete: Optional[callable] = None
+        
+        # Knowledge base (set via set_knowledge_base)
+        self._knowledge_base = None
+        
         logger.info(
             f"IntegrationCoordinator initialized: "
             f"zero_day_threshold={zero_day_threshold}"
@@ -589,54 +597,87 @@ class IntegrationCoordinator:
         Returns:
             Tuple of (threat_description, cve_references).
         """
-        if self.vector_db is None or self.llm is None:
-            logger.debug("RAG system not configured, skipping enrichment")
+        if self.llm is None:
+            logger.debug("LLM not configured, skipping enrichment")
             return "", []
         
         try:
-            # Build query for vector search
             technique = mitre_info.get("technique", "")
-            query = f"{attack_category} attack {technique} {mitre_info.get('description', '')}"
             
-            # Search vector database
-            contexts = self.vector_db.similarity_search(query, k=3)
-            
-            # Extract context text
-            context_text = "\n".join([ctx.content for ctx in contexts])
-            
-            # Build LLM prompt
-            if is_zero_day:
-                llm_prompt = f"""Analyze this potential zero-day threat:
-
-Attack Category: {attack_category}
-MITRE Technique: {technique}
-
-Context from threat intelligence:
-{context_text}
-
-Provide:
-1. Brief threat assessment (2-3 sentences)
-2. Possible CVE references if pattern matches known vulnerabilities
-3. Recommended additional investigation steps"""
+            # Use knowledge base if available, otherwise fall back to vector_db
+            if self._knowledge_base is not None:
+                context_text, cve_ids_from_kb = self._knowledge_base.get_context_for_threat(
+                    attack_category=attack_category,
+                    mitre_technique=technique,
+                    is_zero_day=is_zero_day,
+                )
+            elif self.vector_db is not None:
+                # Fallback to direct vector search
+                query = f"{attack_category} attack {technique} {mitre_info.get('description', '')}"
+                contexts = self.vector_db.similarity_search(query, k=5)
+                context_text = "\n\n".join([ctx.content for ctx in contexts])
+                cve_ids_from_kb = []
             else:
-                llm_prompt = f"""Summarize this threat for a security analyst:
+                logger.debug("No knowledge source configured, skipping enrichment")
+                return "", []
+            
+            # Build LLM prompt with rich context
+            if is_zero_day:
+                llm_prompt = f"""You are a cybersecurity expert analyzing a potential zero-day threat detected by a federated intrusion detection system.
 
-Attack Category: {attack_category}
-MITRE Technique: {technique} - {mitre_info.get('description', '')}
+## Detection Summary
+- **Attack Category**: {attack_category}
+- **MITRE Technique**: {technique}
+- **Classification Confidence**: Low (potential zero-day)
 
-Context:
+## Threat Intelligence Context
 {context_text}
 
-Provide a concise 2-3 sentence threat summary."""
+## Analysis Required
+Based on the detection and threat intelligence context above, provide:
+
+1. **Threat Assessment** (2-3 sentences): What type of attack is this most likely? How does it compare to known patterns?
+
+2. **Severity Level**: Critical/High/Medium/Low and brief justification
+
+3. **Related Vulnerabilities**: Any CVEs that match this pattern (reference specific CVE IDs if found in context)
+
+4. **Recommended Actions**:
+   - Immediate response actions
+   - Investigation steps
+   - Long-term mitigations
+
+5. **Confidence Notes**: What makes this a potential zero-day vs. known attack variant?
+
+Provide a structured, actionable analysis:"""
+            else:
+                llm_prompt = f"""You are a cybersecurity expert providing a threat analysis summary for a security operations team.
+
+## Detection Details
+- **Attack Category**: {attack_category}
+- **MITRE Technique**: {technique} - {mitre_info.get('description', '')}
+- **Tactic**: {mitre_info.get('tactic', 'Unknown')}
+
+## Threat Intelligence Context
+{context_text}
+
+## Required Output
+Provide a concise threat summary (3-5 sentences) including:
+- What the attack is attempting to accomplish
+- Key indicators to monitor
+- Recommended immediate action
+
+Keep the response focused and actionable for SOC analysts."""
             
             # Query LLM
             response = self.llm.generate(llm_prompt)
             threat_description = response.content
             
-            # Extract CVE references from response
+            # Extract CVE references from response and combine with KB CVEs
             cve_refs = self._extract_cve_references(threat_description)
+            all_cves = list(set(cve_refs + cve_ids_from_kb if 'cve_ids_from_kb' in dir() else cve_refs))
             
-            return threat_description, cve_refs
+            return threat_description, all_cves
             
         except Exception as e:
             logger.error(f"RAG enrichment error: {e}")
@@ -767,7 +808,159 @@ Provide a concise 2-3 sentence threat summary."""
             except Exception as e:
                 logger.error(f"Failed to update Agent One: {e}")
         
+        # Update Agent Two (XGBoost) if using neural classifier variant
+        if self.agent_two is not None and hasattr(self.agent_two, 'update_model'):
+            try:
+                self.agent_two.update_model(aggregated_params)
+                logger.info("Agent Two model updated")
+            except Exception as e:
+                logger.error(f"Failed to update Agent Two: {e}")
+        
+        # Trigger RAG re-analysis if configured
+        if self._pending_samples_for_reanalysis:
+            self._trigger_rag_reanalysis(round_number)
+        
         # Reset stats for new model version
         self._samples_processed = 0
         self._anomalies_detected = 0
         self._zero_days_flagged = 0
+        self._federated_round = round_number
+    
+    def _trigger_rag_reanalysis(self, round_number: int) -> None:
+        """
+        Re-analyze pending samples with updated model weights.
+        
+        This is called after federated updates to generate new
+        explanations using the globally improved model.
+        """
+        if not self._pending_samples_for_reanalysis:
+            return
+        
+        logger.info(
+            f"Re-analyzing {len(self._pending_samples_for_reanalysis)} "
+            f"samples after federated round {round_number}"
+        )
+        
+        updated_reports = []
+        for sample_info in self._pending_samples_for_reanalysis:
+            try:
+                report = self.process_network_sample(
+                    sample_info["sample"],
+                    sample_id=f"{sample_info['sample_id']}_r{round_number}",
+                    include_rag_enrichment=True,
+                )
+                updated_reports.append(report)
+            except Exception as e:
+                logger.error(f"Re-analysis failed for {sample_info['sample_id']}: {e}")
+        
+        # Notify callbacks if configured
+        if self._on_reanalysis_complete:
+            self._on_reanalysis_complete(updated_reports, round_number)
+        
+        # Clear pending samples
+        self._pending_samples_for_reanalysis.clear()
+    
+    def queue_for_reanalysis(
+        self,
+        sample: np.ndarray,
+        sample_id: str,
+    ) -> None:
+        """
+        Queue a sample for re-analysis after the next federated update.
+        
+        Use this for zero-day detections that may benefit from globally
+        updated model weights.
+        
+        Args:
+            sample: Network flow features.
+            sample_id: Unique identifier for the sample.
+        """
+        self._pending_samples_for_reanalysis.append({
+            "sample": sample.copy(),
+            "sample_id": sample_id,
+            "queued_at": datetime.now().isoformat(),
+        })
+        logger.debug(f"Queued sample {sample_id} for post-FL reanalysis")
+    
+    def set_reanalysis_callback(
+        self,
+        callback: callable,
+    ) -> None:
+        """
+        Set callback for when re-analysis completes after federated update.
+        
+        Args:
+            callback: Function(reports: List[SemanticThreatReport], round: int)
+        """
+        self._on_reanalysis_complete = callback
+    
+    def set_knowledge_base(self, knowledge_base: Any) -> None:
+        """
+        Configure the threat knowledge base for enhanced RAG.
+        
+        Args:
+            knowledge_base: ThreatKnowledgeBase instance.
+        """
+        self._knowledge_base = knowledge_base
+        logger.info("Knowledge base configured for coordinator")
+    
+    def get_enhanced_context(
+        self,
+        attack_category: str,
+        mitre_technique: str,
+        is_zero_day: bool,
+    ) -> Tuple[str, List[str]]:
+        """
+        Get enhanced context from knowledge base for LLM analysis.
+        
+        Args:
+            attack_category: Detected attack type.
+            mitre_technique: MITRE technique ID.
+            is_zero_day: Whether this is a potential zero-day.
+        
+        Returns:
+            Tuple of (context_string, cve_references).
+        """
+        if self._knowledge_base is None:
+            return "", []
+        
+        return self._knowledge_base.get_context_for_threat(
+            attack_category=attack_category,
+            mitre_technique=mitre_technique,
+            is_zero_day=is_zero_day,
+        )
+    
+    def analyze_with_federated_context(
+        self,
+        sample: np.ndarray,
+        sample_id: Optional[str] = None,
+    ) -> SemanticThreatReport:
+        """
+        Full analysis pipeline with federated context awareness.
+        
+        This method:
+        1. Runs detection with current (federated) model weights
+        2. For zero-days, queries knowledge base for similar patterns
+        3. Generates explanation grounded in MITRE/CVE context
+        4. Optionally queues for re-analysis after next FL round
+        
+        Args:
+            sample: Network flow features.
+            sample_id: Optional sample identifier.
+        
+        Returns:
+            SemanticThreatReport with full analysis.
+        """
+        report = self.process_network_sample(
+            sample,
+            sample_id=sample_id,
+            include_rag_enrichment=True,
+        )
+        
+        # For zero-days, queue for re-analysis after next FL round
+        if report.is_zero_day:
+            self.queue_for_reanalysis(sample, report.sample_id)
+            report.metadata["queued_for_reanalysis"] = True
+            report.metadata["current_fl_round"] = getattr(self, '_federated_round', 0)
+        
+        return report

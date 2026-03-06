@@ -1,0 +1,145 @@
+{
+  "config": {
+    "num_clients": 2,
+    "num_rounds": 5,
+    "local_epochs": 3,
+    "max_samples": 5000,
+    "use_groq": true
+  },
+  "baseline": {
+    "binary_accuracy": 0.38749999999999996,
+    "binary_precision": 0.507063132193931,
+    "binary_recall": 0.08907513164725951,
+    "binary_f1": 0.1515144530874868,
+    "classification_accuracy": 0.8045,
+    "classification_f1_macro": 0.45818331361104964,
+    "mean_confidence": 0.8815319061281184,
+    "anomaly_threshold": 0.21632631272077557,
+    "binary_auc": 0.32479070618626416
+  },
+  "federated": {
+    "binary_accuracy": 0.3745,
+    "binary_precision": 0.43502308161309994,
+    "binary_recall": 0.07844666829128744,
+    "binary_f1": 0.13281909586307467,
+    "classification_accuracy": 0.8045,
+    "classification_f1_macro": 0.45818331361104964,
+    "mean_confidence": 0.8815319061281184,
+    "anomaly_threshold": 0.13785937204957005,
+    "binary_auc": 0.3316073687934307
+  },
+  "improvements": {
+    "binary_accuracy_pct": -3.354838709677408,
+    "classification_accuracy_pct": 0.0
+  },
+  "training_history": [
+    {
+      "round": 1,
+      "metrics": {
+        "binary_accuracy": 0.39049999999999996,
+        "binary_precision": 0.520897615708275,
+        "binary_recall": 0.08785004397071444,
+        "binary_f1": 0.15034367928958717,
+        "classification_accuracy": 0.8045,
+        "classification_f1_macro": 0.45818331361104964,
+        "mean_confidence": 0.8815319061281184,
+        "anomaly_threshold": 0.5366622447967528,
+        "binary_auc": 0.29464746746395465
+      }
+    },
+    {
+      "round": 2,
+      "metrics": {
+        "binary_accuracy": 0.39149999999999996,
+        "binary_precision": 0.522247191011236,
+        "binary_recall": 0.09128426272236997,
+        "binary_f1": 0.15531644105056114,
+        "classification_accuracy": 0.8045,
+        "classification_f1_macro": 0.45818331361104964,
+        "mean_confidence": 0.8815319061281184,
+        "anomaly_threshold": 0.2666302882134914,
+        "binary_auc": 0.31441994758588565
+      }
+    },
+    {
+      "round": 3,
+      "metrics": {
+        "binary_accuracy": 0.38649999999999995,
+        "binary_precision": 0.5015151515151515,
+        "binary_recall": 0.08506743942106992,
+        "binary_f1": 0.1454108007680408,
+        "classification_accuracy": 0.8045,
+        "classification_f1_macro": 0.45818331361104964,
+        "mean_confidence": 0.8815319061281184,
+        "anomaly_threshold": 0.19445914700627326,
+        "binary_auc": 0.32211562248389086
+      }
+    },
+    {
+      "round": 4,
+      "metrics": {
+        "binary_accuracy": 0.3745,
+        "binary_precision": 0.43706659067160636,
+        "binary_recall": 0.07476478316610335,
+        "binary_f1": 0.12763024883359253,
+        "classification_accuracy": 0.8045,
+        "classification_f1_macro": 0.45818331361104964,
+        "mean_confidence": 0.8815319061281184,
+        "anomaly_threshold": 0.15576059296727174,
+        "binary_auc": 0.32947179176508457
+      }
+    },
+    {
+      "round": 5,
+      "metrics": {
+        "binary_accuracy": 0.3745,
+        "binary_precision": 0.43502308161309994,
+        "binary_recall": 0.07844666829128744,
+        "binary_f1": 0.13281909586307467,
+        "classification_accuracy": 0.8045,
+        "classification_f1_macro": 0.45818331361104964,
+        "mean_confidence": 0.8815319061281184,
+        "anomaly_threshold": 0.13785937204957005,
+        "binary_auc": 0.3316073687934307
+      }
+    }
+  ],
+  "explanations": [
+    {
+      "sample_id": 0,
+      "category": "Exploits",
+      "confidence": 0.6711716570969923,
+      "error": 0.15775665640830994,
+      "explanation": "**Threat Analysis Report**\n\n### 1. Threat Classification\nThe detected threat is classified as an **Exploit**, with a confidence level of **67.1%**. This suggests that the threat is likely related to the active exploitation of known vulnerabilities, but the confidence level is not extremely high, indicating some uncertainty in the classification.\n\n### 2. MITRE ATT&CK Mapping\nThe threat is mapped to **T1190 (Exploit Public-Facing Application)** and **T1203 (Exploitation for Client Execution)**, indicating that the attacker is likely exploiting vulnerabilities in publicly facing applications to execute malicious code on client systems.\n\n### 3. Severity Assessment\nBased on the anomaly score of **0.1578** and the mean feature value of **-0.1891**, the severity of the threat is assessed as **Moderate**. The relatively low anomaly score and mean feature value suggest that the threat is not extremely severe, but still warrants attention and mitigation.\n\n### 4. Indicators of Compromise (IoCs)\nThe key feature indicators that support the classification of this threat include:\n* **Mean feature value: -0.1891**\n* **Max feature value: 2.4088**\n* **Feature variance: 0.2962**\nThese IoCs suggest that the threat is characterized by a moderate level of anomaly and variability in the feature values.\n\n### 5. Recommended Actions\nTo mitigate this threat, the following actions are recommended:\n* **Patch publicly facing applications**: Ensure that all publicly facing applications are up-to-date with the latest security patches to prevent exploitation of known vulnerabilities.\n* **Implement intrusion detection and prevention systems**: Deploy IDS/IPS systems to detect and prevent exploit attempts in real-time.\n* **Conduct regular security audits**: Perform regular security audits to identify and address potential vulnerabilities in the network and applications.\n* **Enable cross-organizational threat intelligence**: Share threat intelligence with other organizations to stay informed about potential threats and improve collective defenses."
+    },
+    {
+      "sample_id": 1,
+      "category": "Normal",
+      "confidence": 0.990594577851676,
+      "error": 0.15065689384937286,
+      "explanation": "## Structured Threat Analysis Report\n\n### 1. Threat Classification\nBased on the detection results, the threat is classified as **Benign** with a **Classification Confidence** of 99.1%. This indicates that the network traffic is likely legitimate and does not pose a significant threat.\n\n### 2. MITRE ATT&CK Mapping\nNot applicable, as the detected traffic is classified as benign and does not exhibit any malicious behavior that can be mapped to the MITRE ATT&CK framework.\n\n### 3. Severity Assessment\nThe severity of this threat is assessed as **Low**, as the detection results indicate that the network traffic is likely legitimate and does not pose a significant threat to the network or its assets.\n\n### 4. Indicators of Compromise (IoCs)\nThere are no IoCs present in this case, as the detected traffic is classified as benign. However, the following key feature indicators are noted:\n- Mean feature value: 0.0144\n- Max feature value: 1.5035\n- Feature variance: 0.2577\nThese indicators do not suggest any malicious activity.\n\n### 5. Recommended Actions\nBased on the analysis, the following actions are recommended:\n- **Continue Monitoring**: Continue to monitor network traffic to ensure that the benign classification remains accurate.\n- **Review Training Data**: Review the training data from the 2 distributed organizations to ensure that it is accurate and up-to-date.\n- **Maintain Cross-Organizational Threat Intelligence**: Continue to enable cross-organizational threat intelligence to stay informed about potential threats.\n- **No Immediate Action Required**: No immediate action is required, as the detected traffic is classified as benign and does not pose a significant threat."
+    },
+    {
+      "sample_id": 2,
+      "category": "Exploits",
+      "confidence": 0.9696294841738886,
+      "error": 0.1711956113576889,
+      "explanation": "**Threat Analysis Report**\n\n### 1. Threat Classification\nThe detected threat is classified as an **Exploit** with a high confidence level of **97.0%**. This classification suggests that the threat is leveraging known vulnerabilities to gain unauthorized access or execute malicious code within the network.\n\n### 2. MITRE ATT&CK Mapping\nThe threat is mapped to **T1190 (Exploitation for Client Execution)** and **T1203 (Exploitation for Privilege Escalation)**. These techniques indicate that the attacker is exploiting vulnerabilities in client applications or software to execute malicious code and potentially escalate privileges to gain greater control over the system.\n\n### 3. Severity Assessment\nGiven the high classification confidence and the specific MITRE ATT&CK techniques involved, the severity of this threat is assessed as **High**. The exploitation of known vulnerabilities can lead to significant security breaches, including data theft, system compromise, and lateral movement within the network.\n\n### 4. Indicators of Compromise (IoCs)\nKey indicators that support the classification of this threat include:\n- **Mean feature value of 0.2619**: This suggests a consistent pattern of anomalous behavior that is indicative of exploit attempts.\n- **Max feature value of 4.2289**: This spike in feature value may indicate a specific instance of exploit code being executed or a significant anomaly in network traffic.\n- **Feature variance of 1.0435**: The variance in feature values could indicate the attacker's attempts to evade detection by varying the exploit payloads or tactics.\n\n### 5. Recommended Actions\nTo mitigate this threat, the following actions are recommended:\n- **Patch Management**: Ensure all systems and applications are up-to-date with the latest security patches to prevent the exploitation of known vulnerabilities.\n- **Network Monitoring**: Enhance network monitoring to detect and alert on potential exploit attempts, focusing on the techniques outlined in T1190 and T1203.\n- **Endpoint Security**: Implement robust endpoint security solutions to detect and prevent the execution of malicious code.\n- **Incident Response Planning**: Review and update incident response plans to ensure readiness in case of a security breach related to this threat.\n- **Threat Intelligence Sharing**: Participate in threat intelligence sharing programs, like the one described in the federated learning context, to stay informed about emerging threats and tactics."
+    },
+    {
+      "sample_id": 3,
+      "category": "Exploits",
+      "confidence": 0.9058359033920358,
+      "error": 0.29951339960098267,
+      "explanation": "**Structured Threat Analysis Report**\n\n### 1. Threat Classification\nThe detected threat is classified as an **Exploit**, with a high confidence level of **90.6%**. This indicates a strong likelihood that the threat is indeed an exploit, leveraging known vulnerabilities to gain unauthorized access or control.\n\n### 2. MITRE ATT&CK Mapping\nThe threat is mapped to **T1190 (Exploit Public-Facing Application)** and **T1203 (Exploitation for Client Execution)**, indicating that the attacker is exploiting public-facing applications and potentially using the exploit for client execution, which could lead to further malicious activities such as malware deployment or data exfiltration.\n\n### 3. Severity Assessment\nGiven the high confidence level and the nature of the exploit, the severity of this threat is assessed as **High**. Exploits, especially those targeting public-facing applications, can lead to significant breaches, including data theft, system compromise, and lateral movement within the network.\n\n### 4. Indicators of Compromise (IoCs)\nKey indicators that support the classification of this threat include:\n- **Mean feature value of 0.2941**: Suggests a consistent pattern of anomalous behavior.\n- **Max feature value of 4.5959**: Indicates a peak in anomaly score, which could correspond to the moment of exploit attempt.\n- **Feature variance of 1.1409**: Shows variability in the behavior, which could be indicative of an attacker probing different vulnerabilities or approaches.\n\n### 5. Recommended Actions\nTo mitigate this threat, the following actions are recommended:\n- **Patch Management**: Ensure all public-facing applications and systems are up-to-date with the latest security patches to prevent exploitation of known vulnerabilities.\n- **Intrusion Detection and Prevention Systems (IDPS)**: Implement or enhance IDPS to detect and block exploit attempts in real-time.\n- **Network Segmentation**: Segment the network to limit the lateral movement of an attacker in case of a breach.\n- **Monitoring and Incident Response**: Enhance monitoring capabilities to quickly detect and respond to exploit attempts, minimizing the impact of a potential breach.\n- **Regular Security Audits**: Conduct regular security audits to identify and address vulnerabilities before they can be exploited."
+    },
+    {
+      "sample_id": 4,
+      "category": "Exploits",
+      "confidence": 0.9889687444521332,
+      "error": 0.19837623834609985,
+      "explanation": "**Structured Threat Analysis Report**\n\n### 1. Threat Classification\nThe detected threat is classified as an **Exploit**, with a high classification confidence of **98.9%**. This indicates a strong likelihood that the threat is indeed an exploit, leveraging known vulnerabilities to gain unauthorized access or control.\n\n### 2. MITRE ATT&CK Mapping\nThe threat is mapped to **T1190 (Exploit Public-Facing Application)** and **T1203 (Exploitation for Client Execution)**, suggesting that the attack involves the exploitation of publicly facing applications, potentially to execute malicious code on client systems.\n\n### 3. Severity Assessment\nGiven the high confidence in the threat classification and the involvement of known vulnerabilities, the severity of this threat is assessed as **High**. The ability to exploit public-facing applications and potentially execute code on client systems poses a significant risk to the security and integrity of the targeted systems and data.\n\n### 4. Indicators of Compromise (IoCs)\nKey indicators that support the classification of this threat include:\n- **Mean feature value of 0.2514**: This suggests a consistent and potentially malicious pattern in the network traffic.\n- **Max feature value of 4.0829**: This indicates a spike in activity that could be associated with the exploit attempt.\n- **Feature variance of 1.3982**: This variance could indicate the exploit's attempt to evade detection by varying its behavior.\n\n### 5. Recommended Actions\nTo mitigate this threat, the following actions are recommended:\n- **Patch Management**: Ensure all public-facing applications are up-to-date with the latest security patches to prevent exploitation of known vulnerabilities.\n- **Intrusion Detection and Prevention Systems (IDPS)**: Implement or enhance IDPS to detect and block exploit attempts in real-time.\n- **Regular Security Audits**: Conduct regular security audits to identify and address potential vulnerabilities before they can be exploited.\n- **Network Segmentation**: Implement network segmentation to limit the spread of malware in case of a successful exploit.\n- **User Education**: Educate users about the risks of exploits and how to identify and report suspicious activity."
+    }
+  ],
+  "total_time": 645.6398167610168
+}

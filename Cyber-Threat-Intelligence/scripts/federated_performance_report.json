@@ -1,0 +1,199 @@
+{
+  "metadata": {
+    "timestamp": "2026-03-06T19:42:07.821954",
+    "num_clients": 2,
+    "federated_rounds": 10,
+    "local_epochs": 5,
+    "total_time_seconds": 10.94192910194397
+  },
+  "baseline_performance": {
+    "client_0": {
+      "accuracy": 0.349,
+      "precision": 1.0,
+      "recall": 0.04405286343612335,
+      "f1_score": 0.08438818565400844,
+      "ae_accuracy": 0.334,
+      "ae_precision": 0.6595744680851063,
+      "ae_recall": 0.04552129221732746,
+      "reconstruction_error_mean": 0.9048534035682678,
+      "reconstruction_error_std": 1.6377869844436646,
+      "anomaly_threshold": 2.7188312649726862,
+      "roc_auc": 0.9908925192990209
+    },
+    "client_1": {
+      "accuracy": 0.465,
+      "precision": 0.9,
+      "recall": 0.032667876588021776,
+      "f1_score": 0.06304728546409807,
+      "ae_accuracy": 0.431,
+      "ae_precision": 0.3392857142857143,
+      "ae_recall": 0.034482758620689655,
+      "reconstruction_error_mean": 1.0740463733673096,
+      "reconstruction_error_std": 2.646925210952759,
+      "anomaly_threshold": 3.2114622592926025,
+      "roc_auc": 0.9841490871022115
+    },
+    "average": {
+      "accuracy": 0.40700000000000003,
+      "precision": 0.95,
+      "recall": 0.03836037001207256,
+      "f1_score": 0.07371773555905325,
+      "ae_accuracy": 0.3825,
+      "ae_precision": 0.4994300911854103,
+      "ae_recall": 0.04000202541900856,
+      "reconstruction_error_mean": 0.9894498884677887,
+      "reconstruction_error_std": 2.1423560976982117,
+      "anomaly_threshold": 2.9651467621326444,
+      "roc_auc": 0.9875208032006162
+    }
+  },
+  "federated_performance": {
+    "client_0": {
+      "accuracy": 0.349,
+      "precision": 1.0,
+      "recall": 0.04405286343612335,
+      "f1_score": 0.08438818565400844,
+      "ae_accuracy": 0.334,
+      "ae_precision": 0.6595744680851063,
+      "ae_recall": 0.04552129221732746,
+      "reconstruction_error_mean": 0.9031625390052795,
+      "reconstruction_error_std": 1.6333909034729004,
+      "anomaly_threshold": 2.7188312649726862,
+      "roc_auc": 0.9908925192990209
+    },
+    "client_1": {
+      "accuracy": 0.465,
+      "precision": 0.9,
+      "recall": 0.032667876588021776,
+      "f1_score": 0.06304728546409807,
+      "ae_accuracy": 0.431,
+      "ae_precision": 0.3392857142857143,
+      "ae_recall": 0.034482758620689655,
+      "reconstruction_error_mean": 1.0720852613449097,
+      "reconstruction_error_std": 2.642249584197998,
+      "anomaly_threshold": 3.2114622592926025,
+      "roc_auc": 0.9841490871022115
+    },
+    "average": {
+      "accuracy": 0.40700000000000003,
+      "precision": 0.95,
+      "recall": 0.03836037001207256,
+      "f1_score": 0.07371773555905325,
+      "ae_accuracy": 0.3825,
+      "ae_precision": 0.4994300911854103,
+      "ae_recall": 0.04000202541900856,
+      "reconstruction_error_mean": 0.9876239001750946,
+      "reconstruction_error_std": 2.137820243835449,
+      "anomaly_threshold": 2.9651467621326444,
+      "roc_auc": 0.9875208032006162
+    }
+  },
+  "improvement_analysis": {
+    "accuracy_improvement": 0.0,
+    "accuracy_improvement_pct": 0.0,
+    "f1_improvement": 0.0,
+    "f1_improvement_pct": 0.0,
+    "recall_improvement": 0.0,
+    "precision_improvement": 0.0
+  },
+  "per_round_metrics": [
+    {
+      "round": 1,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9892570376396179
+    },
+    {
+      "round": 2,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9890681207180023
+    },
+    {
+      "round": 3,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9888821840286255
+    },
+    {
+      "round": 4,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9886980056762695
+    },
+    {
+      "round": 5,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9885131418704987
+    },
+    {
+      "round": 6,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9883304536342621
+    },
+    {
+      "round": 7,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9881398677825928
+    },
+    {
+      "round": 8,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.987962156534195
+    },
+    {
+      "round": 9,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9877929985523224
+    },
+    {
+      "round": 10,
+      "accuracy": 0.40700000000000003,
+      "f1_score": 0.07371773555905325,
+      "recall": 0.03836037001207256,
+      "precision": 0.95,
+      "reconstruction_error": 0.9876239001750946
+    }
+  ],
+  "rag_explanations": [
+    {
+      "attack_category": "DoS",
+      "explanation": "## HIGH Severity - DoS Attack Detected\n\n**Detection Confidence**: 77.0%\n**Reconstruction Error**: 0.3727\n**Classification**: Anomalous Traffic\n\n### MITRE ATT&CK Mapping\n- T1499 - Endpoint DoS\n- T1498 - Network DoS\n\n### Related CVEs\n- CVE-2021-26855\n- CVE-2020-1350\n\n### Recommended Actions\n1. Investigate source and destination IP addresses\n2. Review firewall and IDS logs for correlated events\n3. Check for indicators of compromise (IOCs)\n4. Consider network segmentation if attack persists\n\n### Federated Learning Context\nDetection enhanced by globally aggregated model trained across distributed sensors.\nLocal privacy preserved while benefiting from collective threat intelligence."
+    },
+    {
+      "attack_category": "Reconnaissance",
+      "explanation": "## CRITICAL Severity - Reconnaissance Attack Detected\n\n**Detection Confidence**: 82.0%\n**Reconstruction Error**: 0.3503\n**Classification**: Anomalous Traffic\n\n### MITRE ATT&CK Mapping\n- T1595 - Active Scanning\n- T1046 - Network Service Discovery\n\n### Related CVEs\n- No specific CVE mapping\n\n### Recommended Actions\n1. Investigate source and destination IP addresses\n2. Review firewall and IDS logs for correlated events\n3. Check for indicators of compromise (IOCs)\n4. Consider network segmentation if attack persists\n\n### Federated Learning Context\nDetection enhanced by globally aggregated model trained across distributed sensors.\nLocal privacy preserved while benefiting from collective threat intelligence."
+    },
+    {
+      "attack_category": "Exploits",
+      "explanation": "## CRITICAL Severity - Exploits Attack Detected\n\n**Detection Confidence**: 81.7%\n**Reconstruction Error**: 0.3734\n**Classification**: Anomalous Traffic\n\n### MITRE ATT&CK Mapping\n- T1190 - Exploit Public-Facing App\n- T1203 - Exploitation\n\n### Related CVEs\n- CVE-2021-44228\n- CVE-2019-19781\n\n### Recommended Actions\n1. Investigate source and destination IP addresses\n2. Review firewall and IDS logs for correlated events\n3. Check for indicators of compromise (IOCs)\n4. Consider network segmentation if attack persists\n\n### Federated Learning Context\nDetection enhanced by globally aggregated model trained across distributed sensors.\nLocal privacy preserved while benefiting from collective threat intelligence."
+    },
+    {
+      "attack_category": "Generic",
+      "explanation": "## HIGH Severity - Generic Attack Detected\n\n**Detection Confidence**: 77.1%\n**Reconstruction Error**: 0.3814\n**Classification**: Anomalous Traffic\n\n### MITRE ATT&CK Mapping\n- T1595 - Active Scanning\n\n### Related CVEs\n- No specific CVE mapping\n\n### Recommended Actions\n1. Investigate source and destination IP addresses\n2. Review firewall and IDS logs for correlated events\n3. Check for indicators of compromise (IOCs)\n4. Consider network segmentation if attack persists\n\n### Federated Learning Context\nDetection enhanced by globally aggregated model trained across distributed sensors.\nLocal privacy preserved while benefiting from collective threat intelligence."
+    }
+  ]
+}
