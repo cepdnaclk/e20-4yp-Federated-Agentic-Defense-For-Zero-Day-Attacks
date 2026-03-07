@@ -1,0 +1,77 @@
+{
+  "config": {
+    "trees_per_client": 50,
+    "num_rounds": 3,
+    "max_depth": 6,
+    "learning_rate": 0.1,
+    "max_samples": 8000,
+    "num_classes": 10,
+    "ensemble_size": 6
+  },
+  "baseline": {
+    "mean_accuracy": 0.80125,
+    "mean_f1": 0.48557002080080847,
+    "per_client": {
+      "client_0": {
+        "accuracy": 0.8125,
+        "f1_macro": 0.5038625042222469
+      },
+      "client_1": {
+        "accuracy": 0.79,
+        "f1_macro": 0.46727753737937006
+      }
+    }
+  },
+  "federated": {
+    "mean_accuracy": 0.80875,
+    "mean_f1": 0.4815612592952482,
+    "per_client": {
+      "client_0": {
+        "accuracy": 0.81375,
+        "f1_macro": 0.4782635953419754
+      },
+      "client_1": {
+        "accuracy": 0.80375,
+        "f1_macro": 0.4848589232485209
+      }
+    },
+    "round_history": [
+      {
+        "round": 1,
+        "num_clients": 2,
+        "mean_accuracy": 0.79125,
+        "ensemble_size": 2
+      },
+      {
+        "round": 2,
+        "num_clients": 2,
+        "mean_accuracy": 0.7940625,
+        "ensemble_size": 4
+      },
+      {
+        "round": 3,
+        "num_clients": 2,
+        "mean_accuracy": 0.78625,
+        "ensemble_size": 6
+      }
+    ]
+  },
+  "improvements": {
+    "accuracy_pct": 0.9360374414976539,
+    "f1_pct": -0.8255784611556096
+  },
+  "total_time": 38.19239163398743,
+  "timestamp": "2026-03-07T10:53:43.331646",
+  "classes": [
+    "Analysis",
+    "Backdoor",
+    "DoS",
+    "Exploits",
+    "Fuzzers",
+    "Generic",
+    "Normal",
+    "Reconnaissance",
+    "Shellcode",
+    "Worms"
+  ]
+}
