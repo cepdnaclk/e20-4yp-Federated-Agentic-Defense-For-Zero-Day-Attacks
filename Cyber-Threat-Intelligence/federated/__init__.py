@@ -25,6 +25,7 @@ Example:
 """
 
 from federated.client import NetworkDefenseClient, create_client_fn
+from federated.differential_privacy import DifferentialPrivacyEngine
 from federated.server import (
     NetworkDefenseStrategy,
     start_federated_server,
@@ -76,6 +77,8 @@ __all__ = [
     # Client
     "NetworkDefenseClient",
     "create_client_fn",
+    # Differential Privacy
+    "DifferentialPrivacyEngine",
     # Server
     "NetworkDefenseStrategy",
     "start_federated_server",

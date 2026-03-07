@@ -28,6 +28,7 @@ from .utils import (
     get_combined_weights,
     split_combined_weights,
 )
+from .differential_privacy import DifferentialPrivacyEngine
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,9 @@ class NetworkDefenseClient(fl.client.NumPyClient):
         val_data: Optional[Tuple[np.ndarray, np.ndarray]] = None,
         training_config: Optional[Dict[str, Any]] = None,
         client_id: str = "default",
+        dp_enabled: bool = False,
+        dp_clip_norm: float = 1.0,
+        dp_noise_multiplier: float = 0.1,
     ):
         """
         Initialize the Network Defense federated client.
@@ -94,6 +98,9 @@ class NetworkDefenseClient(fl.client.NumPyClient):
             val_data: Tuple of (X_val, y_val). Optional.
             training_config: Dict with training hyperparameters.
             client_id: Unique identifier for this client.
+            dp_enabled: Whether to apply differential privacy to weights.
+            dp_clip_norm: Maximum L2 norm for weight clipping (DP).
+            dp_noise_multiplier: Multiplier for Gaussian noise (DP).
         """
         self.autoencoder = autoencoder
         self.xgboost_model = xgboost_model
@@ -117,9 +124,23 @@ class NetworkDefenseClient(fl.client.NumPyClient):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.autoencoder.to(self.device)
         
+        # Differential Privacy configuration
+        self._dp_enabled = dp_enabled
+        self._dp_clip_norm = dp_clip_norm
+        self._dp_noise_multiplier = dp_noise_multiplier
+        self._dp_engine: Optional[DifferentialPrivacyEngine] = None
+        
+        if dp_enabled:
+            self._dp_engine = DifferentialPrivacyEngine()
+            logger.info(
+                f"DP enabled: clip_norm={dp_clip_norm}, "
+                f"noise_multiplier={dp_noise_multiplier}"
+            )
+        
         logger.info(
             f"NetworkDefenseClient initialized: id={client_id}, "
-            f"has_xgboost={self._has_xgboost}, device={self.device}"
+            f"has_xgboost={self._has_xgboost}, device={self.device}, "
+            f"dp_enabled={dp_enabled}"
         )
     
     def get_parameters(self, config: Config) -> NDArrays:
@@ -128,6 +149,9 @@ class NetworkDefenseClient(fl.client.NumPyClient):
         
         This method is called by the Flower server to retrieve current
         model weights before and after training rounds.
+        
+        If differential privacy is enabled, weights are clipped and
+        noise is added before being returned.
         
         Args:
             config: Configuration dict from server.
@@ -149,9 +173,19 @@ class NetworkDefenseClient(fl.client.NumPyClient):
                 self.xgboost_model,
                 self.label_encoder,
             )
-            return weights
         else:
-            return autoencoder_weights_to_numpy(self.autoencoder)
+            weights = autoencoder_weights_to_numpy(self.autoencoder)
+        
+        # Apply differential privacy if enabled
+        if self._dp_enabled and self._dp_engine is not None:
+            weights = self._dp_engine.apply_dp(
+                weights=weights,
+                clip_norm=self._dp_clip_norm,
+                noise_multiplier=self._dp_noise_multiplier,
+            )
+            logger.debug(f"Client {self.client_id}: DP applied to parameters")
+        
+        return weights
     
     def set_parameters(self, parameters: NDArrays) -> None:
         """
@@ -222,19 +256,25 @@ class NetworkDefenseClient(fl.client.NumPyClient):
         if self._has_xgboost and y_train is not None:
             xgb_metrics = self._train_xgboost(X_train, y_train)
         
-        # 4. Get updated parameters
+        # 4. Get updated parameters (DP is applied within get_parameters if enabled)
         updated_params = self.get_parameters(config)
         
         # 5. Build metrics dict
         metrics = {
             "client_id": self.client_id,
             "autoencoder_loss": float(ae_loss),
+            "dp_enabled": self._dp_enabled,
             **{f"xgb_{k}": v for k, v in xgb_metrics.items()},
         }
         
+        if self._dp_enabled and self._dp_engine is not None:
+            metrics["dp_clip_count"] = self._dp_engine.clip_count
+            metrics["dp_applications"] = self._dp_engine.noise_applied_count
+        
         logger.info(
             f"Client {self.client_id}: Fit complete. "
-            f"AE loss: {ae_loss:.6f}, samples: {len(X_train)}"
+            f"AE loss: {ae_loss:.6f}, samples: {len(X_train)}, "
+            f"dp_enabled={self._dp_enabled}"
         )
         
         return updated_params, len(X_train), metrics
@@ -449,6 +489,26 @@ class NetworkDefenseClient(fl.client.NumPyClient):
         """Set local validation data."""
         self.val_data = (X_val, y_val)
         logger.info(f"Client {self.client_id}: Set validation data, {len(X_val)} samples")
+    
+    @property
+    def dp_enabled(self) -> bool:
+        """Whether differential privacy is enabled."""
+        return self._dp_enabled
+    
+    @property
+    def dp_engine(self) -> Optional[DifferentialPrivacyEngine]:
+        """Get the differential privacy engine instance."""
+        return self._dp_engine
+    
+    @property
+    def dp_clip_norm(self) -> float:
+        """Get the DP clipping norm."""
+        return self._dp_clip_norm
+    
+    @property
+    def dp_noise_multiplier(self) -> float:
+        """Get the DP noise multiplier."""
+        return self._dp_noise_multiplier
 
 
 def create_client_fn(
@@ -457,6 +517,9 @@ def create_client_fn(
     xgboost_config: Optional[Dict[str, Any]] = None,
     data_loader_fn=None,
     training_config: Optional[Dict[str, Any]] = None,
+    dp_enabled: bool = False,
+    dp_clip_norm: float = 1.0,
+    dp_noise_multiplier: float = 0.1,
 ):
     """
     Factory function to create NetworkDefenseClient instances.
@@ -470,6 +533,9 @@ def create_client_fn(
         xgboost_config: Config dict for XGBoost (or None).
         data_loader_fn: Function(client_id) -> (train_data, val_data).
         training_config: Training hyperparameters.
+        dp_enabled: Whether to enable differential privacy.
+        dp_clip_norm: L2 norm clipping threshold for DP.
+        dp_noise_multiplier: Noise multiplier for DP.
     
     Returns:
         Function(client_id) -> NetworkDefenseClient
@@ -481,6 +547,9 @@ def create_client_fn(
         ...     autoencoder_class=AnomalyAutoencoder,
         ...     autoencoder_config={"input_dim": 40, "latent_dim": 8},
         ...     data_loader_fn=load_client_data,
+        ...     dp_enabled=True,
+        ...     dp_clip_norm=1.0,
+        ...     dp_noise_multiplier=0.1,
         ... )
         >>> 
         >>> # Used with Flower simulation
@@ -514,6 +583,9 @@ def create_client_fn(
             val_data=val_data,
             training_config=training_config,
             client_id=client_id,
+            dp_enabled=dp_enabled,
+            dp_clip_norm=dp_clip_norm,
+            dp_noise_multiplier=dp_noise_multiplier,
         )
     
     return _create_client
