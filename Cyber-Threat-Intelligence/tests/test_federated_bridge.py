@@ -33,6 +33,7 @@ from federated.utils import (
     split_combined_weights,
 )
 from federated.client import NetworkDefenseClient, create_client_fn
+from federated.differential_privacy import DifferentialPrivacyEngine
 from federated.coordinator import (
     IntegrationCoordinator,
     SemanticThreatReport,
@@ -781,6 +782,290 @@ class TestClientFactory:
         assert client.train_data is not None
         assert client.val_data is not None
         assert len(client.train_data[0]) == 100
+
+
+# =============================================================================
+# Differential Privacy Tests
+# =============================================================================
+
+class TestDifferentialPrivacy:
+    """Test Local Differential Privacy implementation for federated learning."""
+    
+    # -------------------------------------------------------------------------
+    # Unit Test: Clipping
+    # -------------------------------------------------------------------------
+    
+    def test_clipping_enforces_norm_bound(self):
+        """
+        Unit Test: Pass a set of artificially large dummy weights to apply_dp
+        (with noise set to 0) and assert that the L2 norm of the output does
+        not exceed the clip_norm.
+        """
+        dp_engine = DifferentialPrivacyEngine(random_state=42)
+        clip_norm = 1.0
+        
+        # Create artificially large weights that exceed the clip_norm
+        large_weights = [
+            np.array([10.0, 20.0, 30.0], dtype=np.float32),  # L2 norm ≈ 37.4
+            np.array([[5.0, 10.0], [15.0, 20.0]], dtype=np.float32),  # L2 norm ≈ 26.9
+            np.array([100.0], dtype=np.float32),  # L2 norm = 100
+        ]
+        
+        # Apply DP with noise_multiplier = 0 to isolate clipping behavior
+        clipped_weights = dp_engine.apply_dp(
+            weights=large_weights,
+            clip_norm=clip_norm,
+            noise_multiplier=0.0
+        )
+        
+        # Assert each weight array has L2 norm <= clip_norm
+        for i, weight in enumerate(clipped_weights):
+            l2_norm = np.linalg.norm(weight.flatten())
+            assert l2_norm <= clip_norm + 1e-6, (
+                f"Weight array {i} has L2 norm {l2_norm:.4f}, "
+                f"which exceeds clip_norm {clip_norm}"
+            )
+        
+        # Verify clipping was applied (all 3 weight arrays should be clipped)
+        assert dp_engine.clip_count == 3, (
+            f"Expected 3 clipped arrays, got {dp_engine.clip_count}"
+        )
+    
+    def test_clipping_preserves_small_weights(self):
+        """
+        Unit Test: Weights smaller than clip_norm should not be modified
+        (aside from numerical precision).
+        """
+        dp_engine = DifferentialPrivacyEngine(random_state=42)
+        clip_norm = 10.0
+        
+        # Create small weights that are well below clip_norm
+        small_weights = [
+            np.array([0.1, 0.2, 0.3], dtype=np.float32),  # L2 norm ≈ 0.37
+            np.array([[0.5, 0.5]], dtype=np.float32),  # L2 norm ≈ 0.71
+        ]
+        
+        # Apply DP with noise_multiplier = 0
+        result_weights = dp_engine.apply_dp(
+            weights=small_weights,
+            clip_norm=clip_norm,
+            noise_multiplier=0.0
+        )
+        
+        # Assert weights are unchanged (within numerical tolerance)
+        for i, (original, result) in enumerate(zip(small_weights, result_weights)):
+            np.testing.assert_allclose(
+                result, original, rtol=1e-5,
+                err_msg=f"Weight array {i} was modified when it shouldn't have been"
+            )
+        
+        # Verify no clipping was needed
+        assert dp_engine.clip_count == 0, (
+            f"Expected 0 clipped arrays, got {dp_engine.clip_count}"
+        )
+    
+    # -------------------------------------------------------------------------
+    # Unit Test: Noise Injection
+    # -------------------------------------------------------------------------
+    
+    def test_noise_injection_modifies_weights(self):
+        """
+        Unit Test: Pass weights to apply_dp. Assert that the output weights
+        are mathematically different from the input weights, but retain the
+        exact same shape and data type.
+        """
+        dp_engine = DifferentialPrivacyEngine(random_state=42)
+        
+        # Create test weights
+        original_weights = [
+            np.array([1.0, 2.0, 3.0], dtype=np.float32),
+            np.array([[0.5, 0.5], [0.1, 0.2]], dtype=np.float32),
+            np.array([0.0], dtype=np.float32),
+        ]
+        
+        # Apply DP with noise (using small clip_norm to avoid clipping interference)
+        noisy_weights = dp_engine.apply_dp(
+            weights=original_weights,
+            clip_norm=100.0,  # Large clip_norm to avoid clipping
+            noise_multiplier=1.0  # Significant noise
+        )
+        
+        # Assert same number of weight arrays
+        assert len(noisy_weights) == len(original_weights), (
+            f"Expected {len(original_weights)} weight arrays, got {len(noisy_weights)}"
+        )
+        
+        for i, (original, noisy) in enumerate(zip(original_weights, noisy_weights)):
+            # Assert exact same shape
+            assert noisy.shape == original.shape, (
+                f"Weight array {i} shape mismatch: expected {original.shape}, got {noisy.shape}"
+            )
+            
+            # Assert exact same dtype
+            assert noisy.dtype == original.dtype, (
+                f"Weight array {i} dtype mismatch: expected {original.dtype}, got {noisy.dtype}"
+            )
+            
+            # Assert weights are different (noise was applied)
+            assert not np.allclose(noisy, original), (
+                f"Weight array {i} was not modified by noise injection"
+            )
+        
+        # Verify noise was applied (noise_applied_count tracks apply_dp calls, not arrays)
+        assert dp_engine.noise_applied_count == 1, (
+            f"Expected 1 apply_dp call, got {dp_engine.noise_applied_count}"
+        )
+    
+    def test_noise_injection_deterministic_with_seed(self):
+        """
+        Unit Test: Verify that the same random_state produces the same
+        noisy output for reproducibility.
+        """
+        weights = [np.array([1.0, 2.0, 3.0], dtype=np.float32)]
+        
+        # Apply DP with same seed twice
+        engine1 = DifferentialPrivacyEngine(random_state=123)
+        result1 = engine1.apply_dp(weights, clip_norm=10.0, noise_multiplier=0.5)
+        
+        engine2 = DifferentialPrivacyEngine(random_state=123)
+        result2 = engine2.apply_dp(weights, clip_norm=10.0, noise_multiplier=0.5)
+        
+        # Results should be identical
+        np.testing.assert_array_almost_equal(
+            result1[0], result2[0],
+            err_msg="Same random_state should produce identical results"
+        )
+    
+    # -------------------------------------------------------------------------
+    # Integration Test: Fit Round with DP
+    # -------------------------------------------------------------------------
+    
+    def test_client_fit_round_applies_dp(self):
+        """
+        Integration Test: Run a simulated flwr fit round and assert that
+        the DP engine was successfully called before the weights were returned.
+        """
+        # Create client with DP enabled
+        autoencoder = AnomalyAutoencoder(
+            input_dim=40, latent_dim=8, hidden_dims=[32, 16]
+        )
+        
+        client = NetworkDefenseClient(
+            client_id="test_dp_client",
+            autoencoder=autoencoder,
+            dp_enabled=True,
+            dp_clip_norm=1.0,
+            dp_noise_multiplier=0.1
+        )
+        
+        # Provide training data
+        client.train_data = (
+            np.random.randn(50, 40).astype(np.float32),
+            None  # Labels not needed for autoencoder
+        )
+        client.val_data = (
+            np.random.randn(10, 40).astype(np.float32),
+            None
+        )
+        
+        # Get parameters before fit (these should have DP applied)
+        initial_params = client.get_parameters(config={})
+        
+        # Verify DP engine exists and was used
+        assert client.dp_engine is not None, "DP engine should be initialized"
+        assert client.dp_enabled is True, "DP should be enabled"
+        
+        # Run a fit round
+        updated_params, num_samples, metrics = client.fit(
+            parameters=initial_params,
+            config={"autoencoder_epochs": 1}
+        )
+        
+        # Verify DP metrics are included in fit response
+        assert "dp_enabled" in metrics, "dp_enabled should be in metrics"
+        assert metrics["dp_enabled"] is True, "dp_enabled metric should be True"
+        assert "dp_clip_count" in metrics, "dp_clip_count should be in metrics"
+        assert "dp_applications" in metrics, "dp_applications should be in metrics"
+        
+        # Verify returned parameters have DP applied (they should differ from
+        # raw model weights due to noise injection)
+        # Get raw weights without DP for comparison
+        raw_weights = autoencoder_weights_to_numpy(client.autoencoder)
+        
+        # At least some returned parameters should differ from raw weights
+        # (accounting for the fact that DP adds noise)
+        params_differ = False
+        for raw, dp_applied in zip(raw_weights, updated_params):
+            if not np.allclose(raw, dp_applied, rtol=1e-5):
+                params_differ = True
+                break
+        
+        assert params_differ, (
+            "DP-protected parameters should differ from raw model weights"
+        )
+    
+    def test_client_fit_without_dp(self):
+        """
+        Integration Test: Verify that when DP is disabled, weights are
+        returned unchanged.
+        """
+        autoencoder = AnomalyAutoencoder(
+            input_dim=40, latent_dim=8, hidden_dims=[32, 16]
+        )
+        
+        client = NetworkDefenseClient(
+            client_id="test_no_dp_client",
+            autoencoder=autoencoder,
+            dp_enabled=False  # DP disabled
+        )
+        
+        # Provide training data
+        client.train_data = (
+            np.random.randn(50, 40).astype(np.float32),
+            None
+        )
+        client.val_data = (
+            np.random.randn(10, 40).astype(np.float32),
+            None
+        )
+        
+        # Run a fit round
+        initial_params = client.get_parameters(config={})
+        updated_params, num_samples, metrics = client.fit(
+            parameters=initial_params,
+            config={"autoencoder_epochs": 1}
+        )
+        
+        # Verify DP is disabled in metrics
+        assert metrics.get("dp_enabled") is False, "dp_enabled should be False"
+        
+        # Get raw weights - they should match returned params exactly
+        raw_weights = autoencoder_weights_to_numpy(client.autoencoder)
+        
+        for i, (raw, returned) in enumerate(zip(raw_weights, updated_params)):
+            np.testing.assert_array_almost_equal(
+                raw, returned,
+                err_msg=f"Weight array {i} should be unchanged when DP is disabled"
+            )
+    
+    def test_create_client_fn_with_dp_parameters(self):
+        """
+        Test that create_client_fn properly passes DP parameters to clients.
+        """
+        client_fn = create_client_fn(
+            autoencoder_class=AnomalyAutoencoder,
+            autoencoder_config={"input_dim": 40, "latent_dim": 8, "hidden_dims": [32, 16]},
+            dp_enabled=True,
+            dp_clip_norm=2.0,
+            dp_noise_multiplier=0.5
+        )
+        
+        client = client_fn("dp_test_client")
+        
+        assert client.dp_enabled is True, "DP should be enabled"
+        assert client.dp_clip_norm == 2.0, "clip_norm should be 2.0"
+        assert client.dp_noise_multiplier == 0.5, "noise_multiplier should be 0.5"
+        assert client.dp_engine is not None, "DP engine should be initialized"
 
 
 if __name__ == "__main__":

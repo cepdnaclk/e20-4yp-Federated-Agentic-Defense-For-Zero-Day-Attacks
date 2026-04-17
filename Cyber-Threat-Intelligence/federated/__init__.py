@@ -25,6 +25,7 @@ Example:
 """
 
 from federated.client import NetworkDefenseClient, create_client_fn
+from federated.differential_privacy import DifferentialPrivacyEngine
 from federated.server import (
     NetworkDefenseStrategy,
     start_federated_server,
@@ -44,11 +45,40 @@ from federated.utils import (
     get_combined_weights,
     split_combined_weights,
 )
+from federated.knowledge_base import (
+    ThreatKnowledgeBase,
+    create_knowledge_base,
+    MITRE_ATTACK_TECHNIQUES,
+    SAMPLE_CVE_DATA,
+    NETWORK_ATTACK_PATTERNS,
+)
+from federated.federated_rag_bridge import (
+    FederatedRAGBridge,
+    ModelUpdateType,
+    UpdateSignificance,
+    FederatedRound,
+    RAGTriggerEvent,
+    ExplanationRequest,
+    ExplanationResult,
+    create_federated_rag_bridge,
+    create_flower_strategy_callback,
+)
+from federated.evaluation import (
+    ExplanationEvaluator,
+    ExplanationMetrics,
+    RoundMetrics,
+    ImprovementReport,
+    ZeroDayExplanationEvaluator,
+    create_evaluator_from_knowledge_base,
+    create_evaluation_callback,
+)
 
 __all__ = [
     # Client
     "NetworkDefenseClient",
     "create_client_fn",
+    # Differential Privacy
+    "DifferentialPrivacyEngine",
     # Server
     "NetworkDefenseStrategy",
     "start_federated_server",
@@ -65,4 +95,28 @@ __all__ = [
     "numpy_to_xgboost",
     "get_combined_weights",
     "split_combined_weights",
+    # Knowledge Base (NEW)
+    "ThreatKnowledgeBase",
+    "create_knowledge_base",
+    "MITRE_ATTACK_TECHNIQUES",
+    "SAMPLE_CVE_DATA",
+    "NETWORK_ATTACK_PATTERNS",
+    # Federated-RAG Bridge (NEW)
+    "FederatedRAGBridge",
+    "ModelUpdateType",
+    "UpdateSignificance",
+    "FederatedRound",
+    "RAGTriggerEvent",
+    "ExplanationRequest",
+    "ExplanationResult",
+    "create_federated_rag_bridge",
+    "create_flower_strategy_callback",
+    # Evaluation (NEW)
+    "ExplanationEvaluator",
+    "ExplanationMetrics",
+    "RoundMetrics",
+    "ImprovementReport",
+    "ZeroDayExplanationEvaluator",
+    "create_evaluator_from_knowledge_base",
+    "create_evaluation_callback",
 ]
