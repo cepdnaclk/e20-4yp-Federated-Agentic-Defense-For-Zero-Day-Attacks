@@ -74,7 +74,7 @@ def create_agent(
     device: str = "auto",
     verbose: int = 1,
     load_path: Optional[str] = None,
-) -> "AgentThree":
+) -> "AgentThreeRL":
     """
     Creates or loads the RL agent.
     
@@ -92,19 +92,19 @@ def create_agent(
         load_path: Path to load existing model from.
     
     Returns:
-        Configured AgentThree instance.
+        Configured AgentThreeRL instance.
     """
-    from agents.agent_three import AgentThree
+    from agents.agent_three_rl import AgentThreeRL
     
     if load_path and Path(load_path).exists():
         logger.info("Loading existing agent from: %s", load_path)
-        agent = AgentThree.from_pretrained(load_path)
+        agent = AgentThreeRL.from_pretrained(load_path)
         # Update environment
         agent._env = env
         return agent
     
-    logger.info("Creating new AgentThree with PPO")
-    agent = AgentThree(
+    logger.info("Creating new AgentThreeRL with PPO")
+    agent = AgentThreeRL(
         env=env,
         learning_rate=learning_rate,
         n_steps=n_steps,
@@ -119,7 +119,7 @@ def create_agent(
 
 
 def train_agent(
-    agent: "AgentThree",
+    agent: "AgentThreeRL",
     total_timesteps: int = 100000,
     save_freq: int = 10000,
     save_path: str = "models/agent_three",
