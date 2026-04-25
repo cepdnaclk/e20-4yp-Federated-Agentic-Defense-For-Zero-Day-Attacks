@@ -6,15 +6,17 @@ each specialized for different detection strategies.
 
 Agents:
     AgentOne: Autoencoder-based anomaly detection agent.
-    AgentTwo: XGBoost classification with LLM reasoning for zero-day threats.
-    AgentThree: RL-based network mitigation agent.
+    AgentTwo: XGBoost-only classification agent.
+    AgentThree: RAG/LLM-based action recommendation agent.
+    AgentThreeRL: Legacy PPO/RL mitigation agent (kept, not default).
 """
 
 from agents.agent_one import AgentOne
 from agents.models.autoencoder import AnomalyAutoencoder
 from agents.agent_two import AgentTwo, ThreatAnalysisResult
 from agents.models.xgboost_classifier import ThreatClassifier, ClassificationResult
-from agents.agent_three import AgentThree, MitigationDecision
+from agents.agent_three import AgentThree, ActionRecommendation
+from agents.agent_three_rl import AgentThreeRL, MitigationDecision
 from agents.environments.network_defense_env import (
     NetworkDefenseEnv,
     ThreatState,
@@ -32,6 +34,8 @@ __all__ = [
     "ClassificationResult",
     # Agent Three
     "AgentThree",
+    "ActionRecommendation",
+    "AgentThreeRL",
     "MitigationDecision",
     "NetworkDefenseEnv",
     "ThreatState",

@@ -348,6 +348,11 @@ class IntegrationCoordinator:
         """
         self.vector_db = vector_db
         self.llm = llm
+        if self.agent_three is not None and hasattr(self.agent_three, "set_rag_system"):
+            try:
+                self.agent_three.set_rag_system(vector_db, llm)
+            except Exception as e:
+                logger.warning(f"Failed to pass RAG system to Agent Three: {e}")
         logger.info("RAG system configured")
     
     def process_network_sample(
@@ -396,20 +401,39 @@ class IntegrationCoordinator:
         if is_zero_day:
             self._zero_days_flagged += 1
         
-        # Step 3: Mitigation Decision (Agent Three)
-        recommended_action, action_confidence = self._run_mitigation(sample, attack_category)
-        
-        # Step 4: MITRE Mapping
+        # Step 3: MITRE Mapping
         mitre_info = self._get_mitre_mapping(attack_category)
+
+        # Step 4: Action Recommendation (Agent Three)
+        recommended_action, action_confidence, action_outputs = self._run_mitigation(
+            sample=sample,
+            attack_category=attack_category,
+            is_zero_day=is_zero_day,
+            classification_confidence=confidence,
+            is_anomaly=is_anomaly,
+            mitre_info=mitre_info,
+        )
         
         # Step 5: RAG Enrichment (if enabled and available)
-        threat_description = ""
-        cve_references = []
+        threat_description = (
+            action_outputs.get("threat_summary", "")
+            if action_outputs.get("mode") == "rag_llm"
+            else ""
+        )
+        cve_references = (
+            list(action_outputs.get("cve_references", []))
+            if action_outputs.get("mode") == "rag_llm"
+            else []
+        )
         
         if include_rag_enrichment and is_anomaly:
-            threat_description, cve_references = self._run_rag_enrichment(
+            rag_description, rag_cves = self._run_rag_enrichment(
                 attack_category, mitre_info, is_zero_day
             )
+            if not threat_description:
+                threat_description = rag_description
+            if rag_cves:
+                cve_references = sorted(set(cve_references + rag_cves))
         
         # Determine severity
         severity = self._calculate_severity(
@@ -437,6 +461,19 @@ class IntegrationCoordinator:
             metadata={
                 "pipeline_version": "1.0",
                 "rag_enabled": include_rag_enrichment,
+                "agent_outputs": {
+                    "agent_one": {
+                        "is_anomaly": is_anomaly,
+                        "reconstruction_error": reconstruction_error,
+                        "threshold": threshold,
+                    },
+                    "agent_two": {
+                        "category": attack_category,
+                        "confidence": confidence,
+                        "is_zero_day": is_zero_day,
+                    },
+                    "agent_three": action_outputs,
+                },
             },
         )
         
@@ -515,13 +552,19 @@ class IntegrationCoordinator:
             return "Unknown", 0.0, True
     
     def _run_mitigation(
-        self, sample: np.ndarray, attack_category: str
-    ) -> Tuple[str, float]:
+        self,
+        sample: np.ndarray,
+        attack_category: str,
+        is_zero_day: bool,
+        classification_confidence: float,
+        is_anomaly: bool,
+        mitre_info: Dict[str, str],
+    ) -> Tuple[str, float, Dict[str, Any]]:
         """
         Run mitigation decision using Agent Three.
         
         Returns:
-            Tuple of (action_name, confidence).
+            Tuple of (primary_action, confidence, per_agent_outputs).
         """
         if self.agent_three is None:
             # Default mitigation based on category
@@ -532,13 +575,71 @@ class IntegrationCoordinator:
                 "Worms": "Quarantine",
             }
             action = default_actions.get(attack_category, "Monitor")
-            return action, 0.5
+            return action, 0.5, {
+                "primary_action": action,
+                "confidence": 0.5,
+                "recommended_actions": [action],
+                "threat_summary": "Agent Three not configured; using static default action.",
+                "cve_references": [],
+                "mode": "fallback",
+            }
         
         try:
-            # Get mitigation action from Agent Three
+            # Preferred path: new RAG/LLM AgentThree API
+            recommend_fn = getattr(self.agent_three, "recommend_actions", None)
+            if callable(recommend_fn):
+                try:
+                    severity = self._calculate_severity(
+                        is_anomaly=is_anomaly,
+                        confidence=classification_confidence,
+                        is_zero_day=is_zero_day,
+                        attack_category=attack_category,
+                    ).value
+
+                    recommendation = recommend_fn(
+                        attack_category=attack_category,
+                        mitre_info=mitre_info,
+                        is_zero_day=is_zero_day,
+                        severity=severity,
+                        classification_confidence=classification_confidence,
+                        is_anomaly=is_anomaly,
+                    )
+
+                    if isinstance(recommendation, dict):
+                        action = str(recommendation.get("primary_action") or "").strip()
+                        confidence_raw = recommendation.get("confidence", 0.7)
+                        recommended_actions = list(recommendation.get("recommended_actions", []))
+                        threat_summary = str(recommendation.get("threat_summary", ""))
+                        cve_references = list(recommendation.get("cve_references", []))
+                        model_name = recommendation.get("model")
+                    else:
+                        action = str(getattr(recommendation, "primary_action", "") or "").strip()
+                        confidence_raw = getattr(recommendation, "confidence", 0.7)
+                        recommended_actions = list(getattr(recommendation, "recommended_actions", []) or [])
+                        threat_summary = str(getattr(recommendation, "threat_summary", "") or "")
+                        cve_references = list(getattr(recommendation, "cve_references", []) or [])
+                        model_name = getattr(recommendation, "model", None)
+
+                    if not action:
+                        raise ValueError("missing primary_action")
+
+                    confidence = float(confidence_raw)
+                    outputs = {
+                        "primary_action": action,
+                        "confidence": confidence,
+                        "recommended_actions": recommended_actions,
+                        "threat_summary": threat_summary,
+                        "cve_references": cve_references,
+                        "mode": "rag_llm",
+                        "model": model_name,
+                    }
+                    return action, confidence, outputs
+                except Exception as e:
+                    logger.debug(f"AgentThree recommend_actions unavailable/invalid, falling back to legacy get_action: {e}")
+
+            # Backward-compatible path: legacy RL AgentThree API
             action_idx = self.agent_three.get_action(sample)
-            
-            # Map action index to name
+
             action_names = [
                 "Monitor",
                 "Rate Limit",
@@ -546,19 +647,33 @@ class IntegrationCoordinator:
                 "Isolate Subnet",
                 "Quarantine",
             ]
-            
+
             if isinstance(action_idx, int):
                 action = action_names[action_idx % len(action_names)]
-                confidence = 0.8  # RL confidence approximation
+                confidence = 0.8
             else:
                 action = str(action_idx)
                 confidence = 0.7
-            
-            return action, confidence
+
+            return action, confidence, {
+                "primary_action": action,
+                "confidence": confidence,
+                "recommended_actions": [action],
+                "threat_summary": "Legacy RL mitigation policy output.",
+                "cve_references": [],
+                "mode": "legacy_rl",
+            }
             
         except Exception as e:
             logger.error(f"Mitigation decision error: {e}")
-            return "Monitor", 0.3
+            return "Monitor", 0.3, {
+                "primary_action": "Monitor",
+                "confidence": 0.3,
+                "recommended_actions": ["Monitor"],
+                "threat_summary": "Mitigation decision failed; defaulting to monitor.",
+                "cve_references": [],
+                "mode": "error_fallback",
+            }
     
     def _get_mitre_mapping(self, attack_category: str) -> Dict[str, str]:
         """
@@ -902,6 +1017,11 @@ Keep the response focused and actionable for SOC analysts."""
             knowledge_base: ThreatKnowledgeBase instance.
         """
         self._knowledge_base = knowledge_base
+        if self.agent_three is not None and hasattr(self.agent_three, "set_knowledge_base"):
+            try:
+                self.agent_three.set_knowledge_base(knowledge_base)
+            except Exception as e:
+                logger.warning(f"Failed to pass knowledge base to Agent Three: {e}")
         logger.info("Knowledge base configured for coordinator")
     
     def get_enhanced_context(

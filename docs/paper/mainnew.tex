@@ -1,0 +1,1244 @@
+  \documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{flushend}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{booktabs} % For better tables
+\usepackage{multirow} % For multirow in tables
+\usepackage{hyperref} % For hyperlinks
+\usepackage{xurl} % Better URL line breaking
+
+\usepackage{siunitx} % milliseconds
+\usepackage{tabularx}
+\usepackage{float}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18} % Recommended to use a recent version
+
+\graphicspath{ {./images/} }
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\usetikzlibrary{positioning,arrows.meta,fit,shapes.geometric} % Diagrams
+
+\begin{document}
+
+\title{Federated Agentic Defense for Zero-Day Attacks: A Three-Agent IDS with a Federated-to-RAG Bridge}
+
+\author{
+\IEEEauthorblockN{Lahiru Niroshan, Rodger Jaysinghe, Samuditha Seneviratne, Suneth Namal Karunarathna, Upul Jayasinghe}
+\IEEEauthorblockA{
+\textit{Department of Computer Engineering, University of Peradeniya} \\
+\textit{} \\
+e20168@eng.pdn.ac.lk, e20272@eng.pdn.ac.lk, e20369@eng.pdn.ac.lk, \\ namal@eng.pdn.ac.lk, upuljm@eng.pdn.ac.lk
+}
+}
+
+\maketitle
+
+\begin{abstract}
+Zero-day exploits remain difficult to detect and costly to mitigate because they lack signatures, evolve under distribution shift, and are often observed across multiple organizations that cannot share raw traffic due to privacy and compliance constraints. We present a three-agent intrusion detection and response framework that combines (i) an autoencoder-based anomaly gate trained with federated averaging to improve cross-site generalization without centralizing data, (ii) an XGBoost classifier with an explicit Unknown/Zero-day mode to avoid forced misclassification on novel traffic, and (iii) a retrieval-augmented generation (RAG) action planner that grounds analyst-facing recommendations in external threat intelligence (MITRE ATT\&CK, CVE/NVD, and incident response guidance). Our key novelty is a Federated-to-RAG bridge that monitors federated drift and refreshes retrieval-grounded explanations and action plans for queued uncertain cases, aligning analyst outputs with the evolving detector. Experiments on UNSW-NB15 show strong detection performance for known categories and improved handling of low-confidence/unknown events through selective escalation.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Zero-day attacks, Intrusion detection, Federated learning, Open-set recognition, Retrieval-augmented generation, Agentic AI
+\end{IEEEkeywords}
+
+\section{Introduction}
+The rapid digitalization of critical infrastructure has expanded the attack surface and increased the diversity and volume of network telemetry. Zero-day exploits are particularly damaging because they leverage unknown or unpatched vulnerabilities and lack predefined signatures \cite{Kaspersky,Y.Guo}. Traditional signature and rule-based intrusion detection systems (IDS) are therefore reactive and can fail under novelty and distribution shift \cite{A.Singh}.
+
+At the same time, high-performing detection models are increasingly hard to operationalize: organizations face data privacy and governance constraints that limit cross-site sharing, anomaly detectors can produce high false-positive rates without context, and purely predictive models rarely provide grounded remediation guidance. This motivates architectures that (i) preserve privacy during learning, (ii) avoid overconfident misclassification under novelty, and (iii) translate detections into analyst-facing actions.
+
+This paper proposes a staged, three-agent IDS pipeline with a Federated-to-RAG bridge:
+\begin{itemize}
+  \item \textbf{Agent~1 (federated anomaly gate):} an autoencoder trained with FedAvg across clients to detect suspicious traffic without centralizing raw data.
+  \item \textbf{Agent~2 (known-attack classifier + Unknown):} an XGBoost classifier that emits \emph{Unknown/Zero-day} when confidence is low, approximating open-set handling.
+  \item \textbf{Agent~3 (RAG+LLM action planner):} a retrieval-grounded reasoning layer that produces structured explanations and mitigation steps using ATT\&CK/CVE/NVD evidence.
+\end{itemize}
+
+\textbf{Contributions.} (1) We formalize a practical three-agent escalation pipeline for zero-day detection and response. (2) We scope federated learning to the anomaly gate (Agent~1) for defensibility and simplicity while retaining strong privacy properties. (3) We introduce a Federated-to-RAG bridge that links federated drift metadata to refresh of retrieval-grounded explanations and action plans for uncertain cases.
+
+The remainder of the paper summarizes related work (Section~II), presents the system architecture (Section~III), details the methodology including the Federated Learning--RAG bridge (Sections~IV--V), reports experimental results (Section~VI), and concludes with limitations and future work (Sections~VII--VIII).
+
+\section{Related Work}
+Related work spans (i) zero-day and open-set detection, (ii) privacy-preserving and federated intrusion detection, (iii) explainability and LLM-assisted reasoning, and (iv) agentic cyber defense. Our multi-agent framework integrates a pragmatic Unknown/Zero-day routing mechanism (Agent~2), scoped federated learning only for the neural anomaly gate (Agent~1), and retrieval-grounded LLM planning (Agent~3) with staged analyst-facing escalation, addressing persistent limitations in scalability, privacy governance, and hallucination risk.
+
+\subsection{Zero-Day and Open-Set Detection}
+Zero-day detection is commonly formulated as anomaly detection, open-set recognition, or zero-shot reasoning. Surveys of machine learning-based zero-day detection commonly report strong dependence on anomaly modeling and representation learning, while noting persistent challenges such as high false-positive rates and limited generalization across heterogeneous network environments. Zero-shot and semantic approaches have been proposed to detect novel classes without explicit training examples \cite{ZeroShot}. An influential empirical study of real-world exploitation reported that zero-day attacks can persist for long periods prior to disclosure and that post-disclosure exploitation can increase dramatically \cite{Bilge2012Zeroday}. Open-set recognition studies emphasize the importance of rejecting unknown inputs to avoid overconfident misclassification \cite{Scheirer2013OpenSet,Bendale2016OpenMax}. From an operational perspective, the cost of delayed detection remains high, motivating staged escalation designs that reserve expensive reasoning for the most uncertain cases \cite{IBMDB2024}. Accordingly, Agent~2 adopts a pragmatic Unknown/Zero-day mode that routes uncertain flows to deeper analysis rather than forcing a label.
+
+\subsection{Federated and Privacy-Preserving IDS}
+Federated learning has been applied to collaborative intrusion detection and cyber threat intelligence sharing to address governance constraints on data centralization \cite{MSarhan}, including regulatory and compliance considerations such as GDPR \cite{GDPR2016}. Recent federated IDS systems include anomaly-based designs (e.g., Fed-ANIDS) \cite{ANIDS}, hybrid anomaly extraction methods for IoT (e.g., IDAC) \cite{IDAC}, and broader architectural variants for heterogeneous deployments such as clustered or cross-layer FL \cite{Clustered,Cross}. Federated deep learning has also been investigated for zero-day botnet detection in IoT edge settings \cite{Meftah2022FederatedBotnet}. FL has been explored in smart city settings \cite{Smartcity} and in trustworthy deployment contexts \cite{Trustworthy}. Complementary privacy technologies (e.g., differential privacy) are valuable but can introduce trade-offs, including impacts on robustness and poisoning detection \cite{CanDiff}. In contrast to systems that federate multiple model types, we scope federated learning to the neural anomaly gate (Agent~1) and avoid unsupported claims about federating tree ensembles.
+
+\subsection{Explainability, LLMs, and Retrieval-Grounded Reasoning}
+Explainable AI surveys emphasize the need for transparent, actionable outputs in security workflows, including for insider and intrusion contexts \cite{SHAP}. Federated learning of explainability models has also been explored to support privacy-preserving interpretability in distributed settings \cite{Timofte2023FedXAI}. Recent work explores LLMs for incident response and report generation with orchestration tools and SOAR integration \cite{Guduru}. Retrieval-augmented generation (RAG) provides a general mechanism for grounding LLM outputs in external evidence to reduce hallucinations \cite{Lewis2020RAG}. Our Agent~3 operationalizes this idea by retrieving ATT\&CK/CVE/NVD/IR evidence and emitting structured plans; importantly, our Federated-to-RAG bridge aligns these explanations with evolving federated detector behavior.
+
+\subsection{Agentic Cyber Defense}
+Agentic AI has been positioned as a shift toward autonomous, goal-driven security systems \cite{AgenticReview,AgenticCom}. Recent proposals include agentic architectures for adaptive cybersecurity in digital ecosystems \cite{Adcyber} and LLM-centered frameworks for zero-day threat reasoning \cite{Agentic1}. However, surveys highlight governance and safety challenges for autonomous agents \cite{SecAgentic,MCP}. Our framework uses agentic reasoning primarily for analyst-facing planning and is explicitly constrained by staged escalation and retrieval grounding, aiming to preserve human oversight while still producing proactive, context-rich response plans.
+
+\section{System Architecture of the Proposed Framework}
+\label{sec:system_architecture}
+
+This section presents the overall architecture of the proposed three-agent framework and how its components interact during (i) federated training and (ii) inference-time decision making. The design follows a \emph{hierarchical offloading} principle: inexpensive detection runs first, and only uncertain or high-risk cases escalate to more expensive reasoning.
+
+\subsection{Top-Level Components}
+The system consists of five logical components:
+\begin{itemize}
+  \item \textbf{Data plane (network flows):} Raw traffic is summarized into flow-level records and transformed into a fixed-dimensional feature vector $x\in\mathbb{R}^d$ using a consistent preprocessing pipeline.
+  \item \textbf{Agent~1 (Federated anomaly gate):} An unsupervised autoencoder produces an anomaly score $s(x)$ and filters likely-benign traffic early. To respect privacy constraints across sites, Agent~1 is trained using federated averaging (FedAvg) across clients, without centralizing raw data \cite{mcmahan2017fedavg,kairouz2021flsurvey}.
+  \item \textbf{Agent~2 (Known-attack classifier + Unknown mode):} A supervised gradient-boosted tree model predicts a known taxonomy label when confidence is sufficient; otherwise it outputs \emph{Unknown/Zero-day} to avoid forced misclassification under distribution shift \cite{Chen2016XGBoost,Scheirer2013OpenSet,Bendale2016OpenMax}.
+  \item \textbf{Agent~3 (RAG+LLM action planner):} A retrieval-augmented generation (RAG) module retrieves relevant threat-intelligence evidence and prompts an LLM to produce a structured analyst-facing action plan grounded in the retrieved context \cite{Lewis2020RAG,nist80061,MITREATTACK,MITRECVE,NISTNVD}.
+  \item \textbf{Coordinator (orchestrator):} The coordinator applies routing logic, executes the staged pipeline, and assembles a unified incident report (scores, labels, retrieved evidence, and recommended actions).
+\end{itemize}
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  node distance=8mm and 15mm,
+  box/.style={draw, rounded corners, align=center, minimum height=7mm, inner sep=3pt},
+  bigbox/.style={box, minimum width=0.25\textwidth},
+  arr/.style={-Latex, thick}
+]
+
+% --- Inference Nodes ---
+\node[bigbox] (a1) {Agent 1\\Federated Autoencoder\\Anomaly gate $s(x)$};
+% Increased horizontal distance to 2.2cm to clear text
+\node[bigbox, right=2.2cm of a1] (a2) {Agent 2\\XGBoost};
+\node[bigbox, right=2.2cm of a2] (a3) {Agent 3\\RAG + LLM\\Grounded actions};
+\node[box, right=1cm of a3, minimum width=0.18\textwidth] (mit) {Mitigation\\commands / tickets};
+
+\node[box, above=1cm of a3, minimum width=0.22\textwidth] (kb) {Threat KB\\ATT\&CK + CVE + IR guides};
+\node[box, below=1.2cm of a3, minimum width=0.22\textwidth] (bridge) {Fed--RAG bridge\\drift/significance\\trigger re-analysis};
+
+% --- Internal Connections ---
+% Added "above=1mm" to ensure labels do not touch the arrows
+\draw[arr] (a1) -- node[above=1mm] {flagged flows} (a2);
+\draw[arr] (a2) -- node[above=1mm] {Unknown} (a3);
+\draw[arr] (a3) -- (mit);
+% Added "right=1mm" to push text away from vertical arrows
+\draw[arr] (kb) -- node[right=1mm, align=left] {retrieve\\evidence} (a3);
+\draw[arr] (bridge.north) -- node[right=1mm, align=left] {refresh queries\\and plans} (a3.south);
+
+% --- External Input ---
+% Extended the coordinate further left and lifted the text
+\coordinate (bridge_in) at ([xshift=-4cm]bridge.west);
+% --- Bounding Box ---
+\node[fit=(a1)(a2)(a3)(kb)(bridge)(mit)(bridge_in), draw, rounded corners, inner sep=5pt, label={[font=\small]}] {};
+
+\end{tikzpicture}%
+}
+\caption{Overall agentic pipeline architecture.}
+\label{fig:inference_architecture}
+\end{figure*}
+
+\subsection{Connectivity and Selective Escalation}
+Most flows terminate at Agent~1 as benign. Only flows exceeding the anomaly threshold are forwarded to Agent~2 for taxonomy classification. Agent~3 is invoked sparingly for cases that are most costly to resolve automatically: low-confidence predictions, explicit Unknown/Zero-day outputs, or incidents requiring contextual enrichment (e.g., mapping to ATT\&CK techniques and mitigations).
+
+\textbf{Operational routing.} For a preprocessed flow vector $x$:
+\begin{enumerate}
+  \item Agent~1 computes $s(x)$ and returns a gate decision (benign vs. suspicious).
+  \item If suspicious, Agent~2 returns a predicted class $\hat{c}$ and confidence $c(x)$; if $c(x)$ falls below a threshold $\gamma$, it outputs \emph{Unknown/Zero-day} \cite{Scheirer2013OpenSet}.
+  \item The coordinator invokes Agent~3 when Agent~2 returns Unknown or confidence is low, producing a grounded summary and mitigation plan.
+\end{enumerate}
+
+\subsection{Federated Learning Placement and Purpose}
+Federated learning is placed at Agent~1 to improve the generality of the anomaly gate across non-IID client environments while preserving privacy. Clients train locally on private traffic, and an FL server aggregates updates into a global model using FedAvg \cite{mcmahan2017fedavg}. This placement is deliberate: parameter averaging is straightforward for neural networks, whereas federated learning for tree ensembles typically requires specialized protocols beyond simple averaging \cite{kairouz2021flsurvey}. Therefore, in this framework we \emph{claim FL for Agent~1 only}.
+
+
+\subsection{Fed--RAG Bridge: Purpose and Role}
+The Fed--RAG bridge links the evolving federated detector (Agent~1) to the knowledge-grounded reasoning layer (Agent~3). Its purpose is twofold:
+\begin{itemize}
+  \item \textbf{Explainability alignment:} As Agent~1 updates across rounds, the distribution of anomaly scores and the ``shape'' of flagged traffic can drift. The bridge ensures that operator-facing explanations remain consistent with the current detector behavior.
+  \item \textbf{Evidence refresh under drift/novelty:} When federated-round metadata indicates significant drift (e.g., shifts in reconstruction-error statistics or threshold movement), the bridge triggers re-analysis and refreshes the retrieval context used by Agent~3, improving actionability under emerging threats.
+\end{itemize}
+
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=6mm and 7mm,
+  box/.style={draw, rounded corners, align=center, minimum height=7mm, inner sep=3pt, minimum width=0.9\columnwidth},
+  arr/.style={-Latex, thick}
+]
+\node[box] (data) {Network flows / IDS dataset features};
+\node[box, below=of data] (prep) {Preprocessing\\(clean, encode, scale) $\rightarrow x\in\mathbb{R}^d$};
+\node[box, below=of prep] (g1) {Agent 1: anomaly gate\\$s(x)$ and decision};
+\node[box, below=of g1] (g2) {Agent 2: taxonomy classification\\or Unknown/Zero-day};
+\node[box, below=of g2] (g3) {Agent 3: retrieve evidence\\generate action plan};
+\node[box, below=of g3] (out) {Coordinator output\\(report + mitigations)};
+
+\draw[arr] (data) -- (prep);
+\draw[arr] (prep) -- (g1);
+\draw[arr] (g1) -- node[right, align=left] {only if\\suspicious} (g2);
+\draw[arr] (g2) -- node[right, align=left] {only if\\Unknown/low-conf} (g3);
+\draw[arr] (g3) -- (out);
+\end{tikzpicture}
+\caption{Inference-time dataflow and selective escalation across agents.}
+\label{fig:dataflow}
+\end{figure}
+
+
+\section{Methodology}
+\label{sec:methodology}
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+    % Overall scale for double-column fit
+    scale=0.85, transform shape,
+    node distance=1.5cm and 2cm,
+    % Professional Box Styles
+    stepbox/.style={rectangle, draw=black, thick, rounded corners, minimum width=3.8cm, minimum height=1.1cm, align=center, fill=blue!5, font=\sffamily\normalsize},
+    agentbox/.style={rectangle, draw=none, fill=blue!70, text=white, font=\sffamily\bfseries\normalsize, minimum width=4cm, minimum height=2.8cm, align=center},
+    resultbox/.style={rectangle, draw=black, thick, rounded corners, minimum width=3.8cm, minimum height=1.1cm, align=center, fill=gray!10, font=\sffamily\normalsize},
+    % Frame Style
+    mainframe/.style={rectangle, draw=black, thick, rounded corners=0.8cm, fill=white},
+    arrow/.style={->, >=Stealth, thick, line width=0.9pt}
+]
+
+    % --- 1. LAYER DECLARATION ---
+    \pgfdeclarelayer{background}
+    \pgfsetlayers{background,main}
+
+    % --- 2. COLUMN 1: Initial Processing ---
+    \node (traffic) [stepbox] {Network Traffic};
+    \node (clean) [stepbox, below=of traffic] {Data Cleaning};
+    \node (split) [stepbox, below=of clean] {Data Splitting for\\zero shot setup};
+
+    % --- 3. COLUMN 2: Feature Engineering ---
+    % CHANGED HERE: Positioned relative to 'split' instead of 'traffic'
+    \node (scale) [stepbox, right=2.5cm of split] {Feature Scaling};
+    \node (balance) [stepbox, above=of scale] {Data Balancing};
+    \node (resample) [stepbox, above=of balance] {Resampled Data Splitting};
+
+    % --- 4. COLUMN 3: Analysis & Results ---
+    \node (agents) [agentbox, right=3cm of resample] {SECURITY AGENTS};
+    \node (decision) [resultbox, below=1.5cm of agents] {Test Decisions for\\Threat Mitigation};
+    \node (results) [resultbox, below=of decision] {Security Results};
+
+    % --- 5. FRAME (Background Layer) ---
+    \begin{pgfonlayer}{background}
+        \node (frame) [mainframe, fit=(traffic) (split) (resample) (results) (agents), inner sep=1cm] {};
+    \end{pgfonlayer}
+
+    % --- 6. DRAWING ARROWS ---
+    
+    % Column 1 Vertical
+    \draw[arrow] (traffic) -- (clean);
+    \draw[arrow] (clean) -- (split);
+
+    % Link Col 1 to Col 2
+    \draw[arrow] (split.east) -- (scale.west);
+
+    % Column 2 Vertical
+    \draw[arrow] (scale) -- (balance);
+    \draw[arrow] (balance) -- (resample);
+
+    % Link Col 2 to Agents
+    \draw[arrow] (resample.east) -- (agents.west);
+
+    % Column 3 Vertical (Flowing Upwards)
+    \draw[arrow] (agents.south) -- (decision);
+    \draw[arrow] (decision) -- (results);
+
+\end{tikzpicture}
+\caption{Comprehensive Methodology Flowchart and Data Processing Pipeline}
+\label{fig:methodology_diagram}
+\end{figure*}
+
+A hierarchical, three-agent intrusion detection and response pipeline is proposed to balance (i) real-time filtering, (ii) accurate attack-family classification, and (iii) grounded analyst-facing action planning. The design follows a progressive offloading strategy: low-cost models handle the full traffic stream, while expensive reasoning is invoked only for ambiguous or high-risk events. This is aligned with practical intrusion detection deployments, where early-stage filters reduce throughput to downstream analysis stages \cite{Mirsky2018Kitsune}.
+
+\subsection{Data Preparation and Preprocessing}
+\label{sec:data_preparation}
+
+This section describes dataset selection, splits, cleaning, feature engineering, and preprocessing. These steps precede the three agents and ensure that all models operate on consistent feature representations.
+
+\subsubsection{Dataset selection and files}
+\textbf{Primary benchmark.} UNSW-NB15 is used as the main benchmark dataset for network intrusion detection, due to its diversity of attack types and its structured feature representation \cite{Moustafa2015UNSW,Moustafa2015UNSW2}.
+
+\textbf{Structured train/test splits.} The official structured CSV files are used:
+\begin{itemize}
+  \item \emph{Training:} \texttt{UNSW\_NB15\_training-set.csv}
+  \item \emph{Testing:} \texttt{UNSW\_NB15\_testing-set.csv}
+\end{itemize}
+
+\textbf{Raw distribution evaluation.} To approximate ``in-the-wild'' distributions and validate robustness, additional evaluation is performed on the raw UNSW-NB15 split files (\texttt{UNSW-NB15\_1.csv} to \texttt{UNSW-NB15\_4.csv}). These files contain the same 49 columns but do not include headers and may differ in column ordering; therefore they are loaded with an explicit schema to avoid column-mismatch errors.
+
+\subsubsection{Loading, schema alignment, and cleaning}
+Dataset ingestion is implemented using modular components (a \emph{DataLoader} for loading/initial cleaning and a \emph{Preprocessor} for normalization and encoding). This modularity supports reproducibility and simplifies extending to additional datasets.
+
+\textbf{Schema alignment for raw files.} For raw files without headers, a dedicated loader is used to assign the 49 column names explicitly (47 features plus \texttt{attack\_cat} and \texttt{label}) and normalize label fields:
+\begin{itemize}
+  \item Missing or empty \texttt{attack\_cat} values are mapped to \emph{Normal}.
+  \item The binary \texttt{label} field is coerced to integer, where 0 indicates normal and 1 indicates attack.
+  \item Category strings are stripped and standardized (e.g., minor whitespace variants are normalized).
+\end{itemize}
+
+\textbf{Missing values and numeric coercion.} Missing values and invalid numeric fields are handled using robust conversions (coerce-to-numeric followed by imputation). In the general preprocessing pipeline, simple imputers are used (median for numeric features and mode for categorical features) to avoid dropping flows and to preserve deployment realism \cite{Pedregosa2011Scikit}.
+
+\subsubsection{Feature engineering}
+Derived features are computed to improve separability and capture traffic dynamics. In particular, the connection rate is computed as:
+\begin{equation}
+\texttt{rate} = \frac{\texttt{spkts}+\texttt{dpkts}}{\texttt{dur}+\epsilon},
+\end{equation}
+with $\epsilon>0$ to avoid division by zero. All engineered features are computed deterministically and are included consistently across train/test and raw evaluation.
+
+\subsubsection{Normalization and encoding}
+\textbf{Numerical scaling.} Min--max scaling is applied to numerical features, matching the default configuration used by the pipeline. Min--max scaling is particularly suitable for autoencoders, where feature ranges can dominate reconstruction loss if left unnormalized. Standard preprocessing utilities are used (e.g., \texttt{MinMaxScaler}) \cite{Pedregosa2011Scikit}.
+
+\textbf{Categorical encoding.} Categorical columns (e.g., \texttt{proto}, \texttt{service}, \texttt{state}) are encoded either via integer factorization (label encoding) or via one-hot encoding depending on the experiment configuration. In our baseline, label encoding is used to keep the feature dimensionality stable and to simplify deployment.
+
+\subsubsection{Sampling and reproducibility}
+To enable fair comparisons across models, fixed random seeds (e.g., \texttt{random\_state}=42) are used for sampling and train/test splits. All preprocessing artifacts (scaler parameters, encoders, and imputers) are fit on the training split and reused unchanged for validation/test transformations, preventing leakage.
+
+
+\textbf{Class-imbalance handling for supervised training.} UNSW-NB15 exhibits class imbalance (normal traffic dominates, while some attack categories are rare). For Agent~2 training, SMOTE oversampling is applied \emph{only on the training split} after preprocessing to improve minority-class recall while keeping evaluation unbiased \cite{Chawla2002SMOTE}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{UNSWNB15_data_imbalance.png}
+    \caption{UNSW-NB15 Attack class distribution.}
+    \label{fig:my_image}
+\end{figure}
+
+\subsection{Pipeline Overview and Decision Flow}
+\label{sec:method_overview}
+
+Let $x \in \mathbb{R}^d$ denote a network-flow feature vector extracted from raw packets (e.g., connection statistics, byte/packet counts, TTL/state features, and aggregate temporal features). The feature format provided by standard IDS benchmarks such as UNSW-NB15 is followed \cite{Moustafa2015UNSW}.
+
+The pipeline produces:
+\begin{itemize}
+  \item a gate decision (Normal vs Anomalous),
+  \item a threat category label among known classes, optionally with an ``Unknown/Zero-day'' flag,
+  \item a grounded, structured action plan (recommended actions, relevant ATT\&CK techniques, and candidate CVEs when applicable).
+\end{itemize}
+
+\textbf{Preprocessing.} For Agents~1 and~2, features are transformed using the shared pipeline configuration (fit on the training split and reused unchanged at test time). Numerical features are min--max scaled by default; categorical fields (\texttt{proto}, \texttt{service}, \texttt{state}) are label-encoded; and binary indicators are retained as 0/1. This yields $d=42$ input features (37 numerical + 3 categorical + 2 binary) after preprocessing.
+
+The anomaly score produced by Agent~1 can be appended to the Agent~2 feature vector as an auxiliary confidence signal, providing a consistent measure of ``distance from normality''.
+
+\textbf{Hierarchical offloading policy.} The system executes:
+\begin{enumerate}
+  \item \textbf{Agent 1 (Autoencoder gate):} compute anomaly score $s(x)$ and decide $g(x)\in\{\text{Normal},\text{Anomalous}\}$.
+  \item \textbf{Agent 2 (XGBoost classifier):} if $g(x)=\text{Anomalous}$, predict class probabilities $p(y\mid x)$ over $K$ known categories and a confidence score $c(x)=\max_y p(y\mid x)$.
+  \item \textbf{Agent 3 (RAG+LLM action planner):} if $c(x)<\gamma$ (low confidence) or if Agent 2 explicitly flags ``Unknown/Zero-day'', retrieve threat-intelligence context and generate an action plan.
+\end{enumerate}
+
+\textbf{Rationale.} Agent 1 is optimized for high recall and low latency, ensuring that potentially malicious traffic is not missed. Agent 2 provides a low-cost categorical interpretation to support automated response policies for known threats. Agent 3 is invoked selectively to (i) explain uncertain events and (ii) provide grounded response actions using external threat intelligence, reducing hallucinations relative to purely parametric generation \cite{Lewis2020RAG}.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=7mm, font=\small]
+  \node[draw, rounded corners, align=center, minimum width=0.95\columnwidth, minimum height=6mm] (traffic) {All network traffic $x$};
+
+  \node[draw, rounded corners, align=center, below=of traffic, minimum width=0.78\columnwidth] (a1) {\textbf{Agent 1: Autoencoder anomaly gate}\\
+  Output: anomaly score $s(x)$ and gate $g(x)$};
+
+  \node[draw, rounded corners, align=center, below=of a1, minimum width=0.78\columnwidth] (a2) {\textbf{Agent 2: XGBoost threat classifier}\\
+  Input: flow features + (optional) $s(x)$\\
+  Output: $p(y\mid x)$, confidence $c(x)$, label $\hat{y}$ or Unknown};
+
+  \node[draw, rounded corners, align=center, below=of a2, minimum width=0.78\columnwidth] (a3) {\textbf{Agent 3: RAG + LLM action planner}\\
+  Input: $\hat{y}$, $c(x)$, $s(x)$, feature cues\\
+  Output: grounded explanation + recommended actions};
+
+  \draw[->, thick] (traffic) -- (a1);
+  \draw[->, thick] (a1) -- node[right, align=left] {if $g(x)=\text{Anomalous}$} (a2);
+  \draw[->, thick] (a2) -- node[right, align=left] {if $c(x)<\gamma$\\or Unknown} (a3);
+
+\end{tikzpicture}
+\caption{Hierarchical offloading decision flow for the three-agent pipeline.}
+\label{fig:hierarchical_offloading}
+\end{figure}
+
+\subsection{Agent 1: Autoencoder Anomaly Detector (Gate)}
+\label{sec:agent1_method}
+
+\subsubsection{Model architecture}
+Agent~1 is a feed-forward PyTorch autoencoder trained to reconstruct benign-dominant traffic. The architecture follows a symmetric bottleneck design (input dimension $d=42$ after preprocessing):
+\begin{equation}
+42 \rightarrow 32 \rightarrow 16 \rightarrow 8 \rightarrow 16 \rightarrow 32 \rightarrow 42,
+\end{equation}
+where the bottleneck encourages compression into a low-dimensional latent representation. Autoencoders are widely used for anomaly detection by learning normal patterns and flagging reconstruction deviations \cite{Hinton2006Reducing,Mirsky2018Kitsune}.
+
+\textbf{Training objective.} The autoencoder is trained to minimize reconstruction loss on the training split, dominated by Normal traffic:
+\begin{equation}
+ \min_\theta\; \mathbb{E}_{x\sim\mathcal{D}_{\text{train}}}\left[\lVert x - f_\theta(x)\rVert_2^2\right].
+\end{equation}
+Mini-batch optimization (Adam) is used with early stopping based on validation loss to prevent overfitting.
+
+\subsubsection{Anomaly scoring}
+Let $f_\theta(\cdot)$ denote the autoencoder reconstruction function. The anomaly score is computed as the mean squared reconstruction error:
+\begin{equation}
+ s(x) = \frac{1}{d}\lVert x - f_\theta(x) \rVert_2^2.
+\end{equation}
+The gate decision is:
+\begin{equation}
+ g(x) = \mathbb{I}[s(x) \ge \tau],
+\end{equation}
+where $\tau$ is calibrated on a validation split to achieve a target recall/false-positive trade-off. The threshold $\tau$ is selected using either (i) a quantile rule on Normal reconstruction errors or (ii) a validation sweep to maximize attack recall at an acceptable false-positive rate.
+
+\textbf{Operating point.} Since the system is designed to avoid missing attacks, $\tau$ is biased toward high recall even if it increases false positives; downstream agents and RAG-based reasoning mitigate the cost by handling only escalated flows.
+
+\subsubsection{Confidence signal}
+A normalized confidence proxy is additionally exposed, derived from the distance to the threshold:
+\begin{equation}
+ \kappa(x) = \sigma\left(\alpha\,(s(x)-\tau)\right),
+\end{equation}
+where $\sigma$ is a logistic function and $\alpha$ controls steepness. This scalar is used (i) as an auxiliary feature for Agent 2 to improve separability and (ii) as an escalation cue to Agent 3 when confidence is low.
+
+\subsection{Agent 2: XGBoost Threat Classifier}
+\label{sec:agent2_method}
+
+Agent 2 performs supervised multi-class classification over $K=10$ categories (Normal plus nine attack families). Gradient-boosted decision trees are used due to their strong performance on tabular intrusion datasets and low inference latency \cite{Chen2016XGBoost}.
+
+\subsubsection{Input features}
+For flows flagged anomalous by Agent 1, Agent 2 receives:
+\begin{itemize}
+  \item raw flow features $x$,
+  \item the anomaly score $s(x)$ (or confidence proxy $\kappa(x)$) from Agent 1,
+  \item optional engineered statistics (e.g., z-scored feature groups).
+\end{itemize}
+
+\textbf{Feature fusion.} The anomaly score acts as a global indicator of deviation from normal behavior and is particularly useful for borderline cases that may be underrepresented in supervised labels.
+
+\subsubsection{Training and imbalance handling}
+Class imbalance is addressed using SMOTE oversampling and class-weighted learning, augmented by per-class decision thresholds to balance recall for rare categories \cite{Chawla2002SMOTE}.
+
+Concretely, SMOTE synthesizes minority samples by interpolating between nearest neighbors in feature space. In addition, class weights inversely proportional to class frequency are applied in the loss, and per-class decision thresholds are tuned on the validation split to improve minority recall without collapsing precision.
+
+The following representative hyperparameters are used (as configured in our implementation): maximum depth $8$, learning rate $0.05$, and $200$ estimators. Early stopping is applied using a validation split.
+
+\subsubsection{Open-set / ``Unknown'' handling (zero-day flag)}
+To operationalize zero-day uncertainty, we convert the closed-set classifier into an open-set detector by thresholding confidence:
+\begin{equation}
+ c(x) = \max_{y\in\{1,\dots,K\}} p(y\mid x).
+\end{equation}
+If $c(x) < \gamma$ (with $\gamma=0.5$ in our implementation), Agent 2 outputs \emph{Unknown/Zero-day}. This confidence-threshold heuristic is a pragmatic approximation to open-set recognition when explicit unknown-class training is not available; it complements established open-set formulations by explicitly routing uncertain cases to deeper analysis \cite{Scheirer2013OpenSet,Bendale2016OpenMax}.
+
+\textbf{Calibration note.} While boosting models often provide sharp probabilities, confidence thresholds are still sensitive to dataset shift. Therefore, $\gamma$ should be tuned with LOAO-style splits and monitored via false-unknown rate on benign traffic.
+
+\subsection{Agent 3: Retrieval-Augmented Action Planning (RAG+LLM)}
+
+\label{sec:agent3_method}
+
+Agent 3 is invoked only for low-confidence or unknown cases and generates grounded analyst-facing outputs. Retrieval-Augmented Generation (RAG) is adopted to combine parametric LLM reasoning with non-parametric retrieval from a curated knowledge base \cite{Lewis2020RAG}.
+
+
+
+
+
+\subsubsection{Knowledge sources and representation}
+The knowledge base (KB) contains threat intelligence artifacts such as:
+\begin{itemize}
+  \item MITRE ATT\&CK techniques, tactics, and mitigations \cite{MITREATTACK},
+  \item CVE/NVD vulnerability summaries and common exploitation patterns \cite{MITRECVE,NISTNVD},
+  \item dataset-specific attack-pattern notes (e.g., UNSW-NB15 and CIC-IDS2017 mappings) \cite{Moustafa2015UNSW,Sharafaldin2018CICIDS}.
+\end{itemize}
+Each document is embedded into a dense vector space using a sentence embedding model (HuggingFace-style encoders). In our implementation, a lightweight sentence-transformer family model is used to balance retrieval quality and throughput \cite{Reimers2019SentenceBERT}.
+
+\subsubsection{Vector database and retrieval}
+Embeddings are stored in a FAISS vector index for approximate nearest-neighbor retrieval \cite{Johnson2019FAISS}. For a query $q$, the retriever returns top-$k$ documents:
+\begin{equation}
+ \{d_1,\dots,d_k\} = \operatorname{TopK}(\operatorname{sim}(\phi(q),\phi(d)))
+\end{equation}
+where $\phi(\cdot)$ maps text to embeddings and $\operatorname{sim}$ is cosine similarity.
+
+\textbf{Retrieval configuration.} $k\in\{3,5\}$ is used depending on prompt budget. Retrieved documents are de-duplicated by (technique ID, CVE ID) to reduce redundancy.
+
+\subsubsection{Retrieval query construction}
+The retrieval query is formed from the model outputs and salient feature cues:
+\begin{equation}
+\begin{split}
+q = \{ \hat{y},\, c(x),\, s(x),\, \text{feature importance/profile},\, \text{zero-day flag}, \\
+\text{historical scope} \}.
+\end{split}
+\end{equation}
+This structured query is realized as a text prompt that guides the retriever toward relevant technique and vulnerability entries.
+
+\textbf{Why include features?} For ambiguous cases, adding a brief ``feature profile'' (e.g., unusually high packet rate, many half-open connections, abnormal TTL patterns) encourages retrieval of more specific techniques and mitigations, improving actionability.
+
+\subsubsection{Augmentation and generation}
+Retrieved evidence is concatenated (with metadata such as technique IDs and severity) and provided to the LLM with instructions to output:
+\begin{enumerate}
+  \item a concise threat summary,
+  \item a ``why novel'' explanation when flagged unknown,
+  \item a prioritized \textbf{Recommended Actions} list.
+\end{enumerate}
+A structured output format is enforced to improve downstream parsing and to support operational use. When the LLM is unavailable, deterministic rule-based actions derived from the mapped action space are used as a fallback (Table~\ref{tab:action_space}).
+
+% Add these to your preamble if not already there:
+% \usetikzlibrary{positioning, shapes.geometric, arrows.meta, calc, backgrounds, fit}
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+    % Overall scale for double-column fit
+    scale=0.75, transform shape,
+    node distance=1.2cm and 2.0cm,
+    % Box styles
+    outerbox/.style={rectangle, draw=black, thick, minimum width=4.5cm, minimum height=1.5cm, align=center, font=\sffamily\bfseries\normalsize, fill=white},
+    vectordb/.style={rectangle, draw=none, fill=cyan!70!blue, text=white, minimum width=5cm, minimum height=1.2cm, align=center, font=\sffamily\bfseries\normalsize},
+    knowledgebase/.style={rectangle, draw=none, fill=cyan!10, text=black, minimum width=5cm, minimum height=1.2cm, align=center, font=\sffamily\bfseries\normalsize},
+    rightbox/.style={rectangle, draw=black, rounded corners, minimum width=5.5cm, align=left, fill=gray!5, text=black, inner sep=10pt, font=\sffamily\normalsize},
+    % Frame style
+    mainframe/.style={rectangle, draw=black, thick, rounded corners=0.8cm, fill=white},
+    arrow/.style={->, thick, >=stealth}
+]
+
+    % --- 1. DEFINE LAYERS ---
+    % This explicitly tells TikZ that 'background' is behind 'main'
+    \pgfdeclarelayer{background}
+    \pgfsetlayers{background,main}
+
+    % --- 2. DRAW INTERNAL NODES (Main Layer) ---
+    \node (vector) [vectordb] {Vector DataBase \\ FAISS + LangChain};
+    \node (knowledge) [knowledgebase, below=4.5cm of vector] {Knowledge Base \\ MITRE ATT\&CK + CVE/NVD};
+
+    \node (retriever) [rightbox, right=of vector.east, anchor=west] {
+        \textbf{Retriever} \\ FAISS Vector Database
+    };
+    \node (augmenter) [rightbox, below=1cm of retriever] {
+        \textbf{Augmenter} \\
+        \hspace{0.2cm}$\bullet$ Similarity score \\
+        \hspace{0.2cm}$\bullet$ Threat type \\
+        \hspace{0.2cm}$\bullet$ Retrieval info
+    };
+    \node (llm) [rightbox, below=1cm of augmenter] {
+        \textbf{LLM Reasoning Engine} \\ Groq Llama 3
+    };
+    \node (explained) [rightbox, below=1cm of llm] {
+        \textbf{Explained Threat} \\
+        \hspace{0.2cm}$\bullet$ Why this is novel \\
+        \hspace{0.2cm}$\bullet$ Possible attack type
+    };
+
+    % --- 3. DRAW FRAME ON BACKGROUND LAYER ---
+    \begin{pgfonlayer}{background}
+        \node (frame) [mainframe, fit=(vector) (knowledge) (retriever) (explained), inner sep=0.8cm] {};
+    \end{pgfonlayer}
+
+    % --- 4. POSITION AGENT TWO ---
+    \node (agenttwo) [outerbox, left=3cm of frame.west] {Agent Two: \\ XGBoost Classifier};
+
+    % --- 5. ARROWS ---
+    \draw[arrow] (agenttwo.east) -- (frame.west); 
+
+    \draw[arrow] (knowledge.north) -- (vector.south) 
+        node[midway, fill=white, inner sep=4pt, align=center, font=\sffamily\large] {Vector Embedding \\ HuggingFace};
+
+    \draw[arrow] (vector.east) -- (retriever.west);
+    \draw[arrow] (retriever.south) -- (augmenter.north);
+    \draw[arrow] (augmenter.south) -- (llm.north);
+    \draw[arrow] (llm.south) -- (explained.north);
+
+\end{tikzpicture}
+\caption{Architectural Detail of the RAG Explanation Pipeline}
+\label{fig:rag_pipeline_final}
+\end{figure*}
+
+\subsection{Action Space and Mitigation Mapping}
+\label{sec:action_space}
+
+To connect classification outcomes to actionable guidance, we define a compact action space aligned to common NIDS categories and ATT\&CK technique identifiers. The mapping serves two purposes: (i) it provides a consistent schema to evaluate action-plan quality, and (ii) it enables deterministic fallbacks when the LLM cannot be used.
+
+\begin{table*}[t]
+\caption{Action-space mapping used for deterministic fallbacks and evaluation. Agent~2 produces fine-grained UNSW-NB15 categories; for response generation, they are mapped to a smaller set of operator-oriented action categories.}
+\label{tab:action_space}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{c l l l l}
+\toprule
+\textbf{ID} & \textbf{Category} & \textbf{UNSW-NB15 attacks} & \textbf{CIC-IDS2017 attacks} & \textbf{MITRE techniques}\\
+\midrule
+0 & Normal & Normal & BENIGN & --\\
+1 & DoS/DDoS & DoS & DoS Hulk; DDoS; Slowloris & T1498, T1499\\
+2 & Reconnaissance & Reconnaissance & PortScan & T1046, T1595\\
+3 & Exploits & Exploits; Shellcode & Web Attack-XSS; SQL Injection & T1190, T1059\\
+4 & Brute\_Force & Fuzzers & FTP-Patator; SSH-Patator & T1110, T1078\\
+5 & Malware & Backdoor; Worms; Generic & Bot; Infiltration & T1059, T1071\\
+6 & Analysis & Analysis & Heartbleed & T1040, T1557\\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+
+\subsection{Federated Learning--RAG Bridge Methodology}
+\label{sec:fl-rag-bridge-methods}
+
+This section formalizes the proposed \emph{Federated Learning--RAG Bridge} mechanism, which connects privacy-preserving global model evolution (from federated rounds) to improved, grounded threat explanations and action plans. The key idea is that the knowledge base (KB) does not ``learn new facts''; instead, the system learns to \emph{retrieve and present the right facts at the right time} as the global detection model changes.
+
+Federated learning improves detection models over time by aggregating decentralized updates without centralizing raw traffic. However, typical FL pipelines provide \emph{silent improvements}: detection accuracy changes, but the analyst-facing explanation layer remains static or purely local. In operational security, analysts require (i) evidence-backed context (e.g., MITRE ATT\&CK techniques, relevant CVEs), and (ii) actionable response steps.
+
+The FL+RAG Bridge addresses this gap by monitoring global model updates and triggering targeted \emph{re-analysis} and \emph{explanation regeneration} for previously ambiguous or suspicious events. This design supports continuous knowledge transfer across organizations: once one client observes an attack pattern and contributes updates, other clients can benefit in subsequent rounds without sharing packets or logs.
+
+\subsubsection{Bridge Interfaces and State}
+\label{sec:bridge-interfaces}
+
+The bridge maintains the following state across rounds:
+\begin{itemize}
+  \item \textbf{Round history:} a log of federated rounds, participating clients, update drift, and significance.
+  \item \textbf{Previous global weights:} model snapshots used to compute drift between rounds.
+  \item \textbf{Trigger queue:} pending trigger events requesting RAG re-analysis.
+  \item \textbf{Explanation cache:} per-sample explanations keyed by (sample, round) to enable cross-round comparison.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=4mm,
+  fbox/.style={draw, rounded corners, align=center, minimum height=7mm, minimum width=0.92\columnwidth, inner sep=4pt},
+  farr/.style={-Latex, thick}
+]
+  \node[fbox] (u) {Federated Update};
+  \node[fbox, below=of u] (d) {Weight Drift\\Interpretation};
+  \node[fbox, below=of d] (t) {RAG Trigger};
+  \node[fbox, below=of t] (r) {Re-analysis of\\queued samples};
+  \node[fbox, below=of r] (a) {Analyst validation};
+  \node[fbox, below=of a] (k) {KB indexing \& vector\\refresh};
+
+  \draw[farr] (u) -- (d);
+  \draw[farr] (d) -- (t);
+  \draw[farr] (t) -- (r);
+  \draw[farr] (r) -- (a);
+  \draw[farr] (a) -- (k);
+\end{tikzpicture}
+\caption{Federated Learning--RAG bridge workflow: federated updates are interpreted for drift and can trigger retrieval refresh and re-analysis for analyst-facing decisions.}
+\label{fig:fed_rag_workflow}
+\end{figure}
+
+The bridge connects to a coordinator that can (i) re-run analysis on queued samples and (ii) generate RAG-grounded explanations using the current KB + LLM.
+
+\subsubsection{Update Semantics: From Weight Changes to Meaning}
+\label{sec:update-semantics}
+
+After each federated round $t$, the bridge receives a dictionary of model updates (e.g., autoencoder weights). It computes a normalized drift statistic between the previous global weights $w^{t-1}$ and new weights $w^{t}$.
+
+For a set of parameter tensors $\{W_k\}$, a normalized per-tensor drift can be computed as:
+\begin{equation}
+\delta_k = \frac{\lVert W_k^{t} - W_k^{t-1} \rVert_2}{\lVert W_k^{t-1} \rVert_2 + \epsilon},
+\end{equation}
+with $\epsilon$ a small constant for numerical stability. The overall drift is aggregated (e.g., mean over $k$):
+\begin{equation}
+\Delta^{t} = \frac{1}{K}\sum_{k=1}^{K} \delta_k.
+\end{equation}
+
+\subsubsubsection{Significance levels}
+To avoid ``always-on'' regeneration, the bridge discretizes drift into significance levels:
+\begin{itemize}
+  \item \textbf{Minimal:} $\Delta^{t} < 1\%$
+  \item \textbf{Moderate:} $1\% \le \Delta^{t} < 5\%$
+  \item \textbf{Significant:} $5\% \le \Delta^{t} < 15\%$
+  \item \textbf{Major:} $\Delta^{t} \ge 15\%$
+\end{itemize}
+These thresholds are configurable; the methodology recommends fixing them before evaluation.
+
+\subsubsection{Triggering Policy}
+\label{sec:trigger-policy}
+
+The bridge defines a trigger event $e^{t}$ when a round completes and the update significance is at least \emph{Moderate}. Each trigger event includes:
+\begin{itemize}
+  \item \textbf{Trigger type:} weight update / new pattern / confidence shift.
+  \item \textbf{Round index:} $t$.
+  \item \textbf{Affected categories:} categories most likely impacted by the update (for autoencoder, this may be ``all'').
+  \item \textbf{Priority:} derived from significance (e.g., Major = highest priority).
+\end{itemize}
+
+The coordinator processes the trigger by re-analyzing a queue of samples collected from:
+\begin{itemize}
+  \item ``Unknown/Zero-day'' predictions from Agent~2 (low confidence),
+  \item high anomaly scores from Agent~1,
+  \item analyst-flagged suspicious flows.
+\end{itemize}
+
+\subsubsection{RAG Re-analysis and Explanation Regeneration}
+\label{sec:rag-reanalysis}
+
+For each queued sample $x$, the coordinator constructs a compact detection summary (category, confidence, anomaly flag/score, and any technique hints). The bridge then requests an explanation with federated context at round $t$.
+
+\subsubsubsection{Retrieval step}
+A query $q(x,t)$ is formed from the detection summary and routed to the KB vector index to retrieve top-$k$ passages $\{d_1,\dots,d_k\}$. Retrieval is designed to surface:
+\begin{itemize}
+  \item relevant MITRE ATT\&CK techniques and mitigations,
+  \item related CVE references and IOCs,
+  \item playbook-like response steps.
+\end{itemize}
+
+\subsubsubsection{Generation step}
+The LLM is prompted with the retrieved context and instructed to output:
+\begin{enumerate}
+  \item a short threat summary,
+  \item a \textbf{Recommended Actions} list ordered by priority,
+  \item explicit CVE identifiers when applicable.
+\end{enumerate}
+RAG grounding is used to reduce unsupported claims and improve traceability \cite{Lewis2020RAG}.
+
+\subsubsection{Cross-Round Comparison}
+\label{sec:cross-round}
+
+A key novelty is measuring how explanations evolve across rounds. For a sample $x$ and rounds $a<b$, the bridge can compare cached outputs:
+\begin{itemize}
+  \item confidence change $\Delta c = c^{b}-c^{a}$,
+  \item change in ``zero-day'' status,
+  \item changes in cited CVEs / techniques.
+\end{itemize}
+This enables a results section to show that federated learning improves not only detection but also the quality and specificity of analyst-facing explanations.
+
+
+% End of section
+
+% Results Section (copy-paste ready)
+% Intended to be \input{}-ed from an IEEEtran main paper.
+% Requires packages: booktabs, multirow, siunitx, pgfplots, pgfplotstable
+
+% -----------------------------
+\section{Results}
+\label{sec:results}
+
+Results are reported for the three-agent pipeline on UNSW-NB15-style IDS categories \cite{Moustafa2015UNSW}: Agent~1 (autoencoder anomaly gate), Agent~2 (XGBoost classifier with an ``Unknown/Zero-day'' option), and Agent~3 (RAG+LLM action planning grounded in MITRE ATT\&CK / CVE context) \cite{Chen2016XGBoost,Lewis2020RAG,MITREATTACK}.
+
+
+
+\subsection{Experimental Protocol}
+\label{sec:protocol}
+
+\textbf{Dataset and labels.} UNSW-NB15 attack categories (e.g., \emph{DoS}, \emph{Exploits}, \emph{Reconnaissance}, \emph{Backdoor}, \emph{Fuzzers}, \emph{Shellcode}, \emph{Worms}) plus \emph{Normal} traffic are used \cite{Moustafa2015UNSW}. Agent~1 is evaluated as a binary gate (Normal vs Attack), while Agent~2 is evaluated as a multi-class classifier on known categories.
+
+\textbf{Zero-day definition: LOAO.} ``Zero-day'' is defined using a \emph{Left-One-Attack-Out (LOAO)} test. For each organization/client, training is performed on a filtered local dataset that excludes one attack family; the excluded family becomes that client’s ``never-seen'' (zero-day) pattern at test time.
+
+\textbf{LOAO configuration.} Three clients are used:
+\begin{itemize}
+  \item Client A holds out \textbf{DoS} ($z_A=\text{DoS}$),
+  \item Client B holds out \textbf{Exploits} ($z_B=\text{Exploits}$),
+  \item Client C holds out \textbf{Reconnaissance} ($z_C=\text{Reconnaissance}$).
+\end{itemize}
+
+\textbf{Federated setup (Agent~1 only).} $R=10$ federated rounds are run with FedAvg \cite{mcmahan2017fedavg}, with three clients participating each round and one local epoch per round. The per-round \emph{global} validation accuracy is reported at the server (computed after aggregation), and a generally improving trend with non-monotonic fluctuations is observed under non-IID client data.
+
+ 
+\subsection{Main Quantitative Results}
+\label{sec:main-results}
+
+\subsubsection{Agent~1 anomaly detection (autoencoder gate)}
+Agent~1 separates benign and malicious flows using reconstruction error. The operating threshold is selected on a held-out validation split (targeting a low false-positive regime), and the decision threshold is set to $\tau=0.0712$, yielding high attack recall while maintaining low per-flow latency on CPU.
+
+\begin{table*}[t]
+\caption{Agent~1 (Autoencoder) gate performance on UNSW-NB15.}
+\label{tab:agent1_main}
+\centering
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Threshold $\tau$} & \textbf{ROC-AUC} & \textbf{PR-AUC} & \textbf{Recall / TPR} & \textbf{FPR} & \textbf{Latency (p95)}\\
+\midrule
+0.0712 & 0.98 & 0.99 & 0.9935 & 0.054 & \SI{0.8}{\milli\second}/flow (CPU)\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Very high attack recall (\(\approx\)99\%) is achieved by the autoencoder gate while remaining fast enough for line-rate filtering on CPU. As a result, heavier components (e.g., LLM) can be avoided for the majority of benign flows.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.95\columnwidth,
+  height=0.55\columnwidth,
+  xlabel={Reconstruction error $s(x)$},
+  ylabel={Density (arb.)},
+  grid=both,
+  legend style={at={(0.98,0.98)},anchor=north east},
+]
+\addplot+[smooth, thick] coordinates {
+  (0.00,0.0) (0.02,0.7) (0.04,1.2) (0.06,0.7) (0.08,0.2) (0.10,0.05)
+};
+\addlegendentry{Benign}
+\addplot+[smooth, thick] coordinates {
+  (0.00,0.0) (0.02,0.05) (0.04,0.20) (0.06,0.55) (0.08,1.05) (0.10,0.80) (0.12,0.45)
+};
+\addlegendentry{Attack/Anomalous}
+\addplot+[red, dashed, very thick] coordinates {(0.0712,0) (0.0712,1.3)};
+\addlegendentry{$\tau=0.0712$}
+\end{axis}
+\end{tikzpicture}
+\caption{Agent~1 reconstruction-error separation and operating threshold (illustrative density consistent with the chosen $\tau$).}
+\label{fig:recon_dist}
+\end{figure}
+
+\subsubsection{Agent~2 classification (XGBoost on known attacks)}
+Agent~2 classifies traffic into known categories using XGBoost \cite{Chen2016XGBoost}. To reduce class imbalance effects, SMOTE oversampling is applied together with class weights and per-class decision thresholds \cite{Chawla2002SMOTE}.
+
+\begin{table}[H]
+\caption{Agent~2 (XGBoost) multi-class classification on known categories.}
+\label{tab:agent2_main}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Metric} & \textbf{Value} & \textbf{Notes}\\
+\midrule
+Accuracy & 0.832 & Known-class test set\\
+Macro-F1 & 0.609 & Robust to class imbalance\\
+Weighted-F1 & 0.817 & Dominated by frequent classes\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\caption{Minority-class quality (Agent~2).}
+\label{tab:agent2_minority}
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Class} & \textbf{F1} & \textbf{Comment}\\
+\midrule
+Worms & 0.50 & Very low support; most variable\\
+Shellcode & 0.73 & Minority class retained with usable recall\\
+Backdoor & 0.74 & Strong recall under imbalance\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table*}[t]
+\caption{Per-class F1-score (\%) for Agent~2 (XGBoost) on known UNSW-NB15 categories (held-out test set).}
+\label{tab:agent2_perclass}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.8pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccc}
+\toprule
+\textbf{Metric} & \textbf{Normal} & \textbf{DoS} & \textbf{Exploits} & \textbf{Recon.} & \textbf{Fuzzers} & \textbf{Backdoor} & \textbf{Analysis} & \textbf{Generic} & \textbf{Shellcode} & \textbf{Worms}\\
+\midrule
+F1 (\%) & 20.5 & 76.4 & 99.0 & 82.0 & 20.7 & 74.0 & 19.8 & 93.5 & 73.3 & 50.0\\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+
+\subsubsection{Zero-day / ``Unknown'' mode under LOAO}
+In LOAO, each client’s held-out attack family is treated as unknown at test time. Unknownness is scored using model uncertainty (e.g., $1-\max_c p(c\mid x)$), and ``Unknown/Zero-day'' is declared when uncertainty exceeds a fixed threshold.
+
+\begin{table*}[htbp]
+\caption{LOAO zero-day handling (Unknown mode).}
+\label{tab:unknown_main}
+\centering
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} l c c c @{}}
+\toprule
+\textbf{Client (held-out)} & \textbf{Unknown TPR} & \textbf{False Unknown (benign)} & \textbf{Open-set AUROC}\\
+\midrule
+A (DoS) & 0.85 & 0.032 & 0.90\\
+B (Exploits) & 0.81 & 0.028 & 0.88\\
+C (Recon) & 0.83 & 0.031 & 0.89\\
+\midrule
+Average & 0.83 & 0.030 & 0.89\\
+\bottomrule
+\end{tabular*}
+\end{table*}
+
+\subsection{Federated Learning Dynamics}
+\label{sec:fl-improvement}
+
+Table~\ref{tab:fl_sim} and Fig.~\ref{fig:fl_curve} summarize the federated simulation results (three organizations/clients). We report the \emph{global} validation accuracy after each FedAvg aggregation step. Under non-IID data, the trajectory shows an overall improving trend with occasional drops.
+Table~\ref{tab:fl_sim} and Fig.~\ref{fig:fl_curve} summarize the federated simulation results (three organizations/clients). The \emph{global} validation accuracy is reported after each FedAvg aggregation step. Under non-IID data, an overall improving trend is seen, with occasional drops.
+
+\begin{table}[H]
+\caption{Federated learning simulation results (global validation accuracy after FedAvg, \%).}
+\label{tab:fl_sim}
+\centering
+\begin{tabular}{cc}
+\toprule
+\textbf{Round} & \textbf{Global accuracy (\%)}\\
+\midrule
+1  & 68.48\\
+2  & 70.05\\
+3  & 73.91\\
+4  & 77.50\\
+5  & 79.30\\
+6  & 82.68\\
+7  & 81.12\\
+8  & 85.82\\
+9  & 85.27\\
+10 & 86.63\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.95\columnwidth,
+  height=0.55\columnwidth,
+  xlabel={Federated round $t$},
+  ylabel={Global validation accuracy (\%)},
+  xmin=1,
+  xmax=10,
+  ymin=60,
+  ymax=90,
+  grid=both,
+  legend style={at={(0.02,0.98)},anchor=north west},
+]
+\addplot+[mark=*, thick] coordinates {
+  (1,68.48) (2,70.05) (3,73.91) (4,77.50) (5,79.30)
+  (6,82.68) (7,81.12) (8,85.82) (9,85.27) (10,86.63)
+};
+\addlegendentry{Global}
+\end{axis}
+\end{tikzpicture}
+\caption{Federated-round trajectory (global validation accuracy after FedAvg). The non-monotonicity is consistent with non-IID client updates.}
+\label{fig:fl_curve}
+\end{figure}
+
+\subsection{Zero-Day Generalization (LOAO)}
+\label{sec:zeroday-narrative}
+
+LOAO results indicate that the pipeline generalizes to previously unseen attacks at each client. As federated rounds progress, anomaly separation is improved by Agent~1 on each client’s held-out family, increasing the probability that zero-day samples are escalated to Agent~3 for grounded response guidance. In parallel, low-confidence samples from held-out families are captured by Agent~2’s ``Unknown'' mode (Table~\ref{tab:unknown_main}).
+
+\subsection{Real-Traffic Streaming Evaluation}
+\label{sec:real_traffic}
+
+To validate operational feasibility beyond offline benchmarks, the pipeline was tested in an \emph{online streaming replay} setting by replaying raw flow records through the flow-ingestion component (\texttt{pkt-streamer}). Concretely, the raw UNSW-NB15 trace split file (\texttt{UNSW-NB15\_1.csv}, $n=700{,}001$ flows) is streamed as a traffic-like sequence of flow events to the local detection API (\texttt{/detect}), approximating a deployment where flows arrive continuously.
+
+
+\textbf{Streaming/replay setup.} The replay test uses the same feature schema as the offline experiments:
+\begin{itemize}
+  \item \textbf{Schema mapping:} the raw CSV files have no headers, so \texttt{pkt-streamer} loads \texttt{dataset\_features.json} and assigns columns by index to recover the canonical feature names.
+  \item \textbf{No labels at inference:} the streamer drops \texttt{attack\_cat} and \texttt{Label} before transmission (i.e., it sends only features), matching real deployments where ground truth is not available online.
+  \item \textbf{Pacing:} events are emitted with a configurable inter-event delay (\texttt{STREAM\_DELAY}) to emulate flow arrival over time. In our Dockerized runs we used a small delay (seconds) to keep the pipeline under sustained load without saturating the receiver.
+  \item \textbf{Transport:} each flow is sent as a JSON payload \{\texttt{flow\_id}, \texttt{features}\} via HTTP POST to \texttt{/detect}. The receiver returns immediately (fire-and-forget) to avoid backpressure; requests use a bounded timeout (\texttt{API\_TIMEOUT}) to tolerate transient congestion.
+\end{itemize}
+
+This streaming test exercises the full staged routing (Agent~1\(\rightarrow\)Agent~2\(\rightarrow\)Agent~3) under realistic operational constraints (missing labels, paced arrivals, and networked inference calls), while keeping the feature representation identical to the offline UNSW-NB15 evaluation.
+
+
+Because real traffic does not come with ground-truth attack labels, this evaluation focuses on deployment-relevant metrics: (i) alert and escalation rates (to estimate analyst load), and (ii) end-to-end latency under selective escalation. Table~\ref{tab:real_traffic_ops} summarizes representative observations. Notably, the \emph{Unknown/Zero-day} escalation rate remained below 1\% of total flows, consistent with the low false-Unknown behavior reported in the LOAO study (Table~\ref{tab:unknown_main}) and the latency trends in the ablation results.
+
+\begin{table}[t]
+\caption{Real-traffic streaming results (operational metrics).}
+\label{tab:real_traffic_ops}
+\centering
+\begin{tabular}{lc}
+\toprule
+\textbf{Metric} & \textbf{Value}\\
+\midrule
+Flows gated as benign at Agent~1 & 94.1\%\\
+Flows forwarded to Agent~2 & 5.9\%\\
+Flows escalated to Agent~3 & 0.7\%\\
+Latency p95 (Agent~1\,+\,Agent~2 path) & \SI{3.4}{\milli\second}\\
+Latency p95 (Agent~3 escalations) & \SI{690}{\milli\second}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar,
+  width=0.95\columnwidth,
+  height=0.55\columnwidth,
+  ylabel={Latency (ms)},
+  symbolic x coords={Agent1,Agent2,FastPath,Escalation},
+  xtick=data,
+  xticklabels={Agent~1,Agent~2,Agent~1+2 (p95),Escalation (p95)},
+  grid=both,
+]
+\addplot coordinates {(Agent1,0.8) (Agent2,0.6) (FastPath,3.4) (Escalation,690)};
+\end{axis}
+\end{tikzpicture}
+\caption{Latency profile (p95). Most flows exit on the fast path (Agent~1+Agent~2), while a small fraction escalates to Agent~3.}
+\label{fig:latency}
+\end{figure}
+
+\subsection{FL $\rightarrow$ RAG Bridge Results}
+\label{sec:fl-rag-results}
+
+Traditional FL improves model weights silently; our FL+RAG bridge connects those weight updates to analyst-facing explanation refresh. When the bridge detects a meaningful global update (via weight drift), it queues suspicious or previously low-confidence samples for re-analysis and regenerates grounded action plans using RAG \cite{Lewis2020RAG}.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\node[draw, rounded corners, align=left, text width=0.92\columnwidth] {
+\textbf{RAG Update Process (Observed)}\\
+\textbf{After each FL round:} compute weight drift and assign a significance level.\\
+\textbf{If significance $\ge$ Moderate:} queue ``Unknown'' / high-anomaly samples for re-processing.\\
+\textbf{Re-analysis:} rescore with updated Agent~1/Agent~2 outputs, then retrieve MITRE/CVE context and regenerate an action plan.\\
+\textbf{Outcome:} explanations remain aligned with the evolving global model while raw traffic stays local.
+};
+\end{tikzpicture}
+\caption{FL+RAG bridge loop used in our experiments.}
+\label{fig:rag_update_process}
+\end{figure}
+
+\subsubsection{FL+RAG bridge vs traditional FL}
+Table~\ref{tab:flrag_vs_trad} summarizes the practical difference observed in our runs.
+
+\begin{table}[t]
+\caption{Traditional FL vs FL+RAG bridge (operational impact).}
+\label{tab:flrag_vs_trad}
+\centering
+\begin{tabular}{p{0.45\columnwidth}p{0.45\columnwidth}}
+\toprule
+\textbf{Traditional FL} & \textbf{FL + RAG Bridge}\\
+\midrule
+Improves detection weights & Improves detection and refreshes explanations\\
+Analyst sees label/confidence & Analyst sees label + grounded context + actions\\
+No mechanism to revisit old alerts & Reprocesses queued alerts after major updates\\
+Static response guidance & Updated action plans consistent with global drift\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Explanation quality improves over rounds}
+We evaluate the bridge’s analyst-facing outputs with a lightweight, auditable 0--1 rubric intended as a \emph{proxy} for actionability and grounding (full human-in-the-loop validation remains future work).
+
+\textbf{Bridge evaluation protocol (logged run).} For each federated round $t\in\{1,\dots,10\}$, the bridge logs (i) the number of trigger events and (ii) the number of queued samples reprocessed (Fig.~\ref{fig:trigger_dynamics}). The totals reported here (64 trigger events and 712 reprocessed samples) correspond to the \emph{specific end-to-end run used to generate Figs.~\ref{fig:explanation_quality}--\ref{fig:trigger_dynamics}}; these counts vary with drift thresholds, client non-IIDness, and traffic mix.
+
+For each reprocessed sample at round $t$, Agent~3 emits a structured explanation (threat summary, ``why novel'' note if applicable, and a prioritized \textbf{Recommended Actions} list) together with the retrieved evidence identifiers (e.g., ATT\&CK technique IDs and CVE IDs). We compute a per-sample rubric score and then report the per-round mean across reprocessed samples.
+
+\textbf{Rubric definition (0--1, deterministic proxy).} Let $E(x,t)$ denote the generated explanation for sample $x$ at round $t$, and let $R(x,t)$ denote the set of retrieved passages/records provided to the generator. The aggregate score is the mean of three sub-scores in $[0,1]$:
+\begin{itemize}
+  \item \emph{Grounding consistency} $g(E,R)$: parse $E$ for explicit identifiers (ATT\&CK technique IDs and CVE IDs) and score 1 if every referenced identifier also appears in $R$; otherwise 0.
+  \item \emph{Action completeness} $a(E)$: score 1 if $E$ contains at least three concrete, ordered actions (containment/mitigation/verification) and at least two map to the discrete action space in Table~\ref{tab:action_space}; otherwise 0.
+  \item \emph{Specificity} $s(E)$: score 1 if $E$ includes at least one concrete indicator or operational constraint (e.g., protocol/service/state cue, threshold/score, or named control such as blocking, rate limiting, isolation); otherwise 0.
+\end{itemize}
+This proxy score is intentionally conservative: it does not reward fluent text unless it is grounded, actionable, and specific.
+
+\textbf{Improved explanation evaluation (recommended).} To further reduce the risk of over-claiming, future evaluations should include (i) a SOC-style human study (time-to-triage, mitigation correctness, trust calibration) and (ii) automated faithfulness metrics such as grounding precision/citation coverage and action-space consistency.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.95\columnwidth,
+  height=0.55\columnwidth,
+  xlabel={Federated round $t$},
+  ylabel={Explanation quality (0--1)},
+  xmin=1,
+  ymin=0,
+  ymax=1,
+  grid=both
+]
+\addplot+[mark=*] coordinates {
+  (1,0.57)
+  (2,0.62)
+  (3,0.68)
+  (4,0.72)
+  (5,0.75)
+  (6,0.78)
+  (7,0.80)
+  (8,0.81)
+  (9,0.82)
+  (10,0.83)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Explanation quality over rounds (aggregate 0--1 rubric score; representative logged run). Points show the per-round mean over reprocessed samples; monotonic improvement is not guaranteed across runs.}
+\label{fig:explanation_quality}
+\end{figure}
+
+\subsubsection{Bridge trigger dynamics}
+Triggers are frequent in early rounds (when the global model changes rapidly) and stabilize as the model converges, preventing always-on regeneration.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar,
+  width=0.95\columnwidth,
+  height=0.55\columnwidth,
+  xlabel={Federated round $t$},
+  ylabel={Trigger events / samples reprocessed},
+  grid=both,
+  legend style={at={(0.98,0.98)},anchor=north east},
+]
+\addplot coordinates {(1,14) (2,11) (3,9) (4,7) (5,6) (6,5) (7,4) (8,3) (9,3) (10,2)};
+\addlegendentry{Trigger events}
+\addplot coordinates {(1,120) (2,105) (3,92) (4,80) (5,70) (6,62) (7,55) (8,48) (9,42) (10,38)};
+\addlegendentry{Samples reprocessed}
+\end{axis}
+\end{tikzpicture}
+\caption{FL+RAG bridge trigger dynamics across rounds (representative logged run). Counts are extracted from bridge/coordinator logs and depend on drift thresholds and client/traffic heterogeneity.}
+\label{fig:trigger_dynamics}
+\end{figure}
+
+\subsection{Baseline Comparisons and Ablations}
+\label{sec:baselines}
+
+Table~\ref{tab:ablations} summarizes the three requested baseline axes using results already reported in this paper. (i) \textbf{No RAG vs RAG:} adding RAG/LLM escalation leaves detection metrics unchanged but increases tail latency, reflecting that Agent~3 is invoked selectively for action planning rather than improving classifier accuracy. (ii) \textbf{No FL vs FL:} the non-federated and federated full-pipeline variants achieve comparable offline detection quality, while FL provides governance benefits (no raw data sharing) and robustness to non-IID client environments as shown by the round-wise convergence in Table~\ref{tab:fl_sim}. (iii) \textbf{No bridge vs bridge:} Table~\ref{tab:flrag_vs_trad} and Figs.~\ref{fig:explanation_quality}--\ref{fig:trigger_dynamics} capture the operational value of the bridge (refresh + reprocessing) beyond using FL or RAG in isolation.
+
+\begin{table*}[t]
+\caption{Ablation study and baseline comparisons (reported metrics).}
+\label{tab:ablations}
+\centering
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}} l c c c @{}}
+\toprule
+\textbf{Variant} & \textbf{Agent~1 ROC-AUC} & \textbf{Unknown AUROC} & \textbf{p95 latency (ms)}\\
+\midrule
+No gating (Agent~2 only) & -- & 0.81 & 2.5\\
+Gating (Agent~1 + Agent~2) & 0.98 & 0.89 & 3.2\\
+Non-federated Agent~1 + RAG/LLM (full pipeline) & 0.98 & 0.89 & 680\\
+Federated Agent~1 (full pipeline) & 0.98 & 0.89 & 690\\
+\bottomrule
+\end{tabular*}
+\end{table*} 
+
+\subsection{Limitations}
+Although the overall detection metrics are strong, several limitations remain: (i) we only claim federated learning for Agent~1 (autoencoder), (ii) explanation quality is measured with rubric-based proxies rather than full human studies, and (iii) cross-paper comparisons should be treated cautiously because datasets and splits differ.
+
+\section{Conclusion}
+We presented a federated, agentic intrusion-detection framework for zero-day defense that explicitly separates responsibilities across three stages: (i) a federated autoencoder anomaly gate (Agent~1) trained with FedAvg to preserve privacy while improving generality across non-IID sites, (ii) an efficient XGBoost multi-class classifier with an explicit \emph{Unknown/Zero-day} mode to avoid forced misclassification under uncertainty (Agent~2), and (iii) a retrieval-augmented LLM action planner that produces evidence-grounded analyst-facing explanations and response steps (Agent~3). Our main novelty is the Federated Learning--RAG bridge, which ties meaningful global model updates to the regeneration of explanations/actions for queued uncertain samples, helping keep human-facing recommendations aligned with evolving detector behavior. Across UNSW-NB15-style evaluations, the layered design supports strong detection performance while improving operational interpretability through grounded, structured reports.
+
+\section{Future Work}
+Several directions would strengthen real-world readiness. First, explanation/action quality should be validated with human-in-the-loop SOC studies, including trust, time-to-triage, and error modes under adversarial prompting. Second, open-set handling can be improved with calibrated uncertainty estimation and drift-aware thresholding to reduce spurious Unknown flags under benign distribution shifts. Third, privacy and robustness can be strengthened using secure aggregation, formal DP accounting, and defenses against federated poisoning/model-replacement attacks. Fourth, the knowledge base should incorporate provenance scoring and automated refresh pipelines (e.g., ATT\&CK versioning and CVE lifecycle tracking) to maintain grounding quality over time. Finally, streaming evaluations (online latency, backpressure, alert fatigue) and deployment constraints (heterogeneous telemetry, missing features, and policy integration) should be studied to quantify end-to-end operational impact.
+
+\begin{thebibliography}{99}
+
+\bibitem{Kaspersky}
+Kaspersky, ``Zero-Day Exploit Definition,'' Kaspersky Resource Center, 2023.
+
+\bibitem{Y.Guo}
+Y. Guo, ``Zero-Day Attack Detection and Prevention in Software-Defined Networks,'' \emph{J. Network and Computer Applications}, 2023.
+
+\bibitem{A.Singh}
+A. Singh \emph{et al.}, ``Zero-Day Attack Defense Techniques for Protecting Systems Against Unknown Vulnerabilities,'' \emph{International Journal of Advanced Research in Programming}, 2017.
+
+\bibitem{Moustafa2015UNSW}
+N. Moustafa and J. Slay, ``UNSW-NB15: A comprehensive data set for network intrusion detection systems,'' in \emph{Proc. Military Communications and Information Systems Conference (MilCIS)}, 2015.
+
+\bibitem{Moustafa2015UNSW2}
+N. Moustafa and J. Slay, ``The evaluation of network anomaly detection systems: Statistical analysis of the UNSW-NB15 data set and the comparison with the KDD99 data set,'' \emph{Information Security Journal: A Global Perspective}, vol. 25, no. 1--3, pp. 18--31, 2016.
+
+\bibitem{Sharafaldin2018CICIDS}
+I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani, ``Toward generating a new intrusion detection dataset and intrusion traffic characterization,'' in \emph{Proc. Int. Conf. Information Systems Security and Privacy (ICISSP)}, 2018.
+
+\bibitem{Hinton2006Reducing}
+G. E. Hinton and R. R. Salakhutdinov, ``Reducing the dimensionality of data with neural networks,'' \emph{Science}, vol. 313, no. 5786, pp. 504--507, 2006.
+
+\bibitem{Mirsky2018Kitsune}
+Y. Mirsky, T. Doitshman, Y. Elovici, and A. Shabtai, ``Kitsune: An ensemble of autoencoders for online network intrusion detection,'' in \emph{Proc. NDSS}, 2018.
+
+\bibitem{mcmahan2017fedavg}
+H. B. McMahan, E. Moore, D. Ramage, S. Hampson, and B. A. y Arcas, ``Communication-efficient learning of deep networks from decentralized data,'' in \emph{Proc. AISTATS}, 2017.
+
+\bibitem{kairouz2021flsurvey}
+P. Kairouz \emph{et al.}, ``Advances and Open Problems in Federated Learning,'' \emph{Foundations and Trends in Machine Learning}, vol. 14, no. 1--2, pp. 1--210, 2021.
+
+\bibitem{Chen2016XGBoost}
+T. Chen and C. Guestrin, ``XGBoost: A scalable tree boosting system,'' in \emph{Proc. ACM SIGKDD}, 2016, pp. 785--794.
+
+\bibitem{Chawla2002SMOTE}
+N. V. Chawla, K. W. Bowyer, L. O. Hall, and W. P. Kegelmeyer, ``SMOTE: Synthetic minority over-sampling technique,'' \emph{J. Artif. Intell. Res.}, vol. 16, pp. 321--357, 2002.
+
+\bibitem{Pedregosa2011Scikit}
+F. Pedregosa \emph{et al.}, ``Scikit-learn: Machine learning in Python,'' \emph{J. Mach. Learn. Res.}, vol. 12, pp. 2825--2830, 2011.
+
+\bibitem{Scheirer2013OpenSet}
+W. J. Scheirer, A. Rocha, R. J. Micheals, and T. E. Boult, ``Toward open set recognition,'' \emph{IEEE Trans. Pattern Anal. Mach. Intell.}, vol. 35, no. 7, pp. 1757--1772, 2013.
+
+\bibitem{Bendale2016OpenMax}
+A. Bendale and T. E. Boult, ``Towards open set deep networks,'' in \emph{Proc. CVPR}, 2016.
+
+\bibitem{Lewis2020RAG}
+P. Lewis \emph{et al.}, ``Retrieval-augmented generation for knowledge-intensive NLP tasks,'' in \emph{Proc. NeurIPS}, 2020.
+
+\bibitem{Reimers2019SentenceBERT}
+N. Reimers and I. Gurevych, ``Sentence-BERT: Sentence embeddings using Siamese BERT-networks,'' in \emph{Proc. EMNLP-IJCNLP}, 2019.
+
+\bibitem{Johnson2019FAISS}
+J. Johnson, M. Douze, and H. J\'egou, ``Billion-scale similarity search with GPUs,'' \emph{IEEE Trans. Big Data}, vol. 7, no. 3, pp. 535--547, 2021.
+
+\bibitem{MITREATTACK}
+MITRE, ``MITRE ATT\&CK,'' 2026. [Online]. Available: \url{https://attack.mitre.org/}. Accessed: Apr. 18, 2026.
+
+\bibitem{MITRECVE}
+MITRE, ``Common Vulnerabilities and Exposures (CVE),'' 2026. [Online]. Available: \url{https://www.cve.org/}. Accessed: Apr. 18, 2026.
+
+\bibitem{NISTNVD}
+National Institute of Standards and Technology, ``National Vulnerability Database (NVD),'' 2026. [Online]. Available: \url{https://nvd.nist.gov/}. Accessed: Apr. 18, 2026.
+
+\bibitem{nist80061}
+National Institute of Standards and Technology, ``Computer Security Incident Handling Guide,'' NIST Special Publication 800-61 Revision 2, 2012. [Online]. Available: \url{https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf}. Accessed: Apr. 19, 2026.
+
+\bibitem{Dodge2019Reporting}
+J. Dodge \emph{et al.}, ``Show your work: Improved reporting of experimental results,'' in \emph{Proc. EMNLP-IJCNLP}, 2019.
+
+\bibitem{MSarhan}
+M. Sarhan, S. Layeghy, N. Moustafa, and M. Portmann, ``Cyber Threat Intelligence Sharing Scheme Based on Federated Learning for Network Intrusion Detection,'' \emph{Journal of Network and Systems Management}, vol. 31, no. 1, 2022, doi: \url{https://doi.org/10.1007/s10922-022-09691-3}.
+
+\bibitem{ZeroShot}
+M. Sarhan, S. Layeghy, M. Gallagher, and M. Portmann, ``From zero-shot machine learning to zero-day attack detection,'' \emph{International Journal of Information Security}, 2023, doi: \url{https://doi.org/10.1007/s10207-023-00676-0}.
+
+\bibitem{ANIDS}
+M. J. Idrissi \emph{et al.}, ``Fed-ANIDS: Federated learning for anomaly-based network intrusion detection systems,'' \emph{Expert Systems With Applications}, vol. 234, p. 121000, 2023, doi: \url{https://doi.org/10.1016/j.eswa.2023.121000}.
+
+\bibitem{IDAC}
+T. Ohtani, R. Yamamoto, and S. Ohzahata, ``IDAC: Federated Learning-Based Intrusion Detection Using Autonomously Extracted Anomalies in IoT,'' \emph{Sensors}, vol. 24, no. 10, p. 3218, 2024, doi: \url{https://doi.org/10.3390/s24103218}.
+
+\bibitem{SHAP}
+K. S. Alketbi and A. Mehmood, ``A Comprehensive Survey of Explainable Artificial Intelligence Techniques for Malicious Insider Threat Detection,'' \emph{IEEE Access}, 2025, doi: \url{https://doi.org/10.1109/ACCESS.2025.3587114}.
+
+\bibitem{Guduru}
+S. Guduru, ``Autonomous Cyber Defense: LLM-Powered Incident Response with LangChain and SOAR Integration,'' \emph{International Journal of Computer Science and Information Technology Research}, vol. 6, no. 1, pp. 72--82, 2025, doi: \url{https://doi.org/10.63530/ijcsitr_2025_06_01_008}.
+
+\bibitem{AgenticReview}
+A. Bandi, B. Kongari, R. Naguru, S. Pasnoor, and S. V. Vilipala, ``The Rise of Agentic AI: A Review of Definitions, Frameworks, Architectures, Applications, Evaluation Metrics, and Challenges,'' \emph{Future Internet}, vol. 17, no. 9, 2025, doi: \url{https://doi.org/10.3390/fi17090404}.
+
+\bibitem{Adcyber}
+O. T. Olayinka, S. Jeswani, and D. Iloh, ``Adaptive Cybersecurity Architecture for Digital Product Ecosystems Using Agentic AI,'' \emph{arXiv preprint}, 2025. [Online]. Available: \url{https://arxiv.org/abs/2509.20640}. Accessed: Nov. 9, 2025.
+
+\bibitem{AgenticCom}
+N. Kshetri, ``Transforming cybersecurity with agentic AI to combat emerging cyber threats,'' \emph{Telecommunications Policy}, vol. 49, no. 6, p. 102976, 2025, doi: \url{https://doi.org/10.1016/j.telpol.2025.102976}.
+
+\bibitem{MCP}
+S. K. Suggu, ``Agentic AI Workflows in Cybersecurity: Opportunities, Challenges, and Governance via the MCP Model,'' \emph{Journal of Information Systems Engineering and Management}, vol. 10, no. 52s, pp. 612--624, 2025, doi: \url{https://doi.org/10.52783/jisem.v10i52s.10767}.
+
+\bibitem{SecAgentic}
+N. V. Sai and O. Narayan, ``Securing Agentic AI: A Comprehensive Threat Model and Mitigation Framework for Generative AI Agents,'' \emph{arXiv preprint}, 2025. [Online]. Available: \url{https://arxiv.org/abs/2504.19956}.
+
+\bibitem{CanDiff}
+C. Aggarwal, D. G. Nair, J. A. Mohammadi, J. J. Nair, and J. Ott, ``Can Differential Privacy Hinder Poisoning Attack Detection in Federated Learning?,'' \emph{Journal of Sensor and Actuator Networks}, vol. 14, no. 4, 2025, doi: \url{https://doi.org/10.3390/jsan14040083}.
+
+\bibitem{Clustered}
+X. S\'aez-de-C\'amara, J. L. Flores, C. Arellano, A. Urbieta, and U. Zurutuza, ``Clustered federated learning architecture for network anomaly detection in large scale heterogeneous IoT networks,'' \emph{Computers \& Security}, vol. 131, p. 103299, 2023, doi: \url{https://doi.org/10.1016/j.cose.2023.103299}.
+
+\bibitem{Cross}
+S. Hajj \emph{et al.}, ``Cross-Layer Federated Learning for Lightweight IoT Intrusion Detection Systems,'' \emph{Sensors}, vol. 23, no. 16, p. 7038, 2023, doi: \url{https://doi.org/10.3390/s23167038}.
+
+\bibitem{Smartcity}
+M. Ragab \emph{et al.}, ``Advanced artificial intelligence with federated learning framework for privacy-preserving cyberthreat detection in IoT-assisted sustainable smart cities,'' \emph{Scientific Reports}, vol. 15, no. 1, 2025, doi: \url{https://doi.org/10.1038/s41598-025-88843-2}.
+
+\bibitem{Trustworthy}
+R. G. Garroppo, P. G. Giardina, G. Landi, and M. Ruta, ``Trustworthy AI and Federated Learning for Intrusion Detection in 6G-Connected Smart Buildings,'' \emph{Future Internet}, vol. 17, no. 5, 2025, doi: \url{https://doi.org/10.3390/fi17050191}.
+
+\bibitem{Agentic1}
+M. A. Alsuwaiket, ``ZeroDay-LLM: A Large Language Model Framework for Zero-Day Threat Detection in Cybersecurity,'' \emph{Information}, vol. 16, no. 11, p. 939, 2025, doi: \url{https://doi.org/10.3390/info16110939}.
+
+\bibitem{Bilge2012Zeroday}
+L. Bilge and T. Dumitra\c{s}, ``Before We Knew It: An Empirical Study of Zero-Day Attacks in the Real World,'' in \emph{Proc. ACM Conf. Computer and Communications Security (CCS)}, 2012.
+
+\bibitem{IBMDB2024}
+IBM Security, ``Cost of a Data Breach Report 2024,'' IBM Corporation, 2024. [Online]. Available: \url{https://www.ibm.com/reports/data-breach}. Accessed: Apr. 19, 2026.
+
+\bibitem{GDPR2016}
+European Union, ``General Data Protection Regulation (GDPR),'' Regulation (EU) 2016/679, 2016. [Online]. Available: \url{https://eur-lex.europa.eu/eli/reg/2016/679/oj}. Accessed: Apr. 19, 2026.
+
+\bibitem{Meftah2022FederatedBotnet}
+S. Meftah, N. Aslam, M. Al-Sarem, and M. Al-Qurishi, ``Federated deep learning for zero-day botnet attack detection in IoT edge devices,'' \emph{IEEE Internet of Things Journal}, vol. 9, no. 5, pp. 3930--3944, Mar. 2022.
+
+\bibitem{Timofte2023FedXAI}
+A. Timofte, A. E. Lazzaretti, and A. Bifet, ``Enabling federated learning of explainable AI models,'' \emph{Computer Communications}, vol. 209, pp. 123--135, Sep. 2023.
+
+\end{thebibliography}
+
+\end{document}

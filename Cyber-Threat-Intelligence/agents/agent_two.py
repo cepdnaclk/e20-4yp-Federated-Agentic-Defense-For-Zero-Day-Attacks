@@ -1,30 +1,10 @@
-"""
-Agent Two: Classification and Reasoning Agent for Flagged Anomalies.
+"""Agent Two: XGBoost Classification Agent.
 
-This module provides AgentTwo, which combines:
-    - XGBoost classification for known threat categorization
-    - LangChain + Vector DB for contextual retrieval
-    - LLM reasoning for unknown/zero-day threat analysis
+Per the current architecture, AgentTwo is responsible only for XGBoost-based
+threat categorization and emitting a lightweight classification signal.
 
-Design Pattern:
-    - Dependency Injection: LLM and VectorDB are injected for flexibility
-    - Strategy Pattern: Different LLMs/DBs can be swapped without code changes
-    - Single Responsibility: Classification, retrieval, and reasoning are separate
-
-Example:
-    >>> from agents import AgentTwo
-    >>> from agents.interfaces import FAISSVectorDB, OllamaLLM
-    >>> 
-    >>> # Create with injected dependencies
-    >>> agent = AgentTwo(
-    ...     classifier=ThreatClassifier.load("models/agent_two"),
-    ...     vector_db=FAISSVectorDB(...),
-    ...     llm=OllamaLLM(model="llama3"),
-    ... )
-    >>> 
-    >>> # Analyze a flagged anomaly
-    >>> result = agent.analyze_threat(anomaly_features)
-    >>> print(result.summary)
+RAG retrieval + LLM-based action recommendations have been separated into
+AgentThree (see `agents/agent_three.py`).
 """
 
 import logging
@@ -36,7 +16,7 @@ import json
 import numpy as np
 
 from agents.models.xgboost_classifier import ThreatClassifier, ClassificationResult
-from agents.interfaces.base import VectorDBInterface, LLMInterface, RetrievedContext
+from agents.interfaces.base import RetrievedContext
 
 # Configure module logger
 logger = logging.getLogger(__name__)
@@ -50,8 +30,8 @@ class ThreatAnalysisResult:
     Attributes:
         classification: XGBoost classification result.
         is_zero_day: Whether the threat was classified as unknown.
-        retrieved_contexts: Similar attacks from vector DB (if zero-day).
-        llm_reasoning: LLM-generated analysis (if zero-day).
+        retrieved_contexts: Deprecated (kept for backward compatibility).
+        llm_reasoning: Deprecated (moved to AgentThree).
         feature_summary: Human-readable summary of key features.
         recommended_actions: List of recommended response actions.
         severity: Assessed severity level (critical/high/medium/low).
@@ -127,38 +107,19 @@ class ThreatAnalysisResult:
 
 class AgentTwo:
     """
-    Classification and Reasoning Agent for Network Threat Analysis.
+    XGBoost Classification Agent for Network Threat Analysis.
     
     AgentTwo works downstream of AgentOne (anomaly detection). When AgentOne
     flags a network flow as anomalous, AgentTwo:
     
     1. **Classifies** the threat using an optimized XGBoost model
-    2. **Retrieves** similar historical attacks from a vector database
-    3. **Reasons** about unknown threats using an LLM (for zero-day detection)
     
-    Architecture:
-        - XGBoost: Fast, accurate classification of known attack types
-        - Vector DB: Semantic search over historical attack knowledge
-        - LLM: Natural language reasoning for unknown patterns
-    
-    Design Principles:
-        - Dependency Injection: External services injected, not hardcoded
-        - Interface Segregation: Uses abstract interfaces for flexibility
-        - Open/Closed: New LLMs/DBs can be added without modifying agent
+    RAG retrieval + LLM-based action recommendations are provided by AgentThree.
     
     Example:
-        >>> # Initialize with dependencies
-        >>> agent = AgentTwo(
-        ...     classifier=ThreatClassifier.load("models/agent_two"),
-        ...     vector_db=faiss_db,
-        ...     llm=ollama_llm,
-        ... )
-        >>> 
-        >>> # Analyze flagged anomaly
+        >>> agent = AgentTwo(classifier=ThreatClassifier.load("models/agent_two"))
         >>> result = agent.analyze_threat(features, feature_names)
-        >>> if result.is_zero_day:
-        ...     print("Unknown threat detected!")
-        ...     print(result.llm_reasoning)
+        >>> print(result.classification.predicted_category)
     """
     
     # Feature name -> Human readable description mapping
@@ -198,8 +159,8 @@ class AgentTwo:
     def __init__(
         self,
         classifier: ThreatClassifier,
-        vector_db: Optional[VectorDBInterface] = None,
-        llm: Optional[LLMInterface] = None,
+        vector_db: Optional[Any] = None,
+        llm: Optional[Any] = None,
         feature_names: Optional[List[str]] = None,
         zero_day_context_k: int = 5,
     ):
@@ -208,10 +169,8 @@ class AgentTwo:
         
         Args:
             classifier: Trained ThreatClassifier (XGBoost) for categorization.
-            vector_db: Vector database for retrieving similar attacks.
-                      Required for zero-day reasoning.
-            llm: Large Language Model for generating threat analysis.
-                Required for zero-day reasoning.
+            vector_db: Deprecated (ignored). Use AgentThree.
+            llm: Deprecated (ignored). Use AgentThree.
             feature_names: Names of input features for interpretability.
             zero_day_context_k: Number of similar attacks to retrieve
                                for zero-day analysis.
@@ -220,41 +179,38 @@ class AgentTwo:
             ValueError: If classifier is not fitted.
             
         Note:
-            vector_db and llm are optional - if not provided, zero-day
-            threats will be flagged but without detailed reasoning.
+            `vector_db` and `llm` are accepted for backward compatibility but
+            are not used by AgentTwo.
         """
         if not classifier.is_fitted:
             raise ValueError("Classifier must be fitted before use")
         
         self._classifier = classifier
-        self._vector_db = vector_db
-        self._llm = llm
         self._feature_names = feature_names
         self._zero_day_context_k = zero_day_context_k
-        
-        # Warn if zero-day reasoning won't be available
-        if vector_db is None or llm is None:
+
+        if vector_db is not None or llm is not None:
             logger.warning(
-                "AgentTwo initialized without vector_db or llm - "
-                "zero-day reasoning will be limited"
+                "AgentTwo no longer performs RAG/LLM reasoning; "
+                "vector_db/llm args are ignored. Use AgentThree instead."
             )
         
-        logger.info(
-            "AgentTwo initialized: classifier=%s, vector_db=%s, llm=%s",
-            type(classifier).__name__,
-            type(vector_db).__name__ if vector_db else "None",
-            type(llm).__name__ if llm else "None",
-        )
+        logger.info("AgentTwo initialized: classifier=%s", type(classifier).__name__)
     
     @property
     def classifier(self) -> ThreatClassifier:
         """Returns the threat classifier."""
         return self._classifier
     
-    @property
-    def has_reasoning_capability(self) -> bool:
-        """Returns whether zero-day reasoning is available."""
-        return self._vector_db is not None and self._llm is not None
+    def classify(self, features: np.ndarray) -> Dict[str, Any]:
+        """Lightweight classification API used by the coordinator."""
+        classification = self._classifier.predict(features)
+        return {
+            "category": classification.predicted_category,
+            "confidence": float(classification.confidence),
+            "is_zero_day": bool(classification.is_zero_day),
+            "all_probabilities": dict(classification.all_probabilities or {}),
+        }
     
     def analyze_threat(
         self,
@@ -265,10 +221,9 @@ class AgentTwo:
         """
         Analyzes a flagged network anomaly.
         
-        This method performs the complete analysis pipeline:
+        This method performs the analysis pipeline:
         1. Classify the threat using XGBoost
-        2. If zero-day, retrieve similar attacks and generate LLM reasoning
-        3. Determine severity and recommended actions
+        2. Determine severity (no LLM/RAG calls)
         
         Args:
             features: Feature vector from the anomalous network flow.
@@ -282,8 +237,6 @@ class AgentTwo:
         Example:
             >>> result = agent.analyze_threat(anomaly_features)
             >>> print(f"Threat type: {result.classification.predicted_category}")
-            >>> if result.is_zero_day:
-            ...     print(f"Zero-day analysis: {result.llm_reasoning}")
         """
         # Use provided or stored feature names
         if feature_names is None:
@@ -312,16 +265,8 @@ class AgentTwo:
             confidence_score=classification.confidence,
         )
         
-        # Step 2: If zero-day and reasoning available, use RAG
-        if is_zero_day and self.has_reasoning_capability:
-            result = self._perform_zero_day_analysis(result, features, feature_names)
-        
-        # Step 3: Generate recommended actions
-        result.recommended_actions = self._generate_recommendations(
-            classification.predicted_category,
-            result.severity,
-            is_zero_day,
-        )
+        # AgentTwo does not generate response actions; AgentThree does.
+        result.recommended_actions = []
         
         logger.info(
             "Threat analysis complete: category=%s, confidence=%.2f, zero_day=%s",
@@ -340,8 +285,7 @@ class AgentTwo:
         """
         Analyzes multiple threats in batch.
         
-        Note: Zero-day reasoning is only performed for individual threats,
-        not batch-processed, to avoid overwhelming the LLM.
+        Note: AgentTwo does not perform LLM calls.
         
         Args:
             features_batch: Batch of feature vectors, shape (n_samples, n_features).
@@ -358,118 +302,20 @@ class AgentTwo:
         for i, classification in enumerate(classifications):
             features = features_batch[i]
             
-            # Only do full analysis (with LLM) for zero-day threats
-            if classification.is_zero_day and self.has_reasoning_capability:
-                # Full analysis for zero-day
-                result = self.analyze_threat(features, feature_names)
-            else:
-                # Quick analysis for known threats
-                result = ThreatAnalysisResult(
-                    classification=classification,
-                    is_zero_day=classification.is_zero_day,
-                    feature_summary=self._generate_feature_summary(features, feature_names),
-                    severity=self.SEVERITY_MAP.get(
-                        classification.predicted_category, "medium"
-                    ),
-                    confidence_score=classification.confidence,
-                    recommended_actions=self._generate_recommendations(
-                        classification.predicted_category,
-                        self.SEVERITY_MAP.get(classification.predicted_category, "medium"),
-                        classification.is_zero_day,
-                    ),
-                )
+            result = ThreatAnalysisResult(
+                classification=classification,
+                is_zero_day=classification.is_zero_day,
+                feature_summary=self._generate_feature_summary(features, feature_names),
+                severity=self.SEVERITY_MAP.get(
+                    classification.predicted_category, "medium"
+                ),
+                confidence_score=classification.confidence,
+                recommended_actions=[],
+            )
             
             results.append(result)
         
         return results
-    
-    def _perform_zero_day_analysis(
-        self,
-        result: ThreatAnalysisResult,
-        features: np.ndarray,
-        feature_names: Optional[List[str]],
-    ) -> ThreatAnalysisResult:
-        """
-        Performs RAG-based analysis for zero-day threats.
-        
-        Args:
-            result: Initial analysis result.
-            features: Feature vector.
-            feature_names: Feature names for context.
-        
-        Returns:
-            Enhanced result with LLM reasoning.
-        """
-        # Build query from feature data
-        query = self._build_threat_query(features, feature_names, result.classification)
-        
-        # Retrieve similar attacks from vector DB
-        try:
-            contexts = self._vector_db.similarity_search(
-                query, k=self._zero_day_context_k
-            )
-            result.retrieved_contexts = contexts
-            
-            logger.info("Retrieved %d similar attacks for analysis", len(contexts))
-        except Exception as e:
-            logger.error("Vector DB search failed: %s", str(e))
-            contexts = []
-        
-        # Generate LLM reasoning
-        if contexts and self._llm:
-            try:
-                context_texts = [ctx.content for ctx in contexts]
-                llm_response = self._llm.generate_with_context(
-                    query=query,
-                    context=context_texts,
-                    temperature=0.3,  # Lower temperature for more focused analysis
-                    max_tokens=1024,
-                )
-                result.llm_reasoning = llm_response.content
-                
-                logger.info("LLM reasoning generated successfully")
-            except Exception as e:
-                logger.error("LLM generation failed: %s", str(e))
-                result.llm_reasoning = (
-                    "Unable to generate detailed analysis. "
-                    "Please review similar attacks manually."
-                )
-        
-        return result
-    
-    def _build_threat_query(
-        self,
-        features: np.ndarray,
-        feature_names: Optional[List[str]],
-        classification: ClassificationResult,
-    ) -> str:
-        """Builds a query string for vector DB search and LLM."""
-        # Get top probabilities
-        top_probs = sorted(
-            classification.all_probabilities.items(),
-            key=lambda x: x[1],
-            reverse=True
-        )[:3]
-        
-        query_parts = [
-            "Network threat analysis required.",
-            f"Top predicted categories: {', '.join([f'{cat}({p:.1%})' for cat, p in top_probs])}",
-            f"Confidence is low ({classification.confidence:.1%}), suggesting potential zero-day or novel attack.",
-        ]
-        
-        # Add key feature values
-        if feature_names:
-            features_flat = np.atleast_1d(features).flatten()
-            key_features = []
-            for i, (name, value) in enumerate(zip(feature_names, features_flat)):
-                if name in self.FEATURE_DESCRIPTIONS:
-                    desc = self.FEATURE_DESCRIPTIONS[name]
-                    key_features.append(f"{desc}: {value:.4f}")
-            
-            if key_features:
-                query_parts.append("Key features: " + ", ".join(key_features[:10]))
-        
-        return " ".join(query_parts)
     
     def _generate_feature_summary(
         self,
@@ -581,8 +427,8 @@ class AgentTwo:
     def from_pretrained(
         cls,
         model_dir: Union[str, Path],
-        vector_db: Optional[VectorDBInterface] = None,
-        llm: Optional[LLMInterface] = None,
+        vector_db: Optional[Any] = None,
+        llm: Optional[Any] = None,
         **kwargs,
     ) -> "AgentTwo":
         """
@@ -590,8 +436,8 @@ class AgentTwo:
         
         Args:
             model_dir: Directory containing saved classifier.
-            vector_db: Optional vector database for reasoning.
-            llm: Optional LLM for reasoning.
+            vector_db: Deprecated (ignored). Use AgentThree.
+            llm: Deprecated (ignored). Use AgentThree.
             **kwargs: Additional arguments for AgentTwo.
         
         Returns:
@@ -643,9 +489,9 @@ class AgentTwo:
         """Returns agent configuration."""
         return {
             "classifier_config": self._classifier.get_config(),
-            "has_vector_db": self._vector_db is not None,
-            "has_llm": self._llm is not None,
-            "llm_model": self._llm.model_name if self._llm else None,
+            "has_vector_db": False,
+            "has_llm": False,
+            "llm_model": None,
             "zero_day_context_k": self._zero_day_context_k,
             "feature_names_count": len(self._feature_names) if self._feature_names else 0,
         }
