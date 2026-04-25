@@ -1,11 +1,5 @@
----
-layout: home
-permalink: index.html
-
-# Please update this with your repository name and title
-repository-name: e20-4yp-Federated-Agentic-Defense-For-Zero-Day-Attacks
-title: Federated Agentic Defense For Zero Day Attacks
----
+<!-- Legacy template file kept for reference. -->
+<!-- Disabled Jekyll front matter to prevent collision with docs/index.html on GitHub Pages. -->
 
 [comment]: # "This is the standard layout for the project, but you can clean this and use your own template"
 
