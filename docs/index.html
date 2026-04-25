@@ -45,16 +45,16 @@
       </p>
       <div class="hero-metrics" aria-label="Project key indicators">
         <article>
-          <p class="metric-label">Anomaly Pre-Filter</p>
-          <p class="metric-value">~99%</p>
+          <p class="metric-label">Agent 1</p>
+          <p class="metric-value">VAE Anomaly Gate</p>
         </article>
         <article>
-          <p class="metric-label">Target Response Window</p>
-          <p class="metric-value">~2.3 sec</p>
+          <p class="metric-label">Agent 2</p>
+          <p class="metric-value">Federated Classifier</p>
         </article>
         <article>
-          <p class="metric-label">Collaboration Mode</p>
-          <p class="metric-value">Federated</p>
+          <p class="metric-label">Agent 3</p>
+          <p class="metric-value">RAG + LLM Guidance</p>
         </article>
       </div>
       <a class="cta" href="#summary">Read Project Summary</a>
@@ -69,67 +69,36 @@
         The system is organized into three coordinated agents and executed in a federated setting so organizations can improve global defenses
         without exposing local packet traces.
       </p>
+      
       <figure class="inline-figure">
-        <img src="./images/architecture_diagram.png" alt="System architecture diagram of the federated multi-agent defense pipeline" loading="lazy" />
+        <img src="./images/image.png" alt="Architecture pipeline view of Agents 1, 2, and 3" loading="lazy" />
         <figcaption>
-          The architecture visual summarizes the complete data path, from anomaly gating to privacy-aware classification and adaptive response,
-          showing how each agent contributes to a layered zero-day defense workflow.
+          Architecture pipeline view showing how Agent 1 gates suspicious flows, Agent 2 performs taxonomy classification with an Unknown route,
+          and Agent 3 provides retrieval-grounded intelligence and recommended actions.
         </figcaption>
       </figure>
       <p>
-        Agent 1 is a variational autoencoder that learns normal network-flow behavior and produces reconstruction error for anomaly gating.
-        Instead of classifying every packet with heavy models, this first stage filters the majority of benign traffic in sub-millisecond time,
-        then escalates only suspicious flows. Agent 2 applies differential privacy to model updates and performs multiclass threat classification
-        on the reduced stream. To improve analyst usefulness, the classifier can be paired with a retrieval layer that links detections to
-        contextual intelligence and structured explanations. This design limits expensive reasoning calls to uncertain or high-risk cases rather
-        than all traffic, which keeps operational latency manageable in high-throughput environments.
+        The architecture is organized into three coordinated agents that operate as a single pipeline.
+        Agent 1 is a variational autoencoder (VAE) that learns normal network-flow behavior and uses reconstruction error as an anomaly gate.
+        This stage reduces downstream load by escalating only suspicious flows to later agents.
+        Agent 2 performs multiclass threat classification on the gated stream and is trained/evaluated in a federated setting so participating
+        organizations can improve a shared model by exchanging updates rather than raw packet traces.
+        Agent 3 enriches detections using retrieval-augmented generation (RAG), linking predicted attack categories to structured threat
+        intelligence (e.g., ATT&CK tactics/techniques, CVE/NVD entries, and incident-response guidance) and producing analyst-facing summaries
+        and action recommendations.
       </p>
-      <div class="inline-figure-grid">
-        <figure>
-          <img src="./images/eval_roc_curve.png" alt="ROC curve for anomaly detection performance" loading="lazy" />
-          <figcaption>
-            The ROC curve indicates that the anomaly gate separates benign and suspicious traffic effectively, which is crucial for reducing
-            downstream workload without missing meaningful threats.
-          </figcaption>
-        </figure>
-        <figure>
-          <img src="./images/slide05_dp_privacy_utility.png" alt="Privacy-utility trade-off visualization" loading="lazy" />
-          <figcaption>
-            This privacy-utility comparison highlights the expected trade-off under differential privacy, where stronger privacy budgets introduce
-            moderate but manageable performance reduction.
-          </figcaption>
-        </figure>
-      </div>
-      <p>
-        Agent 3 uses reinforcement learning to recommend mitigation actions across a graded response spectrum, from monitoring and alerting to
-        blocking and isolation. The reward design explicitly balances security gain against business disruption, reflecting a real SOC decision
-        process instead of a purely detection-centric benchmark objective. Across repository materials and presentation analyses, the framework
-        demonstrates a strong pattern: hierarchical cognitive offloading improves throughput and lowers unnecessary computation, while federated
-        rounds with privacy constraints retain competitive detection utility.
-      </p>
-      <div class="inline-figure-grid">
-        <figure>
-          <img src="./images/eval_rl_learning.png" alt="Reinforcement learning curve for response policy" loading="lazy" />
-          <figcaption>
-            The reinforcement learning trend illustrates policy stabilization over training, supporting the goal of selecting proportionate actions
-            for different threat severities.
-          </figcaption>
-        </figure>
-        <figure>
-          <img src="./images/slide12_mttr_comparison.png" alt="Mean time to response comparison chart" loading="lazy" />
-          <figcaption>
-            The response-time comparison demonstrates why automation matters operationally, with significantly faster reaction windows than
-            purely manual intervention paths.
-          </figcaption>
-        </figure>
-      </div>
       <figure class="inline-figure">
-        <img src="./images/eval_fl_convergence.png" alt="Federated learning convergence trend over rounds" loading="lazy" />
+        <img src="./images/methodology.png" alt="Methodology flowchart for the three-agent pipeline" loading="lazy" />
         <figcaption>
-          The federated convergence plot shows collaborative learning progress across rounds, supporting the claim that global improvements can be
-          achieved without transferring raw organizational traffic.
+          Methodology flowchart summarizing data preparation, staged inference, and the federated-to-RAG bridge that refreshes retrieval context
+          under drift or novelty.
         </figcaption>
       </figure>
+      <p>
+        Operationally, this design supports hierarchical cognitive offloading: fast anomaly screening handles bulk traffic, lightweight
+        classification prioritizes likely threats, and retrieval-grounded reasoning is reserved for the subset of cases where context and
+        explanation matter most.
+      </p>
       <p>
         <strong>Conclusion:</strong> The project contributes a practical path for collaborative zero-day defense where organizations can learn
         from one another through parameter exchange, maintain formal privacy guarantees, and still produce human-readable threat intelligence for
@@ -154,8 +123,8 @@
           <p>Noise-added updates and clipping reduce leakage risk while preserving usable threat classification quality.</p>
         </article>
         <article class="card">
-          <h3>Action-Oriented Mitigation</h3>
-          <p>Reinforcement learning proposes staged responses aligned with severity and operational constraints.</p>
+          <h3>Threat Intelligence Grounding</h3>
+          <p>RAG links detections to curated knowledge sources to produce explainable, analyst-ready context and recommendations.</p>
         </article>
       </div>
     </section>
@@ -180,24 +149,14 @@
     <section id="repository" class="section">
       <h2>GitHub Repository</h2>
       <p>
-        Canonical source repository:
+        Source repository:
         <a href="https://github.com/cepdnaclk/e20-4yp-Federated-Agentic-Defense-For-Zero-Day-Attacks" target="_blank" rel="noopener noreferrer">
           github.com/cepdnaclk/e20-4yp-Federated-Agentic-Defense-For-Zero-Day-Attacks
         </a>
       </p>
     </section>
 
-    <section id="integrity" class="section integrity">
-      <h2>Academic Integrity Notice</h2>
-      <p>
-        This page was authored specifically for this project using original paraphrased text derived from repository-owned materials,
-        including presentation scripts and research outcome documents. Figures are locally hosted from this repository and are credited
-        to the project team.
-      </p>
-      <p>
-        The team acknowledges that all final content, claims, and publication readiness are subject to supervisor review and approval
-        before any formal submission or external dissemination.
-      </p>
+
     </section>
   </main>
 
