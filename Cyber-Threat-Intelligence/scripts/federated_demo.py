@@ -143,6 +143,7 @@ def demo_integration_coordinator():
     Demonstrate the IntegrationCoordinator with mock agents.
     """
     from unittest.mock import Mock
+    from types import SimpleNamespace
     
     logger.info("Demonstrating IntegrationCoordinator...")
     
@@ -159,7 +160,18 @@ def demo_integration_coordinator():
     mock_agent_two.classify = Mock(return_value={"category": "DoS", "confidence": 0.85})
     
     mock_agent_three = Mock()
-    mock_agent_three.get_action = Mock(return_value=2)  # Block IP
+    mock_agent_three.recommend_actions = Mock(return_value=SimpleNamespace(
+        primary_action="Rate-limit affected services",
+        confidence=0.88,
+        recommended_actions=[
+            "Rate-limit affected services",
+            "Block top offending source IPs",
+            "Enable DDoS protection rules",
+        ],
+        threat_summary="Detected likely DoS behavior with high confidence.",
+        cve_references=[],
+        model="mock-llm",
+    ))
     
     # Create coordinator
     coordinator = IntegrationCoordinator(

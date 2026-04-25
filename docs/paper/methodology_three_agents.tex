@@ -1,0 +1,325 @@
+% Methodology (copy-paste ready)
+% Intended usage: \input{methodology_three_agents.tex} from an IEEEtran main paper.
+% Required packages in main preamble: amsmath, amssymb, graphicx, booktabs, siunitx, tikz.
+% TikZ libraries recommended: \usetikzlibrary{positioning,arrows.meta}
+% If you compile standalone, wrap this in an IEEEtran document and include the bibliography.
+
+\section{Methodology}
+\label{sec:methodology}
+
+We propose a hierarchical, three-agent intrusion detection and response pipeline that balances (i) real-time filtering, (ii) accurate attack-family classification, and (iii) grounded analyst-facing action planning. The design follows a progressive offloading strategy: low-cost models handle the full traffic stream, while expensive reasoning is invoked only for ambiguous or high-risk events. This is aligned with practical intrusion detection deployments, where early-stage filters reduce throughput to downstream analysis stages \cite{Mirsky2018Kitsune}.
+
+\subsection{Data Preparation and Preprocessing}
+\label{sec:data_preparation}
+
+This section describes dataset selection, splits, cleaning, feature engineering, and preprocessing. These steps precede the three agents and ensure that all models operate on consistent feature representations.
+
+\subsubsection{Dataset selection and files}
+\textbf{Primary benchmark.} We use UNSW-NB15 as the main benchmark dataset for network intrusion detection, due to its diversity of attack types and its structured feature representation \cite{Moustafa2015UNSW,Moustafa2015UNSW2}.
+
+\textbf{Structured train/test splits.} We use the official structured CSV files:
+\begin{itemize}
+  \item \emph{Training:} \texttt{UNSW\_NB15\_training-set.csv}
+  \item \emph{Testing:} \texttt{UNSW\_NB15\_testing-set.csv}
+\end{itemize}
+
+\textbf{Raw distribution evaluation.} To approximate ``in-the-wild'' distributions and validate robustness, we additionally evaluate on the raw UNSW-NB15 split files (\texttt{UNSW-NB15\_1.csv} to \texttt{UNSW-NB15\_4.csv}). These files contain the same 49 columns but do not include headers and may differ in column ordering; therefore we load them with an explicit schema to avoid column-mismatch errors.
+
+\subsubsection{Loading, schema alignment, and cleaning}
+We implement dataset ingestion using modular components (a \emph{DataLoader} for loading/initial cleaning and a \emph{Preprocessor} for normalization and encoding). This modularity supports reproducibility and simplifies extending to additional datasets.
+
+\textbf{Schema alignment for raw files.} For raw files without headers, we use a dedicated loader that assigns the 49 column names explicitly (47 features plus \texttt{attack\_cat} and \texttt{label}) and normalizes label fields:
+\begin{itemize}
+  \item Missing or empty \texttt{attack\_cat} values are mapped to \emph{Normal}.
+  \item The binary \texttt{label} field is coerced to integer, where 0 indicates normal and 1 indicates attack.
+  \item Category strings are stripped and standardized (e.g., minor whitespace variants are normalized).
+\end{itemize}
+
+\textbf{Missing values and numeric coercion.} We treat missing values and invalid numeric fields using robust conversions (coerce-to-numeric followed by imputation). In the general preprocessing pipeline, we use simple imputers (median for numeric features and mode for categorical features) to avoid dropping flows and to preserve deployment realism \cite{Pedregosa2011Scikit}.
+
+\subsubsection{Feature engineering}
+We compute derived features that improve separability and capture traffic dynamics. In particular, we compute the connection rate:
+\begin{equation}
+\texttt{rate} = \frac{\texttt{spkts}+\texttt{dpkts}}{\texttt{dur}+\epsilon},
+\end{equation}
+with $\epsilon>0$ to avoid division by zero. All engineered features are computed deterministically and are included consistently across train/test and raw evaluation.
+
+\subsubsection{Normalization and encoding}
+\textbf{Numerical scaling.} We apply min--max scaling to numerical features, matching the default configuration used by the pipeline. Min--max scaling is particularly suitable for autoencoders, where feature ranges can dominate reconstruction loss if left unnormalized. Our implementation uses standard preprocessing utilities (e.g., \texttt{MinMaxScaler}) \cite{Pedregosa2011Scikit}.
+
+\textbf{Categorical encoding.} Categorical columns (e.g., \texttt{proto}, \texttt{service}, \texttt{state}) are encoded either via integer factorization (label encoding) or via one-hot encoding depending on the experiment configuration. In our baseline, we use label encoding to keep the feature dimensionality stable and to simplify deployment.
+
+\subsubsection{Sampling and reproducibility}
+To enable fair comparisons across models, we use fixed random seeds (e.g., \texttt{random\_state}=42) for sampling and train/test splits. All preprocessing artifacts (scaler parameters, encoders, and imputers) are fit on the training split and reused unchanged for validation/test transformations, preventing leakage.
+
+\textbf{Class-imbalance handling for supervised training.} UNSW-NB15 exhibits class imbalance (normal traffic dominates, while some attack categories are rare). For Agent~2 training, we apply SMOTE oversampling \emph{only on the training split} after preprocessing to improve minority-class recall while keeping evaluation unbiased \cite{Chawla2002SMOTE}.
+
+\subsection{Pipeline Overview and Decision Flow}
+\label{sec:method_overview}
+
+Let $x \in \mathbb{R}^d$ denote a network-flow feature vector extracted from raw packets (e.g., connection statistics, byte/packet counts, TTL/state features, and aggregate temporal features). We follow the feature format provided by standard IDS benchmarks such as UNSW-NB15 \cite{Moustafa2015UNSW}.
+
+The pipeline produces:
+\begin{itemize}
+  \item a gate decision (Normal vs Anomalous),
+  \item a threat category label among known classes, optionally with an ``Unknown/Zero-day'' flag,
+  \item a grounded, structured action plan (recommended actions, relevant ATT\&CK techniques, and candidate CVEs when applicable).
+\end{itemize}
+
+\textbf{Preprocessing.} For Agents 1 and 2, tabular features are standardized using statistics computed on the training split (mean/variance scaling). Categorical features (if present) are one-hot encoded. The anomaly score produced by Agent 1 is appended to the Agent 2 feature vector to provide a consistent signal of ``distance from normality''.
+
+\textbf{Hierarchical offloading policy.} The system executes:
+\begin{enumerate}
+  \item \textbf{Agent 1 (Autoencoder gate):} compute anomaly score $s(x)$ and decide $g(x)\in\{\text{Normal},\text{Anomalous}\}$.
+  \item \textbf{Agent 2 (XGBoost classifier):} if $g(x)=\text{Anomalous}$, predict class probabilities $p(y\mid x)$ over $K$ known categories and a confidence score $c(x)=\max_y p(y\mid x)$.
+  \item \textbf{Agent 3 (RAG+LLM action planner):} if $c(x)<\gamma$ (low confidence) or if Agent 2 explicitly flags ``Unknown/Zero-day'', retrieve threat-intelligence context and generate an action plan.
+\end{enumerate}
+
+\textbf{Rationale.} Agent 1 is optimized for high recall and low latency, ensuring that potentially malicious traffic is not missed. Agent 2 provides a low-cost categorical interpretation to support automated response policies for known threats. Agent 3 is invoked selectively to (i) explain uncertain events and (ii) provide grounded response actions using external threat intelligence, reducing hallucinations relative to purely parametric generation \cite{Lewis2020RAG}.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[node distance=7mm, font=\small]
+  \node[draw, rounded corners, align=center, minimum width=0.95\columnwidth, minimum height=6mm] (traffic) {All network traffic $x$};
+
+  \node[draw, rounded corners, align=center, below=of traffic, minimum width=0.78\columnwidth] (a1) {\textbf{Agent 1: Autoencoder anomaly gate}\\
+  Output: anomaly score $s(x)$ and gate $g(x)$};
+
+  \node[draw, rounded corners, align=center, below=of a1, minimum width=0.78\columnwidth] (a2) {\textbf{Agent 2: XGBoost threat classifier}\\
+  Input: flow features + (optional) $s(x)$\\
+  Output: $p(y\mid x)$, confidence $c(x)$, label $\hat{y}$ or Unknown};
+
+  \node[draw, rounded corners, align=center, below=of a2, minimum width=0.78\columnwidth] (a3) {\textbf{Agent 3: RAG + LLM action planner}\\
+  Input: $\hat{y}$, $c(x)$, $s(x)$, feature cues\\
+  Output: grounded explanation + recommended actions};
+
+  \draw[->, thick] (traffic) -- (a1);
+  \draw[->, thick] (a1) -- node[right, align=left] {if $g(x)=\text{Anomalous}$} (a2);
+  \draw[->, thick] (a2) -- node[right, align=left] {if $c(x)<\gamma$\\or Unknown} (a3);
+
+  \node[align=left, right=6mm of a1] (drop) {\textbf{Fast path:}\\if $g(x)=\text{Normal}$, drop/allow};
+  \draw[->] (a1.east) -- (drop.west);
+
+  \node[align=left, right=6mm of a2] (mit) {\textbf{Mid path:}\\if $c(x)\ge\gamma$, mitigate based on $\hat{y}$};
+  \draw[->] (a2.east) -- (mit.west);
+\end{tikzpicture}
+\caption{Hierarchical offloading decision flow for the three-agent pipeline.}
+\label{fig:hierarchical_offloading}
+\end{figure}
+
+\subsection{Agent 1: Autoencoder Anomaly Detector (Gate)}
+\label{sec:agent1_method}
+
+\subsubsection{Model architecture}
+Agent 1 is a feed-forward PyTorch autoencoder trained to reconstruct benign-dominant traffic. The architecture follows a symmetric bottleneck design (input dimension $d=40$):
+\begin{equation}
+40 \rightarrow 32 \rightarrow 16 \rightarrow 8 \rightarrow 16 \rightarrow 32 \rightarrow 40,
+\end{equation}
+where the bottleneck encourages compression into a low-dimensional latent representation. Autoencoders are widely used for anomaly detection by learning normal patterns and flagging reconstruction deviations \cite{Hinton2006Reducing,Mirsky2018Kitsune}.
+
+\textbf{Training objective.} The autoencoder is trained to minimize reconstruction loss on the training split, dominated by Normal traffic:
+\begin{equation}
+ \min_\theta\; \mathbb{E}_{x\sim\mathcal{D}_{\text{train}}}\left[\lVert x - f_\theta(x)\rVert_2^2\right].
+\end{equation}
+We use mini-batch optimization (Adam) with early stopping based on validation loss to prevent overfitting.
+
+\subsubsection{Anomaly scoring}
+Let $f_\theta(\cdot)$ denote the autoencoder reconstruction function. The anomaly score is computed as the mean squared reconstruction error:
+\begin{equation}
+ s(x) = \frac{1}{d}\lVert x - f_\theta(x) \rVert_2^2.
+\end{equation}
+The gate decision is:
+\begin{equation}
+ g(x) = \mathbb{I}[s(x) \ge \tau],
+\end{equation}
+where $\tau$ is calibrated on a validation split to achieve a target recall/false-positive trade-off. We select $\tau$ using either (i) a quantile rule on Normal reconstruction errors or (ii) a validation sweep to maximize attack recall at an acceptable false-positive rate.
+
+\textbf{Operating point.} Since the system is designed to avoid missing attacks, we bias $\tau$ toward high recall even if it increases false positives; downstream agents and RAG-based reasoning mitigate the cost by handling only escalated flows.
+
+\subsubsection{Confidence signal}
+We additionally expose a normalized confidence proxy derived from the distance to the threshold:
+\begin{equation}
+ \kappa(x) = \sigma\left(\alpha\,(s(x)-\tau)\right),
+\end{equation}
+where $\sigma$ is a logistic function and $\alpha$ controls steepness. This scalar is used (i) as an auxiliary feature for Agent 2 to improve separability and (ii) as an escalation cue to Agent 3 when confidence is low.
+
+\subsection{Agent 2: XGBoost Threat Classifier}
+\label{sec:agent2_method}
+
+Agent 2 performs supervised multi-class classification over $K=10$ categories (Normal plus nine attack families). We use gradient-boosted decision trees due to their strong performance on tabular intrusion datasets and low inference latency \cite{Chen2016XGBoost}.
+
+\subsubsection{Input features}
+For flows flagged anomalous by Agent 1, Agent 2 receives:
+\begin{itemize}
+  \item raw flow features $x$,
+  \item the anomaly score $s(x)$ (or confidence proxy $\kappa(x)$) from Agent 1,
+  \item optional engineered statistics (e.g., z-scored feature groups).
+\end{itemize}
+
+\textbf{Feature fusion.} The anomaly score acts as a global indicator of deviation from normal behavior and is particularly useful for borderline cases that may be underrepresented in supervised labels.
+
+\subsubsection{Training and imbalance handling}
+Class imbalance is addressed using SMOTE oversampling and class-weighted learning, augmented by per-class decision thresholds to balance recall for rare categories \cite{Chawla2002SMOTE}.
+
+Concretely, SMOTE synthesizes minority samples by interpolating between nearest neighbors in feature space. In addition, we apply class weights inversely proportional to class frequency in the loss, and tune per-class decision thresholds on the validation split to improve minority recall without collapsing precision.
+
+We use the following representative hyperparameters (as configured in our implementation): maximum depth $8$, learning rate $0.05$, and $200$ estimators. Early stopping is applied using a validation split.
+
+\subsubsection{Open-set / ``Unknown'' handling (zero-day flag)}
+To operationalize zero-day uncertainty, we convert the closed-set classifier into an open-set detector by thresholding confidence:
+\begin{equation}
+ c(x) = \max_{y\in\{1,\dots,K\}} p(y\mid x).
+\end{equation}
+If $c(x) < \gamma$ (with $\gamma=0.5$ in our implementation), Agent 2 outputs \emph{Unknown/Zero-day}. This confidence-threshold heuristic is a pragmatic approximation to open-set recognition when explicit unknown-class training is not available; it complements established open-set formulations by explicitly routing uncertain cases to deeper analysis \cite{Scheirer2013OpenSet,Bendale2016OpenMax}.
+
+\textbf{Calibration note.} While boosting models often provide sharp probabilities, confidence thresholds are still sensitive to dataset shift. Therefore, $\gamma$ should be tuned with LOAO-style splits and monitored via false-unknown rate on benign traffic.
+
+\subsection{Agent 3: Retrieval-Augmented Action Planning (RAG+LLM)}
+\label{sec:agent3_method}
+
+Agent 3 is invoked only for low-confidence or unknown cases and generates grounded analyst-facing outputs. We adopt Retrieval-Augmented Generation (RAG) to combine parametric LLM reasoning with non-parametric retrieval from a curated knowledge base \cite{Lewis2020RAG}.
+
+\subsubsection{Knowledge sources and representation}
+The knowledge base (KB) contains threat intelligence artifacts such as:
+\begin{itemize}
+  \item MITRE ATT\&CK techniques, tactics, and mitigations \cite{MITREATTACK},
+  \item CVE/NVD vulnerability summaries and common exploitation patterns \cite{MITRECVE,NISTNVD},
+  \item dataset-specific attack-pattern notes (e.g., UNSW-NB15 and CIC-IDS2017 mappings) \cite{Moustafa2015UNSW,Sharafaldin2018CICIDS}.
+\end{itemize}
+Each document is embedded into a dense vector space using a sentence embedding model (HuggingFace-style encoders). In our implementation, we use a lightweight sentence-transformer family model to balance retrieval quality and throughput \cite{Reimers2019SentenceBERT}.
+
+\subsubsection{Vector database and retrieval}
+We store embeddings in a FAISS vector index for approximate nearest-neighbor retrieval \cite{Johnson2019FAISS}. For a query $q$, the retriever returns top-$k$ documents:
+\begin{equation}
+ \{d_1,\dots,d_k\} = \operatorname{TopK}(\operatorname{sim}(\phi(q),\phi(d)))
+\end{equation}
+where $\phi(\cdot)$ maps text to embeddings and $\operatorname{sim}$ is cosine similarity.
+
+\textbf{Retrieval configuration.} We use $k\in\{3,5\}$ depending on prompt budget. Retrieved documents are de-duplicated by (technique ID, CVE ID) to reduce redundancy.
+
+\subsubsection{Retrieval query construction}
+The retrieval query is formed from the model outputs and salient feature cues:
+\begin{equation}
+ q = \{\hat{y},\,c(x),\,s(x),\,\text{feature importance/profile},\,\text{zero-day flag},\,\text{historical scope}\}.
+\end{equation}
+This structured query is realized as a text prompt that guides the retriever toward relevant technique and vulnerability entries.
+
+\textbf{Why include features?} For ambiguous cases, adding a brief ``feature profile'' (e.g., unusually high packet rate, many half-open connections, abnormal TTL patterns) encourages retrieval of more specific techniques and mitigations, improving actionability.
+
+\subsubsection{Augmentation and generation}
+Retrieved evidence is concatenated (with metadata such as technique IDs and severity) and provided to the LLM with instructions to output:
+\begin{enumerate}
+  \item a concise threat summary,
+  \item a ``why novel'' explanation when flagged unknown,
+  \item a prioritized \textbf{Recommended Actions} list.
+\end{enumerate}
+We enforce a structured output format to improve downstream parsing and to support operational use. When the LLM is unavailable, we fall back to deterministic rule-based actions derived from the mapped action space (Table~\ref{tab:action_space}).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\small]
+  \node[draw, rounded corners, align=center, minimum width=0.28\columnwidth, minimum height=7mm] (a2out) {Agent 2 output\\$\hat{y}, c(x)$};
+  \node[draw, rounded corners, align=center, right=8mm of a2out, minimum width=0.30\columnwidth, minimum height=7mm] (query) {Retrieval query\\$q(\hat{y},c,s)$};
+  \node[draw, rounded corners, align=center, right=8mm of query, minimum width=0.28\columnwidth, minimum height=7mm] (retr) {Retriever\\(FAISS)};
+
+  \node[draw, rounded corners, align=center, below=8mm of retr, minimum width=0.28\columnwidth, minimum height=7mm] (kb) {Knowledge Base\\ATT\&CK + CVE};
+  \node[draw, rounded corners, align=center, below=8mm of query, minimum width=0.30\columnwidth, minimum height=7mm] (aug) {Augmenter\\(evidence pack)};
+  \node[draw, rounded corners, align=center, below=8mm of a2out, minimum width=0.28\columnwidth, minimum height=7mm] (llm) {LLM reasoning\\(action plan)};
+
+  \draw[->, thick] (a2out) -- (query);
+  \draw[->, thick] (query) -- (retr);
+  \draw[->, thick] (kb) -- (retr);
+  \draw[->, thick] (retr) -- (aug);
+  \draw[->, thick] (aug) -- (llm);
+
+  \node[draw, rounded corners, align=left, right=8mm of llm, text width=0.28\columnwidth] (out) {\textbf{Output}\\Threat summary\\Why novel\\Actions};
+  \draw[->, thick] (llm) -- (out);
+\end{tikzpicture}
+\caption{Agent 3 RAG pipeline: retrieve evidence then generate structured actions.}
+\label{fig:rag_pipeline}
+\end{figure}
+
+\subsection{Action Space and Mitigation Mapping}
+\label{sec:action_space}
+
+To connect classification outcomes to actionable guidance, we define a compact action space aligned to common NIDS categories and ATT\&CK technique identifiers. The mapping serves two purposes: (i) it provides a consistent schema to evaluate action-plan quality, and (ii) it enables deterministic fallbacks when the LLM cannot be used.
+
+\begin{table}[t]
+\caption{Action space mapping from dataset labels to ATT\&CK techniques (representative).}
+\label{tab:action_space}
+\centering
+\begin{tabular}{clll}
+\toprule
+\textbf{ID} & \textbf{Category} & \textbf{Dataset mapping} & \textbf{MITRE techniques}\\
+\midrule
+0 & Normal & Normal/Benign & --\\
+1 & DoS/DDoS & DoS (UNSW), DoS Hulk (CIC) & T1498, T1499\\
+2 & Reconnaissance & Recon (UNSW), PortScan (CIC) & T1046, T1595\\
+3 & Exploits & Exploits/Shellcode (UNSW) & T1190, T1059\\
+4 & Brute Force & Fuzzers (UNSW) & T1110, T1078\\
+5 & Malware & Backdoor/Worms/Generic (UNSW) & T1059, T1071\\
+6 & Analysis & Analysis (UNSW), Heartbleed (CIC) & T1040, T1557\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Reproducibility Notes}
+\label{sec:reproducibility_notes}
+
+We report all hyperparameters required to reproduce the pipeline, including Agent 1 architecture and $\tau$, Agent 2 hyperparameters and confidence threshold $\gamma$, and Agent 3 retrieval configuration (embedding model, $k$, and KB sources). Since Agent 3 depends on an external LLM endpoint, we fix the prompt template and decoding parameters (temperature, max tokens) and cache retrieved evidence to ensure consistent outputs across reruns. We also log seeds and software versions to reduce variance in reported results \cite{Dodge2019Reporting}.
+
+% -----------------------------
+% References for this standalone Methodology section.
+% If your main paper uses BibTeX, move these \bibitem entries into your .bib.
+\begin{thebibliography}{99}
+\bibitem{Moustafa2015UNSW}
+N. Moustafa and J. Slay, ``UNSW-NB15: A comprehensive data set for network intrusion detection systems,'' in \emph{Proc. Military Communications and Information Systems Conference (MilCIS)}, 2015.
+
+\bibitem{Moustafa2015UNSW2}
+N. Moustafa and J. Slay, ``The evaluation of network anomaly detection systems: Statistical analysis of the UNSW-NB15 data set and the comparison with the KDD99 data set,'' \emph{Information Security Journal: A Global Perspective}, vol. 25, no. 1--3, pp. 18--31, 2016.
+
+\bibitem{Sharafaldin2018CICIDS}
+I. Sharafaldin, A. H. Lashkari, and A. A. Ghorbani, ``Toward generating a new intrusion detection dataset and intrusion traffic characterization,'' in \emph{Proc. Int. Conf. Information Systems Security and Privacy (ICISSP)}, 2018.
+
+\bibitem{Hinton2006Reducing}
+G. E. Hinton and R. R. Salakhutdinov, ``Reducing the dimensionality of data with neural networks,'' \emph{Science}, vol. 313, no. 5786, pp. 504--507, 2006.
+
+\bibitem{Mirsky2018Kitsune}
+Y. Mirsky, T. Doitshman, Y. Elovici, and A. Shabtai, ``Kitsune: An ensemble of autoencoders for online network intrusion detection,'' in \emph{Proc. NDSS}, 2018.
+
+\bibitem{Chen2016XGBoost}
+T. Chen and C. Guestrin, ``XGBoost: A scalable tree boosting system,'' in \emph{Proc. ACM SIGKDD}, 2016, pp. 785--794.
+
+\bibitem{Chawla2002SMOTE}
+N. V. Chawla, K. W. Bowyer, L. O. Hall, and W. P. Kegelmeyer, ``SMOTE: Synthetic minority over-sampling technique,'' \emph{J. Artif. Intell. Res.}, vol. 16, pp. 321--357, 2002.
+
+\bibitem{Pedregosa2011Scikit}
+F. Pedregosa \emph{et al.}, ``Scikit-learn: Machine learning in Python,'' \emph{J. Mach. Learn. Res.}, vol. 12, pp. 2825--2830, 2011.
+
+\bibitem{Scheirer2013OpenSet}
+W. J. Scheirer, A. Rocha, R. J. Micheals, and T. E. Boult, ``Toward open set recognition,'' \emph{IEEE Trans. Pattern Anal. Mach. Intell.}, vol. 35, no. 7, pp. 1757--1772, 2013.
+
+\bibitem{Bendale2016OpenMax}
+A. Bendale and T. E. Boult, ``Towards open set deep networks,'' in \emph{Proc. CVPR}, 2016.
+
+\bibitem{Lewis2020RAG}
+P. Lewis \emph{et al.}, ``Retrieval-augmented generation for knowledge-intensive NLP tasks,'' in \emph{Proc. NeurIPS}, 2020.
+
+\bibitem{Reimers2019SentenceBERT}
+N. Reimers and I. Gurevych, ``Sentence-BERT: Sentence embeddings using Siamese BERT-networks,'' in \emph{Proc. EMNLP-IJCNLP}, 2019.
+
+\bibitem{Johnson2019FAISS}
+J. Johnson, M. Douze, and H. J\'egou, ``Billion-scale similarity search with GPUs,'' \emph{IEEE Trans. Big Data}, vol. 7, no. 3, pp. 535--547, 2021 (early access 2019).
+
+\bibitem{MITREATTACK}
+MITRE, ``MITRE ATT\&CK,'' 2026. [Online]. Available: \url{https://attack.mitre.org/}. Accessed: Apr. 18, 2026.
+
+\bibitem{MITRECVE}
+MITRE, ``Common Vulnerabilities and Exposures (CVE),'' 2026. [Online]. Available: \url{https://www.cve.org/}. Accessed: Apr. 18, 2026.
+
+\bibitem{NISTNVD}
+National Institute of Standards and Technology, ``National Vulnerability Database (NVD),'' 2026. [Online]. Available: \url{https://nvd.nist.gov/}. Accessed: Apr. 18, 2026.
+
+\bibitem{Dodge2019Reporting}
+J. Dodge \emph{et al.}, ``Show your work: Improved reporting of experimental results,'' in \emph{Proc. EMNLP-IJCNLP}, 2019.
+\end{thebibliography}

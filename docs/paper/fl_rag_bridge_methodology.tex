@@ -1,0 +1,123 @@
+% FL + RAG Bridge Methodology (Novelty) — standalone section file
+% Intended usage: \input{fl_rag_bridge_methodology.tex} from your main IEEEtran paper.
+
+\section{Federated Learning--RAG Bridge Methodology (Main Novelty)}
+\label{sec:fl-rag-bridge-methods}
+
+This section formalizes the proposed \emph{Federated Learning--RAG Bridge} mechanism, which connects privacy-preserving global model evolution (from federated rounds) to improved, grounded threat explanations and action plans. The key idea is that the knowledge base (KB) does not ``learn new facts''; instead, the system learns to \emph{retrieve and present the right facts at the right time} as the global detection model changes.
+
+\subsection{Motivation}
+Federated learning improves detection models over time by aggregating decentralized updates without centralizing raw traffic. However, typical FL pipelines provide \emph{silent improvements}: detection accuracy changes, but the analyst-facing explanation layer remains static or purely local. In operational security, analysts require (i) evidence-backed context (e.g., MITRE ATT\&CK techniques, relevant CVEs), and (ii) actionable response steps.
+
+The FL+RAG Bridge addresses this gap by monitoring global model updates and triggering targeted \emph{re-analysis} and \emph{explanation regeneration} for previously ambiguous or suspicious events. This design supports continuous knowledge transfer across organizations: once one client observes an attack pattern and contributes updates, other clients can benefit in subsequent rounds without sharing packets or logs.
+
+\subsection{Bridge Interfaces and State}
+\label{sec:bridge-interfaces}
+
+The bridge maintains the following state across rounds:
+\begin{itemize}
+  \item \textbf{Round history:} a log of federated rounds, participating clients, update drift, and significance.
+  \item \textbf{Previous global weights:} model snapshots used to compute drift between rounds.
+  \item \textbf{Trigger queue:} pending trigger events requesting RAG re-analysis.
+  \item \textbf{Explanation cache:} per-sample explanations keyed by (sample, round) to enable cross-round comparison.
+\end{itemize}
+
+The bridge connects to a coordinator that can (i) re-run analysis on queued samples and (ii) generate RAG-grounded explanations using the current KB + LLM.
+
+\subsection{Update Semantics: From Weight Changes to Meaning}
+\label{sec:update-semantics}
+
+After each federated round $t$, the bridge receives a dictionary of model updates (e.g., autoencoder weights). It computes a normalized drift statistic between the previous global weights $w^{t-1}$ and new weights $w^{t}$.
+
+For a set of parameter tensors $\{W_k\}$, a normalized per-tensor drift can be computed as:
+\begin{equation}
+\delta_k = \frac{\lVert W_k^{t} - W_k^{t-1} \rVert_2}{\lVert W_k^{t-1} \rVert_2 + \epsilon},
+\end{equation}
+with $\epsilon$ a small constant for numerical stability. The overall drift is aggregated (e.g., mean over $k$):
+\begin{equation}
+\Delta^{t} = \frac{1}{K}\sum_{k=1}^{K} \delta_k.
+\end{equation}
+
+\subsubsection{Significance levels}
+To avoid ``always-on'' regeneration, the bridge discretizes drift into significance levels:
+\begin{itemize}
+  \item \textbf{Minimal:} $\Delta^{t} < 1\%$
+  \item \textbf{Moderate:} $1\% \le \Delta^{t} < 5\%$
+  \item \textbf{Significant:} $5\% \le \Delta^{t} < 15\%$
+  \item \textbf{Major:} $\Delta^{t} \ge 15\%$
+\end{itemize}
+These thresholds are configurable; the methodology recommends fixing them before evaluation.
+
+\subsection{Triggering Policy}
+\label{sec:trigger-policy}
+
+The bridge defines a trigger event $e^{t}$ when a round completes and the update significance is at least \emph{Moderate}. Each trigger event includes:
+\begin{itemize}
+  \item \textbf{Trigger type:} weight update / new pattern / confidence shift.
+  \item \textbf{Round index:} $t$.
+  \item \textbf{Affected categories:} categories most likely impacted by the update (for autoencoder, this may be ``all'').
+  \item \textbf{Priority:} derived from significance (e.g., Major = highest priority).
+\end{itemize}
+
+The coordinator processes the trigger by re-analyzing a queue of samples collected from:
+\begin{itemize}
+  \item ``Unknown/Zero-day'' predictions from Agent~2 (low confidence),
+  \item high anomaly scores from Agent~1,
+  \item analyst-flagged suspicious flows.
+\end{itemize}
+
+\subsection{RAG Re-analysis and Explanation Regeneration}
+\label{sec:rag-reanalysis}
+
+For each queued sample $x$, the coordinator constructs a compact detection summary (category, confidence, anomaly flag/score, and any technique hints). The bridge then requests an explanation with federated context at round $t$.
+
+\subsubsection{Retrieval step}
+A query $q(x,t)$ is formed from the detection summary and routed to the KB vector index to retrieve top-$k$ passages $\{d_1,\dots,d_k\}$. Retrieval is designed to surface:
+\begin{itemize}
+  \item relevant MITRE ATT\&CK techniques and mitigations,
+  \item related CVE references and IOCs,
+  \item playbook-like response steps.
+\end{itemize}
+
+\subsubsection{Generation step}
+The LLM is prompted with the retrieved context and instructed to output:
+\begin{enumerate}
+  \item a short threat summary,
+  \item a \textbf{Recommended Actions} list ordered by priority,
+  \item explicit CVE identifiers when applicable.
+\end{enumerate}
+RAG grounding is used to reduce unsupported claims and improve traceability \cite{lewis2020rag}.
+
+\subsection{Cross-Round Comparison}
+\label{sec:cross-round}
+
+A key novelty is measuring how explanations evolve across rounds. For a sample $x$ and rounds $a<b$, the bridge can compare cached outputs:
+\begin{itemize}
+  \item confidence change $\Delta c = c^{b}-c^{a}$,
+  \item change in ``zero-day'' status,
+  \item changes in cited CVEs / techniques.
+\end{itemize}
+This enables a results section to show that federated learning improves not only detection but also the quality and specificity of analyst-facing explanations.
+
+\subsection{Evaluation Metrics for the Bridge}
+\label{sec:bridge-metrics}
+
+We recommend reporting:
+\begin{itemize}
+  \item \textbf{Trigger dynamics:} number of trigger events per round; number of samples reprocessed.
+  \item \textbf{Explanation quality vs rounds:} an aggregate score combining factuality proxies (valid CVE/ATT\&CK references), completeness (severity/indicators/actions), and specificity.
+  \item \textbf{Zero-day explanation adequacy:} whether the explanation expresses appropriate uncertainty, compares to nearest known patterns, and provides investigation guidance.
+  \item \textbf{Latency:} retrieval and generation latency distributions.
+\end{itemize}
+
+\subsection{Relationship to the Slide Concepts}
+\label{sec:slide-mapping}
+
+The bridge corresponds to the following conceptual claims (as illustrated in your slide deck):
+\begin{itemize}
+  \item \textbf{RAG Update Process:} improved global models trigger re-processing of queued suspicious samples and regeneration of explanations.
+  \item \textbf{FL+RAG Bridge vs Traditional FL:} traditional FL improves detection silently, while the bridge ties model drift to explanation refresh.
+  \item \textbf{Knowledge transfer via LOAO:} client-specific held-out attacks become detectable after several rounds without raw-data sharing.
+\end{itemize}
+
+% End of section

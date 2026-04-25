@@ -1,0 +1,157 @@
+% System Architecture (copy-paste ready)
+% Intended usage: \input{system_architecture_proposed_framework.tex} from an IEEEtran main paper.
+%
+% Requires the following packages in the main preamble:
+%   \usepackage{amsmath,amssymb}
+%   \usepackage{hyperref}
+%   \usepackage{xurl}
+%   \usepackage{tikz}
+%   \usetikzlibrary{arrows.meta,positioning,fit,shapes.geometric}
+%
+% Notes:
+% - This section is intentionally high-level; it describes connectivity and roles.
+% - Detailed agent internals (losses, hyperparameters, training procedures) belong in the Methodology section.
+
+\section{System Architecture of the Proposed Framework}
+\label{sec:system_architecture}
+
+This section presents the overall architecture of the proposed three-agent framework and how its components interact during (i) federated training and (ii) inference-time decision making. The design follows a \emph{hierarchical offloading} principle: inexpensive detection runs first, and only uncertain or high-risk cases escalate to more expensive reasoning.
+
+\subsection{Top-Level Components}
+The system consists of five logical components:
+\begin{itemize}
+  \item \textbf{Data plane (network flows):} Raw traffic is summarized into flow-level records and transformed into a fixed-dimensional feature vector $x\in\mathbb{R}^d$ using a consistent preprocessing pipeline.
+  \item \textbf{Agent~1 (Federated anomaly gate):} An unsupervised autoencoder produces an anomaly score $s(x)$ and filters likely-benign traffic early. To respect privacy constraints across sites, Agent~1 is trained using federated averaging (FedAvg) across clients, without centralizing raw data \cite{mcmahan2017fedavg,kairouz2021flsurvey}.
+  \item \textbf{Agent~2 (Known-attack classifier + Unknown mode):} A supervised gradient-boosted tree model predicts a known taxonomy label when confidence is sufficient; otherwise it outputs \emph{Unknown/Zero-day} to avoid forced misclassification under distribution shift \cite{chen2016xgboost,scheirer2013openset,bendale2016openmax}.
+  \item \textbf{Agent~3 (RAG+LLM action planner):} A retrieval-augmented generation (RAG) module retrieves relevant threat-intelligence evidence and prompts an LLM to produce a structured analyst-facing action plan grounded in the retrieved context \cite{lewis2020rag,nist80061,mitreattack,mitrecve}.
+  \item \textbf{Coordinator (orchestrator):} The coordinator applies routing logic, executes the staged pipeline, and assembles a unified incident report (scores, labels, retrieved evidence, and recommended actions).
+\end{itemize}
+
+\subsection{Connectivity and Selective Escalation}
+Most flows terminate at Agent~1 as benign. Only flows exceeding the anomaly threshold are forwarded to Agent~2 for taxonomy classification. Agent~3 is invoked sparingly for cases that are most costly to resolve automatically: low-confidence predictions, explicit Unknown/Zero-day outputs, or incidents requiring contextual enrichment (e.g., mapping to ATT\&CK techniques and mitigations).
+
+\textbf{Operational routing.} For a preprocessed flow vector $x$:
+\begin{enumerate}
+  \item Agent~1 computes $s(x)$ and returns a gate decision (benign vs. suspicious).
+  \item If suspicious, Agent~2 returns a predicted class $\hat{c}$ and confidence $c(x)$; if $c(x)$ falls below a threshold $\gamma$, it outputs \emph{Unknown/Zero-day} \cite{scheirer2013openset}.
+  \item The coordinator invokes Agent~3 when Agent~2 returns Unknown or confidence is low, producing a grounded summary and mitigation plan.
+\end{enumerate}
+
+\subsection{Federated Learning Placement and Purpose}
+Federated learning is placed at Agent~1 to improve the generality of the anomaly gate across non-IID client environments while preserving privacy. Clients train locally on private traffic, and an FL server aggregates updates into a global model using FedAvg \cite{mcmahan2017fedavg}. This placement is deliberate: parameter averaging is straightforward for neural networks, whereas federated learning for tree ensembles typically requires specialized protocols beyond simple averaging \cite{kairouz2021flsurvey}. Therefore, in this framework we \emph{claim FL for Agent~1 only}.
+
+\subsection{Fed--RAG Bridge: Purpose and Role}
+The Fed--RAG bridge links the evolving federated detector (Agent~1) to the knowledge-grounded reasoning layer (Agent~3). Its purpose is twofold:
+\begin{itemize}
+  \item \textbf{Explainability alignment:} As Agent~1 updates across rounds, the distribution of anomaly scores and the ``shape'' of flagged traffic can drift. The bridge ensures that operator-facing explanations remain consistent with the current detector behavior.
+  \item \textbf{Evidence refresh under drift/novelty:} When federated-round metadata indicates significant drift (e.g., shifts in reconstruction-error statistics or threshold movement), the bridge triggers re-analysis and refreshes the retrieval context used by Agent~3, improving actionability under emerging threats.
+\end{itemize}
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=7mm and 9mm,
+  box/.style={draw, rounded corners, align=center, minimum height=7mm, inner sep=3pt},
+  bigbox/.style={box, minimum width=0.27\textwidth},
+  sbox/.style={box, minimum width=0.19\textwidth},
+  arr/.style={-Latex, thick}
+]
+
+% --- Training side (FL) ---
+\node[box, minimum width=0.23\textwidth] (flsrv) {FL Server\\FedAvg aggregation\\$w^{t}\rightarrow w^{t+1}$};
+\node[sbox, below left=10mm and 12mm of flsrv] (c1) {Client 1\\Local data (private)\\Train Agent 1};
+\node[sbox, below=10mm of flsrv] (c2) {Client 2\\Local data (private)\\Train Agent 1};
+\node[sbox, below right=10mm and 12mm of flsrv] (c3) {Client 3\\Local data (private)\\Train Agent 1};
+
+\draw[arr] (flsrv) -- node[left, align=left] {broadcast\\$w^t$} (c1);
+\draw[arr] (flsrv) -- node[left, align=left] {broadcast\\$w^t$} (c2);
+\draw[arr] (flsrv) -- node[right, align=left] {broadcast\\$w^t$} (c3);
+
+\draw[arr] (c1) -- node[left, align=left] {updates} (flsrv);
+\draw[arr] (c2) -- node[left, align=left] {updates} (flsrv);
+\draw[arr] (c3) -- node[right, align=left] {updates} (flsrv);
+
+% --- Inference side (pipeline) ---
+\node[bigbox, right=18mm of flsrv] (a1) {Agent 1\\Federated Autoencoder\\Anomaly gate $s(x)$};
+\node[bigbox, right=8mm of a1] (a2) {Agent 2\\XGBoost\\Known class / Unknown};
+\node[bigbox, right=8mm of a2] (a3) {Agent 3\\RAG + LLM\\Grounded actions};
+\node[box, right=8mm of a3, minimum width=0.18\textwidth] (mit) {Mitigation\\commands / tickets};
+
+\node[box, above=8mm of a3, minimum width=0.22\textwidth] (kb) {Threat KB\\ATT\&CK + CVE + IR guides};
+
+\draw[arr] (a1) -- node[above] {flagged flows} (a2);
+\draw[arr] (a2) -- node[above] {Unknown / low-conf} (a3);
+\draw[arr] (a3) -- (mit);
+\draw[arr] (kb) -- node[right, align=left] {retrieve\\evidence} (a3);
+
+% --- Bridge ---
+\node[box, below=9mm of a3, minimum width=0.22\textwidth] (bridge) {Fed--RAG bridge\\drift/significance\\trigger re-analysis};
+\draw[arr] (flsrv.east) .. controls +(18mm,0mm) and +(-24mm,6mm) .. node[above, align=center] {round history\\score shift} (bridge.west);
+\draw[arr] (bridge.north) -- node[right, align=left] {refresh queries\\and plans} (a3.south);
+
+\node[fit=(flsrv)(c1)(c2)(c3), draw, rounded corners, inner sep=4pt, label={[font=\small]above:Training (federated)}] {};
+\node[fit=(a1)(a2)(a3)(kb)(bridge)(mit), draw, rounded corners, inner sep=4pt, label={[font=\small]above:Inference (agentic pipeline)}] {};
+
+\end{tikzpicture}
+\caption{Overall system architecture: federated training for Agent~1 only, hierarchical inference across three agents, and a Fed--RAG bridge that refreshes retrieval and explanations when the anomaly profile drifts.}
+\label{fig:overall_architecture}
+\end{figure*}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  node distance=6mm and 7mm,
+  box/.style={draw, rounded corners, align=center, minimum height=7mm, inner sep=3pt, minimum width=0.9\columnwidth},
+  arr/.style={-Latex, thick}
+]
+\node[box] (data) {Network flows / IDS dataset features};
+\node[box, below=of data] (prep) {Preprocessing\\(clean, encode, scale) $\rightarrow x\in\mathbb{R}^d$};
+\node[box, below=of prep] (g1) {Agent 1: anomaly gate\\$s(x)$ and decision};
+\node[box, below=of g1] (g2) {Agent 2: taxonomy classification\\or Unknown/Zero-day};
+\node[box, below=of g2] (g3) {Agent 3: retrieve evidence\\generate action plan};
+\node[box, below=of g3] (out) {Coordinator output\\(report + mitigations)};
+
+\draw[arr] (data) -- (prep);
+\draw[arr] (prep) -- (g1);
+\draw[arr] (g1) -- node[right, align=left] {only if\\suspicious} (g2);
+\draw[arr] (g2) -- node[right, align=left] {only if\\Unknown/low-conf} (g3);
+\draw[arr] (g3) -- (out);
+\end{tikzpicture}
+\caption{Inference-time dataflow and selective escalation across agents.}
+\label{fig:dataflow}
+\end{figure}
+
+% -----------------------------
+% References for this standalone architecture section.
+% If your main paper uses BibTeX, move these \bibitem entries into your .bib
+% and remove this thebibliography environment.
+\begin{thebibliography}{99}
+\bibitem{mcmahan2017fedavg}
+B.~McMahan, E.~Moore, D.~Ramage, S.~Hampson, and B.~A. y~Arcas, ``Communication-Efficient Learning of Deep Networks from Decentralized Data,'' in \emph{Proc. AISTATS}, 2017.
+
+\bibitem{kairouz2021flsurvey}
+P.~Kairouz \emph{et al.}, ``Advances and Open Problems in Federated Learning,'' \emph{Foundations and Trends in Machine Learning}, vol.~14, no.~1--2, pp.~1--210, 2021.
+
+\bibitem{chen2016xgboost}
+T.~Chen and C.~Guestrin, ``XGBoost: A Scalable Tree Boosting System,'' in \emph{Proc. ACM SIGKDD}, 2016, pp.~785--794.
+
+\bibitem{scheirer2013openset}
+W.~J. Scheirer, A.~Rocha, R.~J. Micheals, and T.~E. Boult, ``Toward Open Set Recognition,'' \emph{IEEE Trans. Pattern Anal. Mach. Intell.}, vol.~35, no.~7, pp.~1757--1772, 2013.
+
+\bibitem{bendale2016openmax}
+A.~Bendale and T.~E. Boult, ``Towards Open Set Deep Networks,'' in \emph{Proc. CVPR}, 2016.
+
+\bibitem{lewis2020rag}
+P.~Lewis \emph{et al.}, ``Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,'' in \emph{Proc. NeurIPS}, 2020.
+
+\bibitem{nist80061}
+K.~Scarfone, P.~Mell, A.~Souppaya, and M.~Olsen, ``Computer Security Incident Handling Guide,'' NIST Special Publication 800-61 Revision 2, 2012.
+
+\bibitem{mitreattack}
+MITRE, ``MITRE ATT\&CK,'' 2026. [Online]. Available: \url{https://attack.mitre.org/}. Accessed: Apr. 19, 2026.
+
+\bibitem{mitrecve}
+MITRE, ``Common Vulnerabilities and Exposures (CVE),'' 2026. [Online]. Available: \url{https://www.cve.org/}. Accessed: Apr. 19, 2026.
+\end{thebibliography}
