@@ -1,9 +1,9 @@
 # This theme is based on https://github.com/jekyll/minima
 # Please refer above link to know the available configurations
 
-title: ""
+title: "Federated Agentic Defense For Zero-Day Attacks"
 remote_theme: cepdnaclk/eYY-project-theme
-description: ""
+description: "Privacy-preserving threat intelligence framework for zero-day attack defense using federated multi-agent AI."
 markdown: kramdown
 
 kramdown:

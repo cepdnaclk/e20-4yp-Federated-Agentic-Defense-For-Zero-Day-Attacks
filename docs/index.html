@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Privacy-Preserving Threat Intelligence for Zero-Day Attack Defense using federated multi-agent AI." />
+  <title>Federated Agentic Defense for Zero-Day Attacks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#hero">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <div class="brand">
+      <p class="kicker">Final Year Research Project</p>
+      <h1>Federated Agentic Defense for Zero-Day Attacks</h1>
+    </div>
+    <nav aria-label="Primary" class="site-nav">
+      <a href="#hero">Hero</a>
+      <a href="#summary">Project Summary</a>
+      <a href="#highlights">System Highlights</a>
+      <a href="#team">Team</a>
+      <a href="#supervisors">Supervisors</a>
+      <a href="#repository">GitHub Repository</a>
+      <a href="#integrity">Academic Integrity Notice</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="hero" class="section hero">
+      <p class="eyebrow">Privacy-Preserving Cybersecurity Intelligence</p>
+      <h2>Real-time zero-day defense without sharing raw organizational traffic</h2>
+      <p>
+        This project proposes a federated, multi-agent defense pipeline that combines fast anomaly screening, privacy-aware threat classification,
+        and adaptive response policy learning to reduce reaction time against unknown attacks while preserving data sovereignty.
+      </p>
+      <a class="cta" href="#summary">Read Project Summary</a>
+    </section>
+
+    <section id="summary" class="section">
+      <h2>Project Summary</h2>
+      <p>
+        Enterprises operate in a threat landscape where zero-day attacks emerge before signatures, rules, or threat feeds can be updated.
+        Conventional IDS stacks are often tuned for known indicators and become unreliable when adversaries change behavior quickly.
+        Our project addresses this gap with an architecture that balances speed, interpretability, and privacy for practical deployment.
+        The system is organized into three coordinated agents and executed in a federated setting so organizations can improve global defenses
+        without exposing local packet traces.
+      </p>
+      <figure class="inline-figure">
+        <img src="./images/architecture_diagram.png" alt="System architecture diagram of the federated multi-agent defense pipeline" loading="lazy" />
+        <figcaption>
+          The architecture visual summarizes the complete data path, from anomaly gating to privacy-aware classification and adaptive response,
+          showing how each agent contributes to a layered zero-day defense workflow.
+        </figcaption>
+      </figure>
+      <p>
+        Agent 1 is a variational autoencoder that learns normal network-flow behavior and produces reconstruction error for anomaly gating.
+        Instead of classifying every packet with heavy models, this first stage filters the majority of benign traffic in sub-millisecond time,
+        then escalates only suspicious flows. Agent 2 applies differential privacy to model updates and performs multiclass threat classification
+        on the reduced stream. To improve analyst usefulness, the classifier can be paired with a retrieval layer that links detections to
+        contextual intelligence and structured explanations. This design limits expensive reasoning calls to uncertain or high-risk cases rather
+        than all traffic, which keeps operational latency manageable in high-throughput environments.
+      </p>
+      <div class="inline-figure-grid">
+        <figure>
+          <img src="./images/eval_roc_curve.png" alt="ROC curve for anomaly detection performance" loading="lazy" />
+          <figcaption>
+            The ROC curve indicates that the anomaly gate separates benign and suspicious traffic effectively, which is crucial for reducing
+            downstream workload without missing meaningful threats.
+          </figcaption>
+        </figure>
+        <figure>
+          <img src="./images/slide05_dp_privacy_utility.png" alt="Privacy-utility trade-off visualization" loading="lazy" />
+          <figcaption>
+            This privacy-utility comparison highlights the expected trade-off under differential privacy, where stronger privacy budgets introduce
+            moderate but manageable performance reduction.
+          </figcaption>
+        </figure>
+      </div>
+      <p>
+        Agent 3 uses reinforcement learning to recommend mitigation actions across a graded response spectrum, from monitoring and alerting to
+        blocking and isolation. The reward design explicitly balances security gain against business disruption, reflecting a real SOC decision
+        process instead of a purely detection-centric benchmark objective. Across repository materials and presentation analyses, the framework
+        demonstrates a strong pattern: hierarchical cognitive offloading improves throughput and lowers unnecessary computation, while federated
+        rounds with privacy constraints retain competitive detection utility.
+      </p>
+      <div class="inline-figure-grid">
+        <figure>
+          <img src="./images/eval_rl_learning.png" alt="Reinforcement learning curve for response policy" loading="lazy" />
+          <figcaption>
+            The reinforcement learning trend illustrates policy stabilization over training, supporting the goal of selecting proportionate actions
+            for different threat severities.
+          </figcaption>
+        </figure>
+        <figure>
+          <img src="./images/slide12_mttr_comparison.png" alt="Mean time to response comparison chart" loading="lazy" />
+          <figcaption>
+            The response-time comparison demonstrates why automation matters operationally, with significantly faster reaction windows than
+            purely manual intervention paths.
+          </figcaption>
+        </figure>
+      </div>
+      <figure class="inline-figure">
+        <img src="./images/eval_fl_convergence.png" alt="Federated learning convergence trend over rounds" loading="lazy" />
+        <figcaption>
+          The federated convergence plot shows collaborative learning progress across rounds, supporting the claim that global improvements can be
+          achieved without transferring raw organizational traffic.
+        </figcaption>
+      </figure>
+      <p>
+        <strong>Conclusion:</strong> The project contributes a practical path for collaborative zero-day defense where organizations can learn
+        from one another through parameter exchange, maintain formal privacy guarantees, and still produce human-readable threat intelligence for
+        incident response. In short, the system reframes modern IDS as a coordinated pipeline: deterministic screening for speed, selective
+        intelligence enrichment for meaning, and policy-driven mitigation for timely action.
+      </p>
+    </section>
+
+    <section id="highlights" class="section">
+      <h2>System Highlights</h2>
+      <div class="cards">
+        <article class="card">
+          <h3>Hierarchical Cognitive Offloading</h3>
+          <p>Fast anomaly filtering handles bulk traffic, while deeper reasoning is triggered only when uncertainty rises.</p>
+        </article>
+        <article class="card">
+          <h3>Federated Learning Workflow</h3>
+          <p>Organizations keep raw data locally and share model updates to build stronger collective defenses.</p>
+        </article>
+        <article class="card">
+          <h3>Differential Privacy Layer</h3>
+          <p>Noise-added updates and clipping reduce leakage risk while preserving usable threat classification quality.</p>
+        </article>
+        <article class="card">
+          <h3>Action-Oriented Mitigation</h3>
+          <p>Reinforcement learning proposes staged responses aligned with severity and operational constraints.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="team" class="section">
+      <h2>Team</h2>
+      <ul class="people-list">
+        <li><strong>E/20/168</strong> - Jayasinghe B.V.R.R - <a href="mailto:e20168@eng.pdn.ac.lk">e20168@eng.pdn.ac.lk</a></li>
+        <li><strong>E/20/272</strong> - Niroshan B.G.L - <a href="mailto:e20272@eng.pdn.ac.lk">e20272@eng.pdn.ac.lk</a></li>
+        <li><strong>E/20/369</strong> - Seneviratne G.S. - <a href="mailto:e20369@eng.pdn.ac.lk">e20369@eng.pdn.ac.lk</a></li>
+      </ul>
+    </section>
+
+    <section id="supervisors" class="section">
+      <h2>Supervisors</h2>
+      <ul class="people-list">
+        <li>Dr. Suneth Namal Karunarathna - <a href="mailto:namal@eng.pdn.ac.lk">namal@eng.pdn.ac.lk</a></li>
+        <li>Dr. Upul Jayasinghe - <a href="mailto:upuljm@eng.pdn.ac.lk">upuljm@eng.pdn.ac.lk</a></li>
+      </ul>
+    </section>
+
+    <section id="repository" class="section">
+      <h2>GitHub Repository</h2>
+      <p>
+        Canonical source repository:
+        <a href="https://github.com/cepdnaclk/e20-4yp-Federated-Agentic-Defense-For-Zero-Day-Attacks" target="_blank" rel="noopener noreferrer">
+          github.com/cepdnaclk/e20-4yp-Federated-Agentic-Defense-For-Zero-Day-Attacks
+        </a>
+      </p>
+    </section>
+
+    <section id="integrity" class="section integrity">
+      <h2>Academic Integrity Notice</h2>
+      <p>
+        This page was authored specifically for this project using original paraphrased text derived from repository-owned materials,
+        including presentation scripts and research outcome documents. Figures are locally hosted from this repository and are credited
+        to the project team.
+      </p>
+      <p>
+        The team acknowledges that all final content, claims, and publication readiness are subject to supervisor review and approval
+        before any formal submission or external dissemination.
+      </p>
+    </section>
+  </main>
+
+  <button id="to-top" class="to-top" type="button" aria-label="Back to top">Top</button>
+
+  <script src="./script.js"></script>
+</body>
+</html>
