@@ -5,7 +5,7 @@ FROM python:3.12-slim-bookworm AS builder
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /local-agentic-ids
+WORKDIR /app
 
 # Create a virtual environment to isolate dependencies
 RUN python -m venv /opt/venv
@@ -25,7 +25,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 
-WORKDIR /local-agentic-ids
+WORKDIR /app
 
 # Install curl for healthcheck
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
@@ -33,9 +33,14 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Copy the virtual environment from the builder stage
 COPY --from=builder /opt/venv /opt/venv
 
-# Copy your application source code
+# Copy application source code
 COPY . .
 
-# Set the working directory to where your main script resides
-WORKDIR /local-agentic-ids/src
-CMD ["python", "main.py"]
+# Create directory for knowledge base
+RUN mkdir -p /app/knowledge_base
+
+# Expose the port the server runs on
+EXPOSE 8000
+
+# Run the server
+CMD ["python", "-m", "server.global_server"]

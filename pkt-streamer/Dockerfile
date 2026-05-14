@@ -24,7 +24,7 @@ WORKDIR /pkt-streamer
 ENV CSV_PATH="/data/UNSW-NB15_1.csv"
 ENV FEATURES_METADATA="/data/dataset_features.json"
 # Note: This is overridden in docker-compose.yml to use the service name
-ENV API_URL="http://local-agentic-ids:5000/detect"
+ENV API_URL="http://agentic-ids-local:5000/detect"
 ENV API_TIMEOUT=0.5
 ENV STREAM_DELAY=3
 ENV DROP_COLUMNS="attack_cat,Label"
